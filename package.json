@@ -31,7 +31,7 @@
     "sharp": "^0.34.4",
     "tough-cookie": "^6.0.0",
     "typescript-eslint": "^8.44.0",
-    "zod": "^4.1.9"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/bun": "^1.2.22",
