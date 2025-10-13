@@ -12,7 +12,7 @@
         "drizzle-orm": "^0.44.5",
         "html-entities": "^2.6.0",
         "masto": "^7.2.0",
-        "misskey-js": "^2025.9.1-alpha.0",
+        "misskey-js": "^2025.10.0",
         "ora": "^8.2.0",
         "sharp": "^0.34.4",
         "tough-cookie": "^6.0.0",
@@ -560,7 +560,7 @@
 
     "minimist": ["minimist@1.2.8", "", {}, "sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA=="],
 
-    "misskey-js": ["misskey-js@2025.9.1-alpha.0", "", { "dependencies": { "@simplewebauthn/types": "12.0.0", "eventemitter3": "5.0.1", "reconnecting-websocket": "4.4.0" } }, "sha512-SQIUzucVYhYTEhMo6ZpfdWyHEw4NG8lN13FKvslKNidWL1tspYLF4AzJWUnocDp3yFYdoN+aaqJlncNGQn1gTA=="],
+    "misskey-js": ["misskey-js@2025.10.0", "", { "dependencies": { "@simplewebauthn/types": "12.0.0", "eventemitter3": "5.0.1", "reconnecting-websocket": "4.4.0" } }, "sha512-RmwiP8T1uDwF0nEhwgqW5hEfP7m2QbBb0h0Nve39epYKEhHB73LL1aKlAbIWkTsCdXZyuFYXMWbMjKqTQpMopQ=="],
 
     "ms": ["ms@2.1.3", "", {}, "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="],
 
