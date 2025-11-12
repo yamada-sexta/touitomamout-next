@@ -94,8 +94,7 @@ export async function syncPosts(args: {
                             platform: s.platformId,
                             platformStore: storeStr,
                         });
-                        platformLog.succeed(`${s.emoji} ${s.displayName} synced`)
-
+                        platformLog.succeed(`${s.emoji} ${s.displayName} synced`);
                     } catch (e) {
                         logError(platformLog, e)`Failed to sync tweet ${tweet.id} to ${s.displayName}: ${e}`
                         console.warn(e)

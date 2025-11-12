@@ -148,8 +148,6 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           quotePost,
           tweet,
         };
-        
-        // const hasMedia = false;
 
         const quoteRecord: $Typed<AppBskyEmbedRecord.Main> | undefined =
           post.quotePost
@@ -233,6 +231,10 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           }
         }
 
+        if (!media) {
+          log.info(`no media to upload for tweet ${tweet.id}`);
+        }
+
         if (!media && !post.tweet.text) {
           log.warn(
             `☁️ | post skipped: no compatible media nor text to post (tweet: ${post.tweet.id})`,
@@ -260,15 +262,18 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           // --- Case 4: No quote or media, fall back to checking for external link cards ---
           firstEmbed = externalRecord;
         }
+
         const chunkReferences: Array<
           {
             cid: string;
             rkey: string;
           } & { uri: string }
         > = [];
+
         if (DEBUG) {
           console.log({ firstEmbed });
         }
+        
         for (let i = 0; i < post.chunks.length; i++) {
           const chunk = post.chunks[i];
 

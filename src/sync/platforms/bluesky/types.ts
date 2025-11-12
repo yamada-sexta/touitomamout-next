@@ -1,5 +1,6 @@
 import { AppBskyFeedPost } from "@atproto/api";
 import { Tweet } from "@the-convocation/twitter-scraper";
+import { MetaPost } from "types/meta-tweet";
 import z from "zod";
 
 export const BLUESKY_KEYS = [
@@ -19,7 +20,7 @@ export type BlueskyPostReference = {
 };
 
 export type BlueskyPost = {
-  tweet: Tweet;
+  tweet: MetaPost;
   chunks: string[];
   username: string;
   quotePost?: BlueskyPostReference;

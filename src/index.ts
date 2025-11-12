@@ -64,7 +64,7 @@ const factories = [
   DiscordWebhookSynchronizerFactory,
 ] as const;
 
-const twitterClient = await createTwitterClient({
+const xClient = await createTwitterClient({
   twitterPassword: TWITTER_PASSWORD,
   twitterUsername: TWITTER_USERNAME,
   db,
@@ -113,7 +113,7 @@ for (const handle of TWITTER_HANDLES) {
 
     try {
       const s = await factory.create({
-        xClient: twitterClient,
+        xClient: xClient,
         env: env as EnvType,
         db: db,
         slot: handle.slot,
@@ -157,7 +157,7 @@ const syncAll = async () => {
     );
     console.log(`| @${user.handle.handle}`);
     await syncProfile({
-      x: twitterClient,
+      x: xClient,
       twitterHandle: user.handle,
       synchronizers: user.synchronizers,
       db,
@@ -169,7 +169,7 @@ const syncAll = async () => {
     await syncPosts({
       db,
       handle: user.handle,
-      x: twitterClient,
+      x: xClient,
       synchronizers: user.synchronizers,
     });
     console.log(`| ${user.handle.handle} is up-to-date ᐠ( ᐛ )ᐟ`);
