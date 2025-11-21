@@ -4,8 +4,8 @@ services:
     build:
       context: ./  # ← This will build the image from the source code
     restart: unless-stopped
+    env_file: ".env"
     environment:
-      - ENV_FILE=/data/.env
       - STORAGE_DIR=/data
     volumes:
       - ./data:/data
