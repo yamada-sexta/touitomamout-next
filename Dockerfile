@@ -4,7 +4,7 @@ FROM oven/bun:alpine
 RUN apk add --no-cache ca-certificates libc6-compat
 
 WORKDIR /app
-COPY package.json bun.lock tsconfig.json .eslintrc.json /app/
+COPY package.json bun.lock tsconfig.json /app/
 
 RUN bun install
 
