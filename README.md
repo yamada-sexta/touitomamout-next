@@ -18,9 +18,9 @@ An easy way to synchronize your posts on 𝕏 to other social media platforms.
 
 ## What's different about this Fork?
 
-- Build on Bun
+- Built on Bun
 - Better default environment settings
-- Multi account support
+- Multi-account support
 - More platforms
 
 <img width="3743" height="1736" alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
@@ -148,7 +148,7 @@ MISSKEY_ACCESS_CODE2=zzzzzzzzzzzzzzzzzzzzzz
 
 ## Documentation
 
-You'll find everything you need, from the project's discovery to its deployment, as well as its configuration and some technical deep dives.
+You'll find everything you need, from project overview to its deployment, as well as its configuration and some technical deep dives.
 
 [<img src="https://github.com/louisgrasset/touitomamout/raw/main/.github/docs/documentation-center.svg"  width="300px"/>](https://github.com/yamada-sexta/touitomamout/wiki)
 
