@@ -23,6 +23,9 @@ An easy way to synchronize your posts on 𝕏 to other social media platforms.
 - Multi account support
 - More platforms
 
+<img width="3743" height="1736" alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
+
+
 ## Supported platforms
 
 - 🦣 [Mastodon](https://joinmastodon.org/)
