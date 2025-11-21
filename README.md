@@ -6,13 +6,13 @@
   </a>
 </p>
 
-[![Release](https://img.shields.io/github/package-json/v/yamada-sexta/touitomamout/main?label=release&color=#4c1)](https://github.com/yamada-sexta/touitomamout/releases)
-[![License](https://img.shields.io/github/license/yamada-sexta/touitomamout?color=#4c1)](https://github.com/yamada-sexta/touitomamout/blob/main/LICENSE)
-[![Contributors](https://img.shields.io/github/contributors/yamada-sexta/touitomamout)](https://github.com/yamada-sexta/touitomamout/graphs/contributors)
-[![Issues](https://img.shields.io/github/issues/yamada-sexta/touitomamout)](https://github.com/yamada-sexta/touitomamout/issues)
-[![Github Stars](https://img.shields.io/github/stars/yamada-sexta/touitomamout?color=ffe34e)](https://github.com/yamada-sexta/touitomamout)
-[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fyamada--sexta%2Ftouitomamout-086dd7?logo=github)](https://ghcr.io/yamada-sexta/touitomamout)
-[![Docker](https://img.shields.io/github/actions/workflow/status/yamada-sexta/touitomamout/docker.yml?label=Docker)](https://github.com/yamada-sexta/touitomamout/actions/workflows/docker.yml)
+[![Release](https://img.shields.io/github/package-json/v/yamada-sexta/touitomamout-next/main?label=release&color=#4c1)](https://github.com/yamada-sexta/touitomamout-next/releases)
+[![License](https://img.shields.io/github/license/yamada-sexta/touitomamout-next?color=#4c1)](https://github.com/yamada-sexta/touitomamout-next/blob/main/LICENSE)
+[![Contributors](https://img.shields.io/github/contributors/yamada-sexta/touitomamout-next)](https://github.com/yamada-sexta/touitomamout-next/graphs/contributors)
+[![Issues](https://img.shields.io/github/issues/yamada-sexta/touitomamout-next)](https://github.com/yamada-sexta/touitomamout-next/issues)
+[![Github Stars](https://img.shields.io/github/stars/yamada-sexta/touitomamout-next?color=ffe34e)](https://github.com/yamada-sexta/touitomamout-next)
+[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fyamada--sexta%2Ftouitomamout-086dd7?logo=github)](https://ghcr.io/yamada-sexta/touitomamout-next)
+[![Docker](https://img.shields.io/github/actions/workflow/status/yamada-sexta/touitomamout-next/docker.yml?label=Docker)](https://github.com/yamada-sexta/touitomamout-next/actions/workflows/docker.yml)
 
 An easy way to synchronize your posts on 𝕏 to other social media platforms.
 
