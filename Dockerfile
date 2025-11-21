@@ -1,5 +1,8 @@
 FROM oven/bun:alpine
 
+# Install dependencies for cycleTLS
+RUN apk add --no-cache ca-certificates
+
 WORKDIR /app
 COPY package.json bun.lock tsconfig.json .eslintrc.json /app/
 
