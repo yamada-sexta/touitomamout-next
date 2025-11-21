@@ -20,9 +20,12 @@ import {
 } from "./env";
 import { MisskeySynchronizerFactory } from "sync/platforms/misskey/missky-sync";
 import { DiscordWebhookSynchronizerFactory } from "sync/platforms/discord-webhook/webhook-sync";
+import { cycleTLSExit } from "@the-convocation/twitter-scraper/cycletls";
 
 let interval: NodeJS.Timeout | null = null;
 process.on("exit", (code) => {
+  // Clean up CycleTLS resources
+  cycleTLSExit();
   console.log(`Process exited with code ${code}`);
 });
 // Register event

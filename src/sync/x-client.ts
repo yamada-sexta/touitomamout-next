@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import ora from "ora";
 import { Cookie } from "tough-cookie";
 import { oraPrefixer } from "utils/logs";
+import { cycleTLSFetch, cycleTLSExit } from '@the-convocation/twitter-scraper/cycletls';
 
 export async function createTwitterClient({
   twitterPassword,
@@ -20,7 +21,8 @@ export async function createTwitterClient({
   }).start("connecting to twitter...");
 
   const client = new Scraper({
-    fetch: fetch,
+    // fetch: fetch,
+    fetch: cycleTLSFetch as typeof fetch,
     rateLimitStrategy: {
       async onRateLimit(e) {
         // console.log(e)
