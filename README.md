@@ -22,6 +22,7 @@ An easy way to synchronize your posts on 𝕏 to other social media platforms.
 - Better default environment settings
 - Multi-account support
 - More platforms
+- TLS Spoofing
 
 <img width="3743" height="1736" alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
 
