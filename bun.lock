@@ -4,25 +4,25 @@
     "": {
       "name": "touitomamout",
       "dependencies": {
-        "@atproto/api": "^0.16.11",
+        "@atproto/api": "^0.18.1",
         "@mailbutler/eldr": "^1.3.1",
-        "@the-convocation/twitter-scraper": "^0.20.0",
+        "@the-convocation/twitter-scraper": "^0.20.4",
         "cli-spinners": "^3.3.0",
         "cycletls": "^2.0.5",
-        "discord-api-types": "^0.38.33",
+        "discord-api-types": "^0.38.34",
         "drizzle-orm": "^0.44.7",
         "html-entities": "^2.6.0",
-        "masto": "^7.4.0",
-        "misskey-js": "^2025.10.2",
+        "masto": "^7.5.0",
+        "misskey-js": "^2025.11.0",
         "ora": "^8.2.0",
         "sharp": "^0.34.5",
         "tough-cookie": "^6.0.0",
-        "typescript-eslint": "^8.46.4",
+        "typescript-eslint": "^8.47.0",
         "zod": "^4.1.12",
       },
       "devDependencies": {
-        "@types/bun": "^1.3.2",
-        "drizzle-kit": "^0.31.6",
+        "@types/bun": "^1.3.3",
+        "drizzle-kit": "^0.31.7",
         "eslint": "^8.57.1",
         "eslint-config-prettier": "^9.1.2",
         "eslint-plugin-import": "^2.32.0",
@@ -35,7 +35,7 @@
   "packages": {
     "@aashutoshrathi/word-wrap": ["@aashutoshrathi/word-wrap@1.2.6", "", {}, "sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA=="],
 
-    "@atproto/api": ["@atproto/api@0.16.11", "", { "dependencies": { "@atproto/common-web": "^0.4.3", "@atproto/lexicon": "^0.5.1", "@atproto/syntax": "^0.4.1", "@atproto/xrpc": "^0.7.5", "await-lock": "^2.2.2", "multiformats": "^9.9.0", "tlds": "^1.234.0", "zod": "^3.23.8" } }, "sha512-1dhfQNHiclb102RW+Ea8Nft5olfqU0Ev/vlQaSX6mWNo1aP5zT+sPODJ8+BTUOYk3vcuvL7QMkqA/rLYy2PMyw=="],
+    "@atproto/api": ["@atproto/api@0.18.1", "", { "dependencies": { "@atproto/common-web": "^0.4.3", "@atproto/lexicon": "^0.5.1", "@atproto/syntax": "^0.4.1", "@atproto/xrpc": "^0.7.5", "await-lock": "^2.2.2", "multiformats": "^9.9.0", "tlds": "^1.234.0", "zod": "^3.23.8" } }, "sha512-eK8Us3kRfK+KjxEq/abF3XL4qtqxh7a5GbKHaUGQqPxNGmLiIdFn4Ve4PkpP/OsDfcRMZF5CK47Jr7SARc7ttg=="],
 
     "@atproto/common-web": ["@atproto/common-web@0.4.3", "", { "dependencies": { "graphemer": "^1.4.0", "multiformats": "^9.9.0", "uint8arrays": "3.0.0", "zod": "^3.23.8" } }, "sha512-nRDINmSe4VycJzPo6fP/hEltBcULFxt9Kw7fQk6405FyAWZiTluYHlXOnU7GkQfeUK44OENG1qFTBcmCJ7e8pg=="],
 
