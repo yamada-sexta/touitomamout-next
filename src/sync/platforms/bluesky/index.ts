@@ -1,4 +1,4 @@
-import AtpAgent, {
+import {
   $Typed,
   Agent,
   AppBskyEmbedExternal,
@@ -85,15 +85,14 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
       new URL(`https://${blueskyInstance}`),
     );
 
-    // ? there is literally no documentation on the alternative
-    const agent = new AtpAgent(session);
+    const agent = new Agent(session);
     const identifier = args.env.BLUESKY_IDENTIFIER;
     const password = args.env.BLUESKY_PASSWORD;
     const platformId = BlueskySynchronizerFactory.PLATFORM_ID;
     const env = args.env;
     const db = args.db;
 
-    await agent.login({
+    await session.login({
       identifier,
       password,
     });
