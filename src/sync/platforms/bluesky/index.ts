@@ -20,13 +20,12 @@ import {
 import { parseBlobForBluesky } from "sync/platforms/bluesky/utils/parse-blob-for-bluesky";
 import { splitTextForBluesky } from "sync/platforms/bluesky/utils/split-text";
 
-import { getPostStore, getPostStoreStr } from "utils/get-post-store";
+import { getPostStore } from "utils/get-post-store";
 import { logError, oraProgress } from "utils/logs";
 import { getPostExcerpt } from "utils/post/get-post-excerpt";
-// import { downloadTweet } from "utils/tweet/download-tweet";
 import z from "zod";
 
-import { SynchronizerFactory } from "../../synchronizer";
+import { type SynchronizerFactory } from "../../synchronizer";
 import { syncProfile } from "./sync-profile";
 import { BLUESKY_KEYS, BlueskyPlatformStore, BlueskyPost } from "./types";
 
