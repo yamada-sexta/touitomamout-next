@@ -1,0 +1,102 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+permissions:
+  contents: write # Required to create a release and push tags
+
+jobs:
+  build-and-release:
+    name: Cross-compile and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Create dist directory
+        run: mkdir -p dist
+
+      # ---------------------------------------------------------
+      # Cross-compilation Steps
+      # ---------------------------------------------------------
+      
+      - name: Build for Linux (x64)
+        run: |
+          bun build ./src/index.ts \
+          --compile \
+          --target=bun-linux-x64 \
+          --outfile dist/touitomamout-linux-x64
+
+      - name: Build for Linux (x64, musl)
+        run: |
+          bun build ./src/index.ts \
+          --compile \
+          --target=bun-linux-x64-musl \
+          --outfile dist/touitomamout-linux-x64-musl
+
+      - name: Build for Linux (arm64, musl)
+        run: |
+          bun build ./src/index.ts \
+          --compile \
+          --target=bun-linux-arm64-musl \
+          --outfile dist/touitomamout-linux-arm64-musl
+
+      - name: Build for Windows (x64)
+        run: |
+          bun build ./src/index.ts \
+          --compile \
+          --target=bun-windows-x64 \
+          --outfile dist/touitomamout-windows-x64.exe
+
+      - name: Build for macOS (Intel x64)
+        run: |
+          bun build ./src/index.ts \
+          --compile \
+          --target=bun-darwin-x64 \
+          --outfile dist/touitomamout-macos-x64
+
+      - name: Build for macOS (Apple Silicon arm64)
+        run: |
+          bun build ./src/index.ts \
+          --compile \
+          --target=bun-darwin-arm64 \
+          --outfile dist/touitomamout-macos-arm64
+
+      # ---------------------------------------------------------
+      # Tagging and Releasing
+      # ---------------------------------------------------------
+
+      - name: Generate Timestamp Tag
+        id: tag_gen
+        run: |
+          # Creates a tag like v2024.11.24-1530
+          echo "VERSION_TAG=v$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION_TAG }}
+          name: Release ${{ env.VERSION_TAG }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/touitomamout-linux-x64
+            dist/touitomamout-linux-x64-musl
+            dist/touitomamout-linux-arm64-musl
+            dist/touitomamout-windows-x64.exe
+            dist/touitomamout-macos-x64
+            dist/touitomamout-macos-arm64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
