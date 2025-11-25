@@ -2,7 +2,7 @@ services:
   touitomamout:
     container_name: "touitomamout"
     build:
-      context: ./  # This will build the image from the source code
+      context: .  # This will build the image from the source code
     restart: unless-stopped
     env_file: ".env"
     environment:
