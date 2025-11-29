@@ -6,7 +6,7 @@
   </a>
 </p>
 
-Synchronize your posts on 𝕏 to other social media platforms with ease.
+Synchronize your 𝕏 posts to other social media platforms with ease.
 
 [![Release](https://img.shields.io/github/package-json/v/yamada-sexta/touitomamout-next/main?label=release&color=#4c1)](https://github.com/yamada-sexta/touitomamout-next/releases)
 [![License](https://img.shields.io/github/license/yamada-sexta/touitomamout-next?color=#4c1)](https://github.com/yamada-sexta/touitomamout-next/blob/main/LICENSE)
