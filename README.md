@@ -6,7 +6,9 @@
   </a>
 </p>
 
+<p align="center">
 Synchronize your 𝕏 posts to other social media platforms with ease.
+</p>
 
 [![Release](https://img.shields.io/github/v/release/yamada-sexta/touitomamout-next?label=release&style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/releases)
 [![Github Stars](https://img.shields.io/github/stars/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
