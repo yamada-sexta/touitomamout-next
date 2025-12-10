@@ -1,1 +1,3 @@
 telemetry = false
+[loader]
+".wasm" = "file"
