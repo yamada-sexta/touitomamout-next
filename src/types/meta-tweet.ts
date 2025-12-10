@@ -41,9 +41,18 @@ export interface MetaPost extends ValidPost {
 
 export const formatTweetText = (tweet: Tweet): string => {
     let text = tweet.text ?? "";
+    
+    // Track which URLs were replaced in the text
+    const replacedUrls = new Set<string>();
+    
     // Replace urls
     tweet.urls.forEach((url) => {
+        const beforeReplace = text;
         text = text.replace(/https:\/\/t\.co\/\w+/, url);
+        // If text changed, this URL was replaced
+        if (beforeReplace !== text) {
+            replacedUrls.add(url);
+        }
     });
 
     // Remove medias t.co links
@@ -51,6 +60,13 @@ export const formatTweetText = (tweet: Tweet): string => {
 
     // Replace HTML entities with their unicode equivalent
     text = decode(text);
+
+    // Append any URLs that weren't replaced (card-only URLs)
+    const unreplacedUrls = tweet.urls.filter(url => !replacedUrls.has(url));
+    if (unreplacedUrls.length > 0) {
+        const urlsToAppend = unreplacedUrls.join("\n");
+        text = text.trim() + (text.trim() ? "\n\n" : "") + urlsToAppend;
+    }
 
     // Return formatted
     return text.trim();
