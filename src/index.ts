@@ -190,3 +190,4 @@ if (DAEMON) {
     SYNC_FREQUENCY_MIN * 60 * 1000,
   );
 }
+cycleTLSExit();
