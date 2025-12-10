@@ -1,5 +1,6 @@
 import { DEBUG } from "env";
 import Vips from 'wasm-vips';
+import "./node_modules/wasm-vips/lib/vips.wasm";
 
 const vips = await Vips();
 
