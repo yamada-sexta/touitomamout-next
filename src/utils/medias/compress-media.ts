@@ -1,8 +1,6 @@
 import { DEBUG } from "env";
-import Vips from 'wasm-vips';
-import "wasm-vips/vips.wasm";
 
-const vips = await Vips();
+const photon = require("@silvia-odwyer/photon-node");
 
 const findSmallerBuffer = (
   compressedBuffers: CompressedBuffer[],
@@ -46,13 +44,13 @@ export async function compressMedia(
     return inputBlob;
   }
 
-  // Initialize vips
-  // const vips = await getVips();
-
-  // Load the image and get metadata
-  using im = vips.Image.newFromBuffer(inputBuffer);
-  let width = im.width;
-  let height = im.height;
+  // Convert buffer to base64 for Photon
+  const base64Data = inputBuffer.toString('base64');
+  
+  // Load the image with Photon
+  let photonImg = photon.PhotonImage.new_from_base64(base64Data);
+  let width = photonImg.get_width();
+  let height = photonImg.get_height();
 
   // Initial quality (compression level) and size decrease step
   let quality = 100;
@@ -61,53 +59,29 @@ export async function compressMedia(
 
   // Loop until the image size is below the target size
   while (compressedBuffer.buffer.length > targetSizeInBytes && quality > 60) {
-    // Test quality for each format
-    const formats: FormatConfig[] = [
-      { extension: '.jpg', formatName: 'jpeg' },
-      { extension: '.png', formatName: 'png' }
-    ];
+    // Resize image if needed
+    const newWidth = Math.ceil(width);
+    const newHeight = Math.ceil(height);
+    
+    if (newWidth !== photonImg.get_width() || newHeight !== photonImg.get_height()) {
+      photonImg = photon.resize(photonImg, newWidth, newHeight, 1); // 1 = Lanczos3 sampling filter
+    }
 
-    const compressWithFormat = async (
-      acc: Promise<CompressedBuffer[]>,
-      currentFormat: FormatConfig,
-    ) => {
-      try {
-        // Load and resize image
-        using image = vips.Image.newFromBuffer(inputBuffer);
-        using resized = image.resize(width / image.width);
+    // Get base64 output
+    const outputBase64 = photonImg.get_base64();
+    const outputData = outputBase64.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(outputData, 'base64');
 
-        // Write to buffer with quality settings
-        const buffer = Buffer.from(
-          resized.writeToBuffer(currentFormat.extension, {
-            Q: quality,
-          })
-        );
-
-        return [...(await acc), { buffer, format: currentFormat.formatName }];
-      } catch (error) {
-        console.error(`Error processing format ${currentFormat.formatName}: ${error}`);
-        return await acc;
-      }
+    compressedBuffer = {
+      buffer,
+      format: inputBlob.type,
     };
-
-    // Compress the image with each format
-    await formats
-      .reduce(compressWithFormat, Promise.resolve([]))
-      .then(findSmallerBuffer)
-      .then((buffer) => {
-        if (buffer) {
-          compressedBuffer = {
-            ...buffer,
-            format: `image/${buffer.format}`,
-          };
-        }
-      });
 
     // If quality is too low, resize the image and restart
     if (quality <= 65) {
       quality = 100;
-      width = Math.ceil(width * resizeRatio);
-      height = Math.ceil(height * resizeRatio);
+      width = width * resizeRatio;
+      height = height * resizeRatio;
     } else {
       quality -= sizeDecreaseStep;
     }
