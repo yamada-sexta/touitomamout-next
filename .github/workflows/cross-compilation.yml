@@ -15,26 +15,15 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
       - name: Install dependencies
         run: bun install
-
-      - name: Install platform-specific sharp binaries
-        run: |
-          SHARP_VERSION=$(node -p "require('./package.json').dependencies.sharp")
-          npm install --cpu=x64 --os=win32 --no-save @img/sharp-win32-x64@${SHARP_VERSION}
-          npm install --cpu=x64 --os=darwin --no-save @img/sharp-darwin-x64@${SHARP_VERSION}
-          npm install --cpu=arm64 --os=darwin --no-save @img/sharp-darwin-arm64@${SHARP_VERSION}
-          npm install --cpu=arm64 --os=linux --libc=musl --no-save @img/sharp-linuxmusl-arm64@${SHARP_VERSION}
-          npm install --cpu=x64 --os=darwin --no-save @img/sharp-libvips-darwin-x64@${SHARP_VERSION}
-          npm install --cpu=arm64 --os=darwin --no-save @img/sharp-libvips-darwin-arm64@${SHARP_VERSION}
-          npm install --cpu=arm64 --os=linux --libc=musl --no-save @img/sharp-libvips-linuxmusl-arm64@${SHARP_VERSION}
 
       - name: Create dist directory
         run: mkdir -p dist
