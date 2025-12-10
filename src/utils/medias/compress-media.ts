@@ -1,15 +1,7 @@
 import { DEBUG } from "env";
 import Vips from 'wasm-vips';
 
-// Initialize vips instance (reused across calls)
-let vipsInstance: Awaited<ReturnType<typeof Vips>> | null = null;
-
-const getVips = async () => {
-  if (!vipsInstance) {
-    vipsInstance = await Vips();
-  }
-  return vipsInstance;
-};
+const vips = await Vips();
 
 const findSmallerBuffer = (
   compressedBuffers: CompressedBuffer[],
@@ -54,7 +46,7 @@ export async function compressMedia(
   }
 
   // Initialize vips
-  const vips = await getVips();
+  // const vips = await getVips();
 
   // Load the image and get metadata
   using im = vips.Image.newFromBuffer(inputBuffer);
