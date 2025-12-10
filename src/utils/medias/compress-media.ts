@@ -15,11 +15,6 @@ type CompressedBuffer = {
   format: string;
 };
 
-type FormatConfig = {
-  extension: string;
-  formatName: string;
-};
-
 export async function compressMedia(
   inputBlob: Blob,
   targetSizeInBytes: number,
