@@ -1,6 +1,6 @@
 import { DEBUG } from "env";
 
-const photon = require("@silvia-odwyer/photon-node");
+import photon from "@silvia-odwyer/photon-node";
 
 const findSmallerBuffer = (
   compressedBuffers: CompressedBuffer[],
@@ -44,11 +44,8 @@ export async function compressMedia(
     return inputBlob;
   }
 
-  // Convert buffer to base64 for Photon
-  const base64Data = inputBuffer.toString('base64');
-  
   // Load the image with Photon
-  let photonImg = photon.PhotonImage.new_from_base64(base64Data);
+  let photonImg = photon.PhotonImage.new_from_blob(inputBlob);
   let width = photonImg.get_width();
   let height = photonImg.get_height();
 
@@ -62,19 +59,16 @@ export async function compressMedia(
     // Resize image if needed
     const newWidth = Math.ceil(width);
     const newHeight = Math.ceil(height);
-    
+
     if (newWidth !== photonImg.get_width() || newHeight !== photonImg.get_height()) {
       photonImg = photon.resize(photonImg, newWidth, newHeight, 1); // 1 = Lanczos3 sampling filter
     }
 
-    // Get base64 output
-    const outputBase64 = photonImg.get_base64();
-    const outputData = outputBase64.replace(/^data:image\/\w+;base64,/, '');
-    const buffer = Buffer.from(outputData, 'base64');
-
+    const u8Array: Uint8Array = photonImg.get_bytes_jpeg(quality);
+    const buffer = Buffer.from(u8Array);
     compressedBuffer = {
-      buffer,
-      format: inputBlob.type,
+      buffer: buffer,
+      format: "image/jpeg",
     };
 
     // If quality is too low, resize the image and restart
