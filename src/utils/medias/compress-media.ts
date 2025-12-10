@@ -1,5 +1,15 @@
 import { DEBUG } from "env";
-import sharp from "sharp";
+import Vips from 'wasm-vips';
+
+// Initialize vips instance (reused across calls)
+let vipsInstance: Awaited<ReturnType<typeof Vips>> | null = null;
+
+const getVips = async () => {
+  if (!vipsInstance) {
+    vipsInstance = await Vips();
+  }
+  return vipsInstance;
+};
 
 const findSmallerBuffer = (
   compressedBuffers: CompressedBuffer[],
@@ -14,12 +24,15 @@ type CompressedBuffer = {
   format: string;
 };
 
-export const compressMedia = async (
+type FormatConfig = {
+  extension: string;
+  formatName: string;
+};
+
+export async function compressMedia(
   inputBlob: Blob,
   targetSizeInBytes: number,
-): Promise<Blob | void> => {
-  // console.log("compressing", inputBlob.type);
-
+): Promise<Blob | void> {
   if (inputBlob.type.startsWith("video/")) {
     console.log("Unable to compress videos");
     return;
@@ -40,34 +53,46 @@ export const compressMedia = async (
     return inputBlob;
   }
 
-  // Initial image dimensions
-  const metadata = await sharp(inputBuffer).metadata();
-  let width = metadata.width ?? 1;
-  let height = metadata.height ?? 1;
+  // Initialize vips
+  const vips = await getVips();
+
+  // Load the image and get metadata
+  using im = vips.Image.newFromBuffer(inputBuffer);
+  let width = im.width;
+  let height = im.height;
 
   // Initial quality (compression level) and size decrease step
   let quality = 100;
   const sizeDecreaseStep = 5;
-  const resizeRatio = 0.95; // You can adjust this ratio as needed
+  const resizeRatio = 0.95;
 
   // Loop until the image size is below the target size
   while (compressedBuffer.buffer.length > targetSizeInBytes && quality > 60) {
     // Test quality for each format
-    const formats = [sharp.format.jpeg, sharp.format.png]; // Use sharp.format instead of format
+    const formats: FormatConfig[] = [
+      { extension: '.jpg', formatName: 'jpeg' },
+      { extension: '.png', formatName: 'png' }
+    ];
 
     const compressWithFormat = async (
       acc: Promise<CompressedBuffer[]>,
-      currentFormat: sharp.AvailableFormatInfo,
+      currentFormat: FormatConfig,
     ) => {
       try {
-        const buffer = await sharp(inputBuffer)
-          .resize({ width, height })
-          .toFormat(currentFormat, { quality })
-          .toBuffer();
+        // Load and resize image
+        using image = vips.Image.newFromBuffer(inputBuffer);
+        using resized = image.resize(width / image.width);
 
-        return [...(await acc), { buffer, format: currentFormat.id }];
+        // Write to buffer with quality settings
+        const buffer = Buffer.from(
+          resized.writeToBuffer(currentFormat.extension, {
+            Q: quality,
+          })
+        );
+
+        return [...(await acc), { buffer, format: currentFormat.formatName }];
       } catch (error) {
-        console.error(`Error processing format:${currentFormat}: ${error}`);
+        console.error(`Error processing format ${currentFormat.formatName}: ${error}`);
         return await acc;
       }
     };
@@ -97,8 +122,7 @@ export const compressMedia = async (
 
   if (DEBUG) {
     console.log(
-      `Compression results : ${inputBuffer.length / 1000}kB -> ${
-        compressedBuffer.buffer.length / 1000
+      `Compression results : ${inputBuffer.length / 1000}kB -> ${compressedBuffer.buffer.length / 1000
       }kB`,
     );
   }
