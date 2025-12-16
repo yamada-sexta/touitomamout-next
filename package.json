@@ -29,7 +29,7 @@
     "@the-convocation/twitter-scraper": "^0.21.0",
     "cli-spinners": "^3.3.0",
     "cycletls": "^2.0.5",
-    "discord-api-types": "^0.38.36",
+    "discord-api-types": "^0.38.37",
     "drizzle-orm": "^0.45.0",
     "html-entities": "^2.6.0",
     "masto": "^7.8.0",
