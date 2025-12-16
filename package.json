@@ -29,15 +29,15 @@
     "@the-convocation/twitter-scraper": "^0.21.0",
     "cli-spinners": "^3.3.0",
     "cycletls": "^2.0.5",
-    "discord-api-types": "^0.38.36",
-    "drizzle-orm": "^0.45.0",
+    "discord-api-types": "^0.38.37",
+    "drizzle-orm": "^0.45.1",
     "html-entities": "^2.6.0",
-    "masto": "^7.8.0",
-    "misskey-js": "^2025.12.0",
+    "masto": "^7.9.0",
+    "misskey-js": "^2025.12.1",
     "ora": "^9.0.0",
     "tough-cookie": "^6.0.0",
     "drizzle-kit": "0.31.7",
-    "zod": "^4.1.13"
+    "zod": "^4.2.0"
   },
   "devDependencies": {
     "@types/bun": "^1.3.4",
