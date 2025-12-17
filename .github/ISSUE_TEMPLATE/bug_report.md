@@ -19,7 +19,7 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+**Logs**
 Logs, ideally with `TOUITOMAMOUT_DEBUG` set to TRUE.
 
 **Additional supporting information**
