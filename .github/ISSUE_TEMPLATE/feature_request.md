@@ -14,7 +14,7 @@ assignees: []
 ## Proposed Change
 
 - Briefly describe expected behavior or output.
-- Target platforms (choose any): Bluesky / Mastodon / Misskey / Discord
+- Target platforms (or new platform): Bluesky / Mastodon / Misskey / Discord / etc.
 
 ## Use Case
 
