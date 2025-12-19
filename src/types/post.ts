@@ -5,6 +5,7 @@ import { buildChunksFromSplitterEntries } from "utils/tweet/split-tweet-text/spl
 import { download } from "utils/medias/download-media";
 import z from "zod";
 import { debug } from "utils/logs";
+import { X_EMB_FIX } from "env";
 
 export const MentionSchema = z.object({
   id: z.string(),
@@ -117,18 +118,28 @@ export type MetaPost = {
   text: string;
   language: string;
   sensitiveContent: boolean;
+  quotedStatus?: MetaPost;
+  retweetedStatus?: MetaPost;
+  embLink?: string;
 
   /**
    * Splits the post text into chunks for a target platform.
    */
   chunk: (args: SplitTextArgs) => Promise<string[]>;
 
-  videoFiles: () => Promise<DownloadedVideo[]>;
-  photoFiles: () => Promise<DownloadedPhoto[]>;
+  getVideos: () => Promise<DownloadedVideo[]>;
+  getPhotos: () => Promise<DownloadedPhoto[]>;
 } & Post;
 
 export const formatTweetText = (tweet: Post): string => {
   let text = tweet.text ?? "";
+  if (tweet.isRetweet && tweet.retweetedStatus) {
+    // For retweets, remove the "RT @username: " prefix
+    const rtPrefix = `RT @${tweet.retweetedStatus.username}: `;
+    if (text.startsWith(rtPrefix)) {
+      text = text.slice(rtPrefix.length);
+    }
+  }
 
   // Track which URLs were replaced in the text
   const replacedUrls = new Set<string>();
@@ -172,8 +183,24 @@ export const toMetaPost = (tweet: Post): MetaPost => {
   let videoFiles: DownloadedVideo[] | undefined;
   let photoFiles: DownloadedPhoto[] | undefined;
 
-  return {
+  const embLink = tweet.permanentUrl
+    ? (() => {
+        const link = new URL(tweet.permanentUrl!);
+        const domain = X_EMB_FIX;
+        link.hostname = domain;
+        return link.toString();
+      })()
+    : undefined;
+
+  const meta: MetaPost = {
     ...tweet,
+    quotedStatus: tweet.quotedStatus
+      ? toMetaPost(tweet.quotedStatus)
+      : undefined,
+    retweetedStatus: tweet.retweetedStatus
+      ? toMetaPost(tweet.retweetedStatus)
+      : undefined,
+    embLink,
     datetime: new Date((tweet.timestamp ?? 0) * 1000),
     text,
     rawText: tweet.text,
@@ -190,7 +217,7 @@ export const toMetaPost = (tweet: Post): MetaPost => {
       });
     },
 
-    async videoFiles() {
+    async getVideos() {
       if (videoFiles !== undefined) {
         return videoFiles;
       }
@@ -199,12 +226,12 @@ export const toMetaPost = (tweet: Post): MetaPost => {
         tweet.videos.map(async (v): Promise<DownloadedVideo> => {
           const file = await download(v.url);
           return { ...v, file };
-        }),
+        })
       );
       videoFiles = files;
       return files;
     },
-    async photoFiles() {
+    async getPhotos() {
       if (photoFiles !== undefined) {
         return photoFiles;
       }
@@ -213,10 +240,14 @@ export const toMetaPost = (tweet: Post): MetaPost => {
         tweet.photos.map(async (photo): Promise<DownloadedPhoto> => {
           const blob = await download(photo.url);
           return { ...photo, file: blob };
-        }),
+        })
       );
       photoFiles = downloadedPhotos;
       return photoFiles;
     },
   };
+
+  debug("Converted to MetaPost:", { meta });
+
+  return meta;
 };

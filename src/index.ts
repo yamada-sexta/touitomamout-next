@@ -44,22 +44,6 @@ process.on("SIGTERM", () => {
 
 console.log(`\n
   Touitomamout@v${TOUITOMAMOUT_VERSION}
-    \\
-⠀⠀⠀⠀⠀⠀⢀⣠⠤⠔⠒⠒⠒⠒⠒⠢⠤⢤⡀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⢀⠴⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠲⣄⠀⠀⠀
-⠀⠀⡰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠋⠦⠀
-⠀⡸⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣧
-⠀⡇⠀⠀⠀⢀⡶⠛⣿⣷⡄⠀⠀⠀⣰⣿⠛⢿⣷⡄⠀⠀  ⠘⣿⠀
-⠀⡇⠀⠀⠀⢸⣷⣶⣿⣿⡇⠀⠀⠀⢻⣿⣶⣿⣿⣿⠀⠀⠀  ⢸⠀
-⠀⡇⠀⠀⠀⠈⠛⠻⠿⠟⠁⠀⠀⠀⠈⠛⠻⠿⠛⠁⠀⠀⠀ ⢸⠀
-⠀⠹⣄⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠁
-⠀⠀⠈⠢⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣚⡁⠀⠀
-⠀⠀⠀⠀⠈⠙⠒⢢⡤⠤⠤⠤⠤⠤⠖⠒⠒⠋⠉⠉⠈⢙⢨⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹
-⠀⠀⠀⠀⠀⠀⠀⢸⡀⠀⠀⠀⠀⣤⠀⠀⠀⢀⣀⣀⣀⠀⠀⠀⢸
-⠀⠀⠀⠀⠀⠀⠀⠈⡇⠀⠀⠀⢠⣿⠀⠀⠀⢸⠀⠀⣿⠀⠀⠀⣸
-⠀⠀⠀⠀⠀⠀⠀⠀⢱⠀⠀⠀⢸⠘⡆⠀⠀⢸⣀⡰⠋⣆⠀⣠⠇
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⠤⠤⠼⠀⠘⠤⠴⠃⠀⠀⠀⠈⠉⠁⠀⠀
   `);
 
 const factories = [
@@ -103,7 +87,7 @@ for (const handle of TWITTER_HANDLES) {
         (fallback[key as keyof typeof fallback] as string | undefined);
       if (!value) {
         log.warn(
-          `${factory.DISPLAY_NAME} will not be synced because "${osKey}" is not set`,
+          `${factory.DISPLAY_NAME} will not be synced because "${osKey}" is not set`
         );
         // Console.warn(`Because ${osKey} is not set.`);
         skip = true;
@@ -137,7 +121,7 @@ for (const handle of TWITTER_HANDLES) {
     } catch (error) {
       logError(
         log,
-        error,
+        error
       )`Failed to connect to ${factory.DISPLAY_NAME}: ${error}`;
     } finally {
       log.stop();
@@ -160,7 +144,7 @@ const syncAll = async () => {
 
   for await (const user of users) {
     console.log(
-      `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`,
+      `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`
     );
     console.log(`| @${user.handle.handle}`);
     await syncProfile({
@@ -180,7 +164,7 @@ const syncAll = async () => {
       x: xClient,
       synchronizers: user.synchronizers,
     });
-    console.log(`| ${user.handle.handle} is up-to-date ᐠ( ᐛ )ᐟ`);
+    console.log(`| ${user.handle.handle} is up-to-date`);
   }
 };
 
@@ -192,7 +176,7 @@ if (DAEMON) {
     async () => {
       await syncAll();
     },
-    SYNC_FREQUENCY_MIN * 60 * 1000,
+    SYNC_FREQUENCY_MIN * 60 * 1000
   );
 }
 

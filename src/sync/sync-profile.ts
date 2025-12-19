@@ -43,40 +43,31 @@ async function upsertProfileCache(args: {
     .where(eq(Table.userId, userId));
   let pfpChanged = false;
 
-  const cPfpUrl = row?.pfpUrl ?? "";
-  const cPfpHash = row?.bannerHash ?? "";
-  let pfpHash = "";
+  // const cPfpUrl = row?.pfpUrl ?? "";
+  const cPfpHash = row?.pfpHash ?? "";
+  // let pfpHash = "";
   let pfpBlob: File | undefined;
 
-  if (cPfpUrl === pfpUrl) {
-    debug("Same pfp url");
-  } else {
-    pfpBlob = await download(pfpUrl);
-    const hash = await getBlobHash(pfpBlob);
-    pfpHash = hash;
-    if (hash !== cPfpHash) {
-      pfpChanged = true;
-    }
+  // We have to check the actual content, because Twitter doesn't always change the URL when the image is changed
+
+  pfpBlob = await download(pfpUrl);
+  const pfpHash = await getBlobHash(pfpBlob);
+
+  if (pfpHash !== cPfpHash) {
+    pfpChanged = true;
   }
 
   let bannerChanged = false;
-  const cBannerUrl = row?.bannerUrl ?? "";
   const cBannerHash = row?.bannerHash ?? "";
   let bannerHash = "";
   let bannerBlob: File | undefined;
 
-  if (cBannerUrl === bannerUrl) {
-    debug("Same banner url");
-  } else {
-    debug("Banner URL changed");
-
-    bannerBlob = await download(bannerUrl);
-    const hash = await getBlobHash(bannerBlob);
-    bannerHash = hash;
-    if (hash !== cBannerHash) {
-      bannerChanged = true;
-      debug("Banner has a different hash");
-    }
+  bannerBlob = await download(bannerUrl);
+  const hash = await getBlobHash(bannerBlob);
+  bannerHash = hash;
+  if (hash !== cBannerHash) {
+    bannerChanged = true;
+    debug("Banner has a different hash");
   }
 
   // Upsert (insert or update) the cache row
@@ -152,8 +143,8 @@ export async function syncProfile(args: {
             log,
             profile,
             pfpFile: pfpBlob,
-          }),
-        ),
+          })
+        )
     );
   }
 
@@ -166,8 +157,8 @@ export async function syncProfile(args: {
             log,
             profile,
             bannerFile: bannerBlob,
-          }),
-        ),
+          })
+        )
     );
   }
 
@@ -182,8 +173,8 @@ export async function syncProfile(args: {
             profile,
             bio: profile.biography!,
             formattedBio,
-          }),
-        ),
+          })
+        )
     );
   }
 
@@ -196,8 +187,8 @@ export async function syncProfile(args: {
             log,
             profile,
             name: profile.name!,
-          }),
-        ),
+          })
+        )
     );
   }
 

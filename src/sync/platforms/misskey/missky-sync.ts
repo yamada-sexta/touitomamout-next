@@ -100,11 +100,11 @@ export const MisskeySynchronizerFactory: SynchronizerFactory<
           const mediaIds: string[] = [];
           const t = args.tweet;
           // Const dt = await downloadTweet(args.tweet);
-          (await t.photoFiles()).forEach(async (p) =>
+          (await t.getPhotos()).forEach(async (p) =>
             p.file ? mediaIds.push((await uploadMedia(p.file)).id) : undefined,
           );
 
-          (await t.videoFiles()).forEach(async (v) =>
+          (await t.getVideos()).forEach(async (v) =>
             v.file ? mediaIds.push((await uploadMedia(v.file)).id) : undefined,
           );
           const res = await api.request("notes/create", {

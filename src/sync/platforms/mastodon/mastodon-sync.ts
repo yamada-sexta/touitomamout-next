@@ -101,7 +101,7 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
           }
         }
 
-        for (const p of await tweet.photoFiles()) {
+        for (const p of await tweet.getPhotos()) {
           debug("Uploading photo to Mastodon:", p);
 
           if (!p.file) {
@@ -121,7 +121,7 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
           debug("Uploaded photo to Mastodon:", a);
         }
 
-        for (const v of await tweet.videoFiles()) {
+        for (const v of await tweet.getVideos()) {
           debug("Uploading video to Mastodon:", v);
 
           if (!v.file) {

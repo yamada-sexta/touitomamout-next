@@ -173,8 +173,8 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
 
         const externalRecord = await getExternalEmbedding(richText, agent);
 
-        const videos = await tweet.videoFiles();
-        const photos = await tweet.photoFiles();
+        const videos = await tweet.getVideos();
+        const photos = await tweet.getPhotos();
 
         if (videos.length > 0 && videos[0].file) {
           log.text = "Uploading video to bluesky...";

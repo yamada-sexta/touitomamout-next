@@ -2,6 +2,7 @@ import { accessSync, constants } from "node:fs";
 import { join } from "node:path";
 import z from "zod";
 import packageInfo from "../package.json" assert { type: "json" };
+// import { debug } from "utils/logs";
 
 if (process.env.NODE_ENV !== "test") {
   const envPath = process.argv[2] ?? join(process.cwd(), ".env");
@@ -54,7 +55,7 @@ export function envBool(key: string, defaultValue = false): boolean {
   const res = stringbool.safeParse(process.env[key]);
   if (!res.success) {
     console.warn(
-      `Invalid boolean for env ${key}: ${process.env[key]}, using default ${defaultValue}`,
+      `Invalid boolean for env ${key}: ${process.env[key]}, using default ${defaultValue}`
     );
     return defaultValue;
   }
@@ -71,7 +72,7 @@ export function envInt(key: string, defaultValue: number): number {
   const parsed = Number.parseInt(value, 10);
   if (isNaN(parsed)) {
     console.warn(
-      `Invalid integer for env ${key}: ${value}, using default ${defaultValue}`,
+      `Invalid integer for env ${key}: ${value}, using default ${defaultValue}`
     );
     return defaultValue;
   }
@@ -80,7 +81,7 @@ export function envInt(key: string, defaultValue: number): number {
 }
 
 export const TWITTER_USERNAME = trimTwitterHandle(
-  process.env.TWITTER_USERNAME ?? "",
+  process.env.TWITTER_USERNAME ?? ""
 );
 export const TWITTER_PASSWORD = (process.env.TWITTER_PASSWORD ?? "").trim();
 export const DATABASE_PATH = (
@@ -92,7 +93,7 @@ export const BACKDATE_BLUESKY_POSTS = envBool("BACKDATE_BLUESKY_POSTS", true);
 export const SYNC_FREQUENCY_MIN = envInt("SYNC_FREQUENCY_MIN", 30);
 export const SYNC_PROFILE_DESCRIPTION = envBool(
   "SYNC_PROFILE_DESCRIPTION",
-  true,
+  true
 );
 export const SYNC_PROFILE_PICTURE = envBool("SYNC_PROFILE_PICTURE", true);
 export const SYNC_PROFILE_NAME = envBool("SYNC_PROFILE_NAME", true);
@@ -110,3 +111,18 @@ export const BLUESKY_MEDIA_MAX_SIZE_BYTES = 976_560;
 export const MAX_CONSECUTIVE_CACHED = envInt("MAX_CONSECUTIVE_CACHED", 2);
 export const FORCE_SYNC_POSTS = envBool("FORCE_SYNC_POSTS", false);
 export const SYNC_POSTS = envBool("SYNC_POSTS", true);
+
+export const HANDLE_RETWEETS = z
+  .literal(["embed", "repost", "none"])
+  .default("embed")
+  .parse(process.env.HANDLE_RETWEETS);
+
+export const X_EMB_FIX = z
+  .literal(["vxtwitter.com", "fxtwitter.com", "fixupx.com"])
+  .default("fxtwitter.com")
+  .parse(process.env.X_EMB_FIX);
+
+export const BSKY_EMB_FIX = z
+  .literal(["fxbsky.app"])
+  .default("fxbsky.app")
+  .parse(process.env.BSKY_EMB_FIX);

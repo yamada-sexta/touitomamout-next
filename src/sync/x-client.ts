@@ -40,7 +40,8 @@ export async function createTwitterClient({
       .select()
       .from(Schema.TwitterCookieCache)
       .where(eq(Schema.TwitterCookieCache.userHandle, twitterUsername));
-    const cookie = previousCookie.length > 0 ? previousCookie[0].cookie : undefined;
+    const cookie =
+      previousCookie.length > 0 ? previousCookie[0].cookie : undefined;
 
     if (cookie) {
       const cookies: Cookie[] = (JSON.parse(cookie) as unknown[])
