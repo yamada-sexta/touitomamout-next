@@ -26,12 +26,11 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 <img alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
 
-
 ## Get started
+
 Ready to dive in? Visit our Wiki:
 
 [<img src="https://github.com/louisgrasset/touitomamout/raw/main/.github/docs/documentation-center.svg"  width="300px"/>](https://github.com/yamada-sexta/touitomamout/wiki)
-
 
 ## Supported platforms
 

@@ -1,45 +1,49 @@
-import {BLUESKY_MEDIA_MAX_SIZE_BYTES} from 'env';
-import {compressMedia} from 'utils/medias/compress-media';
+import { BLUESKY_MEDIA_MAX_SIZE_BYTES } from "env";
+import { compressMedia } from "utils/medias/compress-media";
 
 type BlueskyBlob = {
-	mimeType: string;
-	blobData: Uint8Array;
+  mimeType: string;
+  blobData: Uint8Array;
 };
 
 const allowedMimeTypes = new Set([
-	'image/gif',
-	'image/png',
-	'image/jpg',
-	'image/jpeg',
-	'image/webp',
-	'video/mp4',
+  "image/gif",
+  "image/png",
+  "image/jpg",
+  "image/jpeg",
+  "image/webp",
+  "video/mp4",
 ]);
 
 /**
  * An async method to convert a Blob to an upload-compatible Bluesky Blob.
  * @returns BlueskyBlob
  */
-export async function parseBlobForBluesky(inputBlob: Blob): Promise<BlueskyBlob> {
-	// Console.log("Parsing blob for bluesky");
+export async function parseBlobForBluesky(
+  inputBlob: Blob,
+): Promise<BlueskyBlob> {
+  // Console.log("Parsing blob for bluesky");
 
-	const blob
-    = (await compressMedia(inputBlob, BLUESKY_MEDIA_MAX_SIZE_BYTES).catch(() => inputBlob)) || inputBlob;
+  const blob =
+    (await compressMedia(inputBlob, BLUESKY_MEDIA_MAX_SIZE_BYTES).catch(
+      () => inputBlob,
+    )) || inputBlob;
 
-	const ab = await blob.arrayBuffer();
-	const data = new Uint8Array(ab);
+  const ab = await blob.arrayBuffer();
+  const data = new Uint8Array(ab);
 
-	const mimeType = blob.type || inputBlob.type;
+  const mimeType = blob.type || inputBlob.type;
 
-	if (!mimeType) {
-		throw new Error('Empty media type!');
-	}
+  if (!mimeType) {
+    throw new Error("Empty media type!");
+  }
 
-	if (!allowedMimeTypes.has(mimeType)) {
-		throw new Error(`Media type not supported (${mimeType})`);
-	}
+  if (!allowedMimeTypes.has(mimeType)) {
+    throw new Error(`Media type not supported (${mimeType})`);
+  }
 
-	return {
-		mimeType,
-		blobData: data,
-	};
+  return {
+    mimeType,
+    blobData: data,
+  };
 }

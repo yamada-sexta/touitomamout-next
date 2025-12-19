@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest a small improvement or new capability
-title: ''
+title: ""
 labels: enhancement
 assignees: []
 ---

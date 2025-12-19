@@ -1,24 +1,26 @@
-import {getRedirectedUrl} from './get-redirection';
+import { getRedirectedUrl } from "./get-redirection";
 /**
  * A utility method to replace t.co urls with the original url.
  */
 export async function shortenedUrlsReplacer(text: string): Promise<string> {
-	const TWITTER_URL_SHORTENER = /https:\/\/t\.co\/\w+/g;
+  const TWITTER_URL_SHORTENER = /https:\/\/t\.co\/\w+/g;
 
-	const matches = [...text.matchAll(TWITTER_URL_SHORTENER)];
+  const matches = [...text.matchAll(TWITTER_URL_SHORTENER)];
 
-	if (matches.length === 0) {
-		return text;
-	}
+  if (matches.length === 0) {
+    return text;
+  }
 
-	// Get all original urls
-	const replacedItems = await Promise.all(matches.map(async match => getRedirectedUrl(match[0])));
+  // Get all original urls
+  const replacedItems = await Promise.all(
+    matches.map(async (match) => getRedirectedUrl(match[0])),
+  );
 
-	// Replace shortened urls to original ones, remove non-resolved ones.
-	return matches.reduce((description, match, index) => {
-		const resolvedUrl = replacedItems[index];
-		return resolvedUrl
-			? description.replace(match[0], resolvedUrl)
-			: description;
-	}, text);
+  // Replace shortened urls to original ones, remove non-resolved ones.
+  return matches.reduce((description, match, index) => {
+    const resolvedUrl = replacedItems[index];
+    return resolvedUrl
+      ? description.replace(match[0], resolvedUrl)
+      : description;
+  }, text);
 }

@@ -2,7 +2,7 @@ name: Build and Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch: # Allows manual triggering from the Actions tab
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
       # ---------------------------------------------------------
       # Cross-compilation Steps
       # ---------------------------------------------------------
-      
+
       - name: Build for Linux (x64)
         run: |
           bun build ./src/index.ts \
