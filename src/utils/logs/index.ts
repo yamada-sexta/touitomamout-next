@@ -33,7 +33,7 @@ export function logError(
   };
 }
 
-export const oraPrefixer = (prefix: string): string => prefix.padEnd(15, " ");
+export const oraPrefix = (prefix: string): string => prefix.padEnd(15, " ");
 
 const SEGMENT_DONE = "█";
 const SEGMENT_UNDONE = "░";

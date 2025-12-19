@@ -3,7 +3,7 @@ import z from "zod";
 import { DEBUG } from "env";
 import { APIEmbed } from "discord-api-types/payloads";
 import { RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
-import { MetaPost } from "types/meta-tweet";
+import { MetaPost } from "types/post";
 
 const KEYS = ["DISCORD_WEBHOOK_URL"] as const;
 

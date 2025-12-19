@@ -8,12 +8,11 @@ import {
     type TwitterHandle,
 } from "env";
 import ora from "ora";
-import { isValidPost } from "types/post";
-import { logError, oraPrefixer } from "utils/logs";
+import { logError, oraPrefix } from "utils/logs";
 
 import { getPostStore } from "../utils/get-post-store";
 import type { TaggedSynchronizer } from "./synchronizer";
-import { toMetaPost } from "types/meta-tweet";
+import { isPost, toMetaPost } from "types/post";
 
 const MAX_TWEET = 200;
 
@@ -32,7 +31,7 @@ export async function syncPosts(args: {
     }
     const log = ora({
         color: "cyan",
-        prefixText: oraPrefixer("posts"),
+        prefixText: oraPrefix("posts"),
     }).start();
     log.text = "starting...";
 
@@ -49,7 +48,7 @@ export async function syncPosts(args: {
                 log.info("skipping because too many consecutive cached tweets");
                 break;
             }
-            if (!isValidPost(tweet)) {
+            if (!isPost(tweet)) {
                 log.warn(`tweet is not valid...\n${tweet}`);
                 continue;
             }
@@ -76,7 +75,7 @@ export async function syncPosts(args: {
                     if (!s.syncPost) continue;
                     const platformLog = ora({
                         color: "cyan",
-                        prefixText: oraPrefixer(`${s.emoji} ${s.displayName}`),
+                        prefixText: oraPrefix(`${s.emoji} ${s.displayName}`),
                     })
                     try {
 

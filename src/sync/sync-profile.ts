@@ -10,7 +10,7 @@ import {
   TwitterHandle,
 } from "env";
 import ora from "ora";
-import { logError, oraPrefixer } from "utils/logs";
+import { logError, oraPrefix } from "utils/logs";
 import { download } from "utils/medias/download-media";
 import { getBlobHash } from "utils/medias/get-blob-hash";
 import { shortenedUrlsReplacer } from "utils/url/shortened-urls-replacer";
@@ -122,7 +122,7 @@ export async function syncProfile(args: {
   const { x: x, synchronizers, db } = args;
   const log = ora({
     color: "cyan",
-    prefixText: oraPrefixer("profile"),
+    prefixText: oraPrefix("profile"),
   }).start();
   log.text = "parsing";
 

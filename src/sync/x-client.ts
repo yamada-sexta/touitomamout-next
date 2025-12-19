@@ -3,7 +3,7 @@ import { DBType, Schema } from "db";
 import { eq } from "drizzle-orm";
 import ora from "ora";
 import { Cookie } from "tough-cookie";
-import { oraPrefixer } from "utils/logs";
+import { oraPrefix } from "utils/logs";
 import { cycleTLSFetch, cycleTLSExit } from '@the-convocation/twitter-scraper/cycletls';
 
 export async function createTwitterClient({
@@ -17,7 +17,7 @@ export async function createTwitterClient({
 }): Promise<Scraper> {
   const log = ora({
     color: "gray",
-    prefixText: oraPrefixer("𝕏 client"),
+    prefixText: oraPrefix("𝕏 client"),
   }).start("connecting to twitter...");
 
   const client = new Scraper({

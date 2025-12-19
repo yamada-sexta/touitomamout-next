@@ -1,4 +1,13 @@
-import { ReplyEntry } from "../../../../types/reply";
+export type ReplyEntry = {
+  root: {
+    cid: string;
+    uri: string;
+  };
+  parent: {
+    cid: string;
+    uri: string;
+  };
+};
 
 export const buildReplyEntry = (
   rootPost: { cid: string; uri: string },

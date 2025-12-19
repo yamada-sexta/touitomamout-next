@@ -45,43 +45,54 @@ while (process.env[_twitterHandleKey]) {
   _twitterHandleKey = `TWITTER_HANDLE${_handleCounter}`;
 }
 
+const TRUE_VALUES = ["1", "true", "yes", "on"] as const;
+export function envBool(key: string, defaultValue: boolean = false): boolean {
+  if (process.env[key] === undefined) {
+    return defaultValue;
+  }
+  return TRUE_VALUES.includes(process.env[key]?.toLowerCase() as typeof TRUE_VALUES[number]);
+}
+
+export function envInt(key: string, defaultValue: number): number {
+  const value = process.env[key];
+  if (value === undefined) {
+    return defaultValue;
+  }
+  const parsed = parseInt(value, 10);
+  if (isNaN(parsed)) {
+    console.warn(`Invalid integer for env ${key}: ${value}, using default ${defaultValue}`);
+    return defaultValue;
+  }
+  return parsed;
+}
+
 export const TWITTER_USERNAME = trimTwitterHandle(
   process.env.TWITTER_USERNAME ?? "",
 );
 export const TWITTER_PASSWORD = (process.env.TWITTER_PASSWORD ?? "").trim();
-// export const STORAGE_DIR = process.env.STORAGE_DIR ?? process.cwd();
 export const DATABASE_PATH = (
   process.env.DATABASE_PATH ?? "data.sqlite"
 ).trim();
-// export const CACHE_PATH = `${STORAGE_DIR}/cache.${INSTANCE_ID}.json`;
-// export const COOKIES_PATH = `${STORAGE_DIR}/cookies.v6.${TWITTER_USERNAME}.json`;
-export const SYNC_MASTODON = (process.env.SYNC_MASTODON ?? "true") === "true";
-export const SYNC_BLUESKY = (process.env.SYNC_BLUESKY ?? "true") === "true";
-export const BACKDATE_BLUESKY_POSTS =
-  (process.env.BACKDATE_BLUESKY_POSTS ?? "true") === "true";
-export const SYNC_FREQUENCY_MIN = parseInt(
-  process.env.SYNC_FREQUENCY_MIN ?? "30",
+export const SYNC_MASTODON = envBool("SYNC_MASTODON", true);
+export const SYNC_BLUESKY = envBool("SYNC_BLUESKY", true);
+export const BACKDATE_BLUESKY_POSTS = envBool("BACKDATE_BLUESKY_POSTS", true);
+export const SYNC_FREQUENCY_MIN = envInt("SYNC_FREQUENCY_MIN", 30);
+export const SYNC_PROFILE_DESCRIPTION = envBool(
+  "SYNC_PROFILE_DESCRIPTION",
+  true,
 );
-export const SYNC_PROFILE_DESCRIPTION =
-  (process.env.SYNC_PROFILE_DESCRIPTION ?? "true") === "true";
-export const SYNC_PROFILE_PICTURE =
-  (process.env.SYNC_PROFILE_PICTURE ?? "true") === "true";
-export const SYNC_PROFILE_NAME =
-  (process.env.SYNC_PROFILE_NAME ?? "true") === "true";
-export const SYNC_PROFILE_HEADER =
-  (process.env.SYNC_PROFILE_HEADER ?? "true") === "true";
-export const SYNC_DRY_RUN = (process.env.SYNC_DRY_RUN ?? "false") === "true";
-export const DEBUG = (process.env.TOUITOMAMOUT_DEBUG ?? "false") === "true";
-export const DAEMON = (process.env.DAEMON ?? "true") === "true";
+export const SYNC_PROFILE_PICTURE = envBool("SYNC_PROFILE_PICTURE", true);
+export const SYNC_PROFILE_NAME = envBool("SYNC_PROFILE_NAME", true);
+export const SYNC_PROFILE_HEADER = envBool("SYNC_PROFILE_HEADER", true);
+export const SYNC_DRY_RUN = envBool("SYNC_DRY_RUN", false);
+export const DEBUG = envBool("TOUITOMAMOUT_DEBUG", false);
+export const DAEMON = envBool("DAEMON", true);
 export const VOID = "∅";
-export const API_RATE_LIMIT = parseInt(process.env.API_RATE_LIMIT ?? "30");
-export const TOUITOMAMOUT_VERSION = packageInfo.version ?? "0.0.0";
+export const API_RATE_LIMIT = envInt("API_RATE_LIMIT", 30);
+export const TOUITOMAMOUT_VERSION = packageInfo.version ?? "UNKNOWN";
 export const MASTODON_MAX_POST_LENGTH = 500;
 export const BLUESKY_MAX_POST_LENGTH = 300;
 export const BLUESKY_MEDIA_MAX_SIZE_BYTES = 976560;
 export const MAX_CONSECUTIVE_CACHED = 5;
-export const FORCE_SYNC_POSTS =
-  (process.env.FORCE_SYNC_POSTS ?? "false") === "true";
-
-
-export const SYNC_POSTS = (process.env.SYNC_POSTS ?? "true") === "true";
+export const FORCE_SYNC_POSTS = envBool("FORCE_SYNC_POSTS", false);
+export const SYNC_POSTS = envBool("SYNC_POSTS", true);

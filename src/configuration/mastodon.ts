@@ -2,7 +2,7 @@ import { SYNC_MASTODON, TwitterHandle } from "env";
 import { createRestAPIClient, mastodon } from "masto";
 import ora from "ora";
 import { TouitomamoutError } from "utils/error";
-import { oraPrefixer } from "utils/logs";
+import { oraPrefix } from "utils/logs";
 
 export async function createMastodonClient(args: {
   handle: TwitterHandle;
@@ -27,7 +27,7 @@ export async function createMastodonClient(args: {
 
   const log = ora({
     color: "gray",
-    prefixText: oraPrefixer("🦣 client"),
+    prefixText: oraPrefix("🦣 client"),
   }).start("connecting to mastodon...");
   const mastodonClient = createRestAPIClient({
     url: `https://${instance}`,

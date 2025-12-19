@@ -6,7 +6,7 @@ import { syncPosts } from "sync/sync-posts";
 import { syncProfile } from "sync/sync-profile";
 import { TaggedSynchronizer } from "sync/synchronizer";
 import { createTwitterClient } from "sync/x-client";
-import { logError, oraPrefixer } from "utils/logs";
+import { logError, oraPrefix } from "utils/logs";
 
 import {
   DAEMON,
@@ -85,7 +85,7 @@ for (const handle of TWITTER_HANDLES) {
   for (const factory of factories) {
     const log = ora({
       color: "gray",
-      prefixText: oraPrefixer(`${factory.EMOJI} client`),
+      prefixText: oraPrefix(`${factory.EMOJI} client`),
     }).start(`Connecting to ${factory.DISPLAY_NAME}`);
 
     const envKeys = factory.ENV_KEYS;

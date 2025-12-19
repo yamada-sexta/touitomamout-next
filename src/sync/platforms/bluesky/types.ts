@@ -1,5 +1,5 @@
 import { AppBskyFeedPost } from "@atproto/api";
-import { MetaPost } from "types/meta-tweet";
+import { MetaPost } from "types/post";
 import z from "zod";
 
 export const BLUESKY_KEYS = [

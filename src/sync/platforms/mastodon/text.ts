@@ -4,7 +4,7 @@ import { getPostStore } from "utils/get-post-store";
 import { splitTweetTextCore } from "utils/tweet/split-tweet-text/split-tweet-text";
 
 import { MastodonStoreSchema, MastodonSynchronizerFactory } from "./mastodon-sync";
-import { MetaPost } from "types/meta-tweet";
+import { MetaPost } from "types/post";
 
 export async function splitTextForMastodon(
   args: {
