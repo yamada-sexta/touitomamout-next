@@ -5,7 +5,7 @@ import { buildChunksFromSplitterEntries } from "utils/tweet/split-tweet-text/spl
 import { download } from "utils/medias/download-media";
 import z from "zod";
 import { debug } from "utils/logs";
-import { HANDLE_RETWEETS, X_EMB_FIX } from "env";
+import { X_EMB_FIX } from "env";
 
 export const MentionSchema = z.object({
   id: z.string(),
@@ -134,16 +134,7 @@ export type MetaPost = {
 export const formatTweetText = (tweet: Post): string => {
   let text = tweet.text ?? "";
   if (tweet.isRetweet && tweet.retweetedStatus) {
-    // For retweets, remove the "RT @username: " prefix
-    const rtPrefix = `RT @${tweet.retweetedStatus.username}: `;
-    if (text.startsWith(rtPrefix)) {
-      text = text.slice(rtPrefix.length);
-    } else {
-      debug("Retweet text does not start with expected prefix", {
-        text,
-        rtPrefix,
-      });
-    }
+    text = tweet.retweetedStatus.text ?? "";
   }
 
   // Track which URLs were replaced in the text
@@ -200,14 +191,6 @@ export const toMetaPost = (tweet: Post): MetaPost => {
   let urls = tweet.urls;
 
   let text = formatTweetText(tweet);
-
-  // if (HANDLE_RETWEETS === "embed" && tweet.isRetweet && tweet.retweetedStatus) {
-  //   // urls = [...tweet.urls, ...(tweet.retweetedStatus ? [tweet.retweetedStatus.permanentUrl ?? ""] : [])];
-  //   if (tweet.retweetedStatus.permanentUrl) {
-  //     urls = [toEmbLink(tweet.retweetedStatus.permanentUrl)];
-  //   }
-  //   // Delete everything
-  // }
 
   const meta: MetaPost = {
     ...tweet,

@@ -114,7 +114,7 @@ export const SYNC_POSTS = envBool("SYNC_POSTS", true);
 
 export const HANDLE_RETWEETS = z
   .literal(["embed", "repost", "none"])
-  .default("embed")
+  .default("repost")
   .parse(process.env.HANDLE_RETWEETS);
 
 export const X_EMB_FIX = z
