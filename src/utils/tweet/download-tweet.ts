@@ -1,4 +1,4 @@
-// import { Photo, Tweet, Video } from "@the-convocation/twitter-scraper";
+// Import { Photo, Tweet, Video } from "@the-convocation/twitter-scraper";
 // import { download } from "utils/medias/download-media";
 
 // export type DownloadedVideo = Video & { file?: File };

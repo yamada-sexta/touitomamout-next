@@ -1,10 +1,10 @@
-import { Agent, RichText } from "@atproto/api";
+import {type Agent, type RichText} from '@atproto/api';
 
-// import { BlueskyLinkMetadata } from "../../types/link-metadata";
+// Import { BlueskyLinkMetadata } from "../../types/link-metadata";
 import {
-  BlueskyLinkMetadata,
-  getBlueskyLinkMetadata,
-} from "./get-bluesky-link-metadata";
+	type BlueskyLinkMetadata,
+	getBlueskyLinkMetadata,
+} from './get-bluesky-link-metadata';
 
 /**
  * Retrieves the metadata of the first link found in the given richtext.
@@ -14,18 +14,19 @@ import {
  * @returns {Promise<BlueskyLinkMetadata | null>} A promise that resolves to the metadata of the first link found, or null if no link is found.
  */
 export const getBlueskyChunkLinkMetadata = async (
-  richText: RichText,
-  client: Agent,
-): Promise<BlueskyLinkMetadata | null> => {
-  let card = null;
-  for (const seg of richText.segments()) {
-    if (seg.isLink()) {
-      const link = seg.link?.uri;
-      if (link) {
-        card = await getBlueskyLinkMetadata(link, client);
-        break;
-      }
-    }
-  }
-  return card;
+	richText: RichText,
+	client: Agent,
+): Promise<BlueskyLinkMetadata | undefined> => {
+	let card = null;
+	for (const seg of richText.segments()) {
+		if (seg.isLink()) {
+			const link = seg.link?.uri;
+			if (link) {
+				card = await getBlueskyLinkMetadata(link, client);
+				break;
+			}
+		}
+	}
+
+	return card;
 };

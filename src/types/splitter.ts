@@ -1,1 +1,1 @@
-export type SplitterEntry = { str: string; sep: string };
+export type SplitterEntry = {str: string; sep: string};

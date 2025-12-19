@@ -1,50 +1,50 @@
-import { DBType } from "db";
-import { MASTODON_MAX_POST_LENGTH } from "env";
-import { getPostStore } from "utils/get-post-store";
-import { splitTweetTextCore } from "utils/tweet/split-tweet-text/split-tweet-text";
+import {type DBType} from 'db';
+import {MASTODON_MAX_POST_LENGTH} from 'env';
+import {getPostStore} from 'utils/get-post-store';
+import {splitTweetTextCore} from 'utils/tweet/split-tweet-text/split-tweet-text';
+import {type MetaPost} from 'types/post';
+import {MastodonStoreSchema, MastodonSynchronizerFactory} from './mastodon-sync';
 
-import { MastodonStoreSchema, MastodonSynchronizerFactory } from "./mastodon-sync";
-import { MetaPost } from "types/post";
-
-export async function splitTextForMastodon(
-  args: {
-    tweet: MetaPost;
-    db: DBType;
-    mastodonUsername: string;
-    mastodonInstance: string;
-  },
-  // mastodonUsername: string
+export async function splitTextForMastodon(args: {
+	tweet: MetaPost;
+	db: DBType;
+	mastodonUsername: string;
+	mastodonInstance: string;
+},
+	// MastodonUsername: string
 ): Promise<string[]> {
-  const { text, quotedStatusId, urls } = args.tweet;
-  if (!text) {
-    return [];
-  }
-  const maxChunkSize = MASTODON_MAX_POST_LENGTH;
+	const {text, quotedStatusId, urls} = args.tweet;
+	if (!text) {
+		return [];
+	}
 
-  let quoteLink = "";
-  if (quotedStatusId) {
-    const store = await getPostStore({
-      s: MastodonStoreSchema,
-      db: args.db,
-      tweet: quotedStatusId,
-      platformId: MastodonSynchronizerFactory.PLATFORM_ID,
-    });
+	const maxChunkSize = MASTODON_MAX_POST_LENGTH;
 
-    if (store.success) {
-      const tootId = store.data.tootIds.at(-1);
-      quoteLink = `\n\nhttps://${args.mastodonInstance}/@${args.mastodonUsername}/${tootId}`;
-    }
-  }
-  if (text.length + quoteLink.length <= maxChunkSize) {
-    return [text + quoteLink];
-  }
+	let quoteLink = '';
+	if (quotedStatusId) {
+		const store = await getPostStore({
+			s: MastodonStoreSchema,
+			db: args.db,
+			tweet: quotedStatusId,
+			platformId: MastodonSynchronizerFactory.PLATFORM_ID,
+		});
 
-  return splitTweetTextCore({
-    text: text ?? "",
-    urls,
-    quotedStatusId,
-    maxChunkSize,
-    quotedStatusLinkSection: quoteLink,
-    appendQuoteLink: true,
-  });
+		if (store.success) {
+			const tootId = store.data.tootIds.at(-1);
+			quoteLink = `\n\nhttps://${args.mastodonInstance}/@${args.mastodonUsername}/${tootId}`;
+		}
+	}
+
+	if (text.length + quoteLink.length <= maxChunkSize) {
+		return [text + quoteLink];
+	}
+
+	return splitTweetTextCore({
+		text: text ?? '',
+		urls,
+		quotedStatusId,
+		maxChunkSize,
+		quotedStatusLinkSection: quoteLink,
+		appendQuoteLink: true,
+	});
 }
