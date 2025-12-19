@@ -3,8 +3,6 @@
   "version": "2.0.0",
   "description": "An easy way to synchronize your posts from X.com to other social media.",
   "scripts": {
-    "lint": "eslint src/ --ext .ts",
-    "lint:fix": "eslint src/ --ext .ts --fix",
     "format": "prettier --write .",
     "build": "bun run build:all",
     "build:all": "mkdir -p dist && bun run build:linux-x64 && bun run build:linux-x64-musl && bun run build:linux-arm64-musl && bun run build:windows-x64 && bun run build:macos-x64 && bun run build:macos-arm64",
@@ -14,8 +12,7 @@
     "build:windows-x64": "bun build ./src/index.ts --compile --target=bun-windows-x64 --outfile dist/touitomamout-windows-x64.exe",
     "build:macos-x64": "bun build ./src/index.ts --compile --target=bun-darwin-x64 --outfile dist/touitomamout-macos-x64",
     "build:macos-arm64": "bun build ./src/index.ts --compile --target=bun-darwin-arm64 --outfile dist/touitomamout-macos-arm64",
-    "dev": "bun run src/index.ts",
-    "test": "xo"
+    "dev": "bun run src/index.ts"
   },
   "type": "module",
   "author": "Yamada Sexta",
