@@ -5,7 +5,7 @@ import { buildChunksFromSplitterEntries } from "utils/tweet/split-tweet-text/spl
 import { download } from "utils/medias/download-media";
 import z from "zod";
 import { debug } from "utils/logs";
-import { X_EMB_FIX } from "env";
+import { HANDLE_RETWEETS, X_EMB_FIX } from "env";
 
 export const MentionSchema = z.object({
   id: z.string(),
@@ -138,6 +138,11 @@ export const formatTweetText = (tweet: Post): string => {
     const rtPrefix = `RT @${tweet.retweetedStatus.username}: `;
     if (text.startsWith(rtPrefix)) {
       text = text.slice(rtPrefix.length);
+    } else {
+      debug("Retweet text does not start with expected prefix", {
+        text,
+        rtPrefix,
+      });
     }
   }
 
@@ -171,6 +176,13 @@ export const formatTweetText = (tweet: Post): string => {
   return text.trim();
 };
 
+function toEmbLink(permanentUrl: string): string {
+  const link = new URL(permanentUrl);
+  const domain = X_EMB_FIX;
+  link.hostname = domain;
+  return link.toString();
+}
+
 /**
  * Converts a raw Tweet object into a MetaTweet object.
  * This adds a proper Date object and a formatted text string.
@@ -178,22 +190,28 @@ export const formatTweetText = (tweet: Post): string => {
  * @returns A MetaTweet object with added `datetime` and `formattedText` fields.
  */
 export const toMetaPost = (tweet: Post): MetaPost => {
-  const text = formatTweetText(tweet);
-
   let videoFiles: DownloadedVideo[] | undefined;
   let photoFiles: DownloadedPhoto[] | undefined;
 
   const embLink = tweet.permanentUrl
-    ? (() => {
-        const link = new URL(tweet.permanentUrl!);
-        const domain = X_EMB_FIX;
-        link.hostname = domain;
-        return link.toString();
-      })()
+    ? toEmbLink(tweet.permanentUrl)
     : undefined;
+
+  let urls = tweet.urls;
+
+  let text = formatTweetText(tweet);
+
+  // if (HANDLE_RETWEETS === "embed" && tweet.isRetweet && tweet.retweetedStatus) {
+  //   // urls = [...tweet.urls, ...(tweet.retweetedStatus ? [tweet.retweetedStatus.permanentUrl ?? ""] : [])];
+  //   if (tweet.retweetedStatus.permanentUrl) {
+  //     urls = [toEmbLink(tweet.retweetedStatus.permanentUrl)];
+  //   }
+  //   // Delete everything
+  // }
 
   const meta: MetaPost = {
     ...tweet,
+    urls,
     quotedStatus: tweet.quotedStatus
       ? toMetaPost(tweet.quotedStatus)
       : undefined,

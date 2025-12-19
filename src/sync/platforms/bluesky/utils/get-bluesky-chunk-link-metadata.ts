@@ -1,6 +1,4 @@
 import { type Agent, type RichText } from "@atproto/api";
-
-// Import { BlueskyLinkMetadata } from "../../types/link-metadata";
 import {
   type BlueskyLinkMetadata,
   getBlueskyLinkMetadata,
