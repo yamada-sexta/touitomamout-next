@@ -13,7 +13,7 @@ export type BlueskyLinkMetadata = Omit<LinkMetadata, "image"> & {
  *
  * @param {string} url - The URL of the link for which metadata is to be retrieved.
  * @param {AtpAgent} client - The AtpAgent client used for uploading the media.
- * @returns {Promise<BlueskyLinkMetadata | null>} - A promise that resolves to the Bluesky Link metadata or null if not found.
+ * @returns {Promise<BlueskyLinkMetadata | undefined>} - A promise that resolves to the Bluesky Link metadata or undefined if not found.
  */
 export async function getBlueskyLinkMetadata(
   url: string,
@@ -23,7 +23,7 @@ export async function getBlueskyLinkMetadata(
 
   // Without metadata, stop
   if (!data) {
-    return null;
+    return undefined;
   }
 
   // Metadata without image
@@ -36,7 +36,7 @@ export async function getBlueskyLinkMetadata(
 
   const mediaBlob = await download(data.image);
   if (!mediaBlob) {
-    return null;
+    return undefined;
   }
 
   const blueskyBlob = await parseBlobForBluesky(mediaBlob);

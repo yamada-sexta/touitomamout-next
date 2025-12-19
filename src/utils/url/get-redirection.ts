@@ -7,7 +7,7 @@ const TIMEOUT_MS = 30_000;
  * Extracts the URL from a meta refresh tag in the HTML content.
  * @param html - The HTML content to search for a meta redirect.
  * @param baseUrl - The base URL for resolving relative URLs.
- * @returns - The redirect URL or null if not found.
+ * @returns - The redirect URL or undefined if not found.
  */
 function extractMetaRefreshUrl(
   html: string,
@@ -22,14 +22,14 @@ function extractMetaRefreshUrl(
     return new URL(metaRedirectUrl, baseUrl).href; // Resolve relative URL
   }
 
-  return null;
+  return;
 }
 
 /**
  * Helper function to fetch a URL with a timeout and track redirection.
  * @param url - The shortened URL to be resolved.
  * @param hasRedirected - Boolean indicating if a redirection has occurred.
- * @returns - The final URL or null if it can't be resolved or no redirection happened.
+ * @returns - The final URL or undefined if it can't be resolved or no redirection happened.
  */
 export const getRedirectedUrl = async (
   url: string,
@@ -65,8 +65,8 @@ export const getRedirectedUrl = async (
       }
     }
 
-    // If no redirection happened, return null
-    return hasRedirected ? url : null;
+    // If no redirection happened, return undefined
+    return hasRedirected ? url : undefined;
   } catch (error) {
     if ((error as Error).name === "AbortError") {
       console.error("Request timed out");
@@ -74,7 +74,7 @@ export const getRedirectedUrl = async (
       console.error("Failed to resolve URL:", error);
     }
 
-    return null;
+    return undefined;
   } finally {
     clearTimeout(timeout); // Clear the timeout on completion or error
   }

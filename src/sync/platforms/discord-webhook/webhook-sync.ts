@@ -108,10 +108,10 @@ function formatForDiscord(tweet: MetaPost): {
       value: [
         tweet.hashtags.length > 0
           ? "🏷 " + tweet.hashtags.map((h) => `#${h}`).join(" ")
-          : null,
+          : undefined,
         tweet.mentions.length > 0
           ? "👤 " + tweet.mentions.map((m) => `@${m.username}`).join(" ")
-          : null,
+          : undefined,
       ]
         .filter(Boolean)
         .join("\n"),

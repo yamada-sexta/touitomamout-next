@@ -114,7 +114,7 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
           });
           const a = await client.v2.media.create({
             file,
-            description: p.alt_text ?? null,
+            description: p.alt_text,
           });
 
           attachments.push(a);

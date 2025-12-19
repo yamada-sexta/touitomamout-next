@@ -68,7 +68,7 @@ export const PostSchema = z.object({
   get retweetedStatus() {
     return PostSchema.optional();
   },
-  retweetedStatusId: z.string().nullable().optional(),
+  retweetedStatusId: z.string().optional(),
   text: z.string().optional(),
   thread: z.array(z.any()),
   timestamp: z.number().optional(),

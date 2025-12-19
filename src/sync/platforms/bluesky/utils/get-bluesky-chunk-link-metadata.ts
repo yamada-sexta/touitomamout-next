@@ -11,7 +11,7 @@ import {
  *
  * @param {RichText} richText - The richtext to search for links.
  * @param {AtpAgent} client - The AtpAgent client for making API calls.
- * @returns {Promise<BlueskyLinkMetadata | null>} A promise that resolves to the metadata of the first link found, or null if no link is found.
+ * @returns {Promise<BlueskyLinkMetadata | undefined>} A promise that resolves to the metadata of the first link found, or undefined if no link is found.
  */
 export const getBlueskyChunkLinkMetadata = async (
   richText: RichText,
