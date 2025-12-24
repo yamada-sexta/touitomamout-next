@@ -3,7 +3,6 @@ import z from "zod";
 import * as Misskey from "misskey-js";
 import { DEBUG } from "env";
 import { handleRateLimit } from "./rate-limit";
-// Import { downloadTweet } from "utils/tweet/download-tweet";
 
 const KEYS = ["MISSKEY_INSTANCE", "MISSKEY_ACCESS_CODE"];
 const MisskeyStoreSchema = z.object({
@@ -99,7 +98,6 @@ export const MisskeySynchronizerFactory: SynchronizerFactory<
         return runWithRateLimitRetry(async () => {
           const mediaIds: string[] = [];
           const t = args.tweet;
-          // Const dt = await downloadTweet(args.tweet);
           (await t.getPhotos()).forEach(async (p) =>
             p.file ? mediaIds.push((await uploadMedia(p.file)).id) : undefined,
           );

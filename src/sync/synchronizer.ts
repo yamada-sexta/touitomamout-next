@@ -10,7 +10,6 @@ import type * as z from "zod";
 type SyncArgs = { log: Ora };
 type ProfileArgs = SyncArgs & {
   readonly profile: Profile;
-  //   Readonly profileUpdate: ProfileUpdate;
 };
 
 export type SynchronizerFactory<

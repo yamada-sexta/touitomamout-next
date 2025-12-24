@@ -192,7 +192,7 @@ export async function syncProfile(args: {
     );
   }
 
-  // 3. Run all synchronization tasks in parallel
+  // Run all synchronization tasks in parallel
   log.text = "dispatching sync tasks...";
   try {
     await Promise.all(jobs);

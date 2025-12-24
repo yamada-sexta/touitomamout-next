@@ -28,11 +28,6 @@ export async function withRateLimitRetry<TArgs extends any[], TResult>(
       const waitTime = resetMs - Date.now();
 
       if (waitTime > 0) {
-        // If (DEBUG) {
-        //   console.log(
-        //     `[Misskey] Rate limit exceeded. Waiting ${Math.ceil(waitTime / 1000)}s...`
-        //   );
-        // }
         debug(
           `[Misskey] Rate limit exceeded. Waiting ${Math.ceil(waitTime / 1000)}s...`,
         );

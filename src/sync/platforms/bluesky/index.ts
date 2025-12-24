@@ -11,7 +11,6 @@ import {
   RichText,
 } from "@atproto/api";
 import { type Image as BlueskyImage } from "@atproto/api/dist/client/types/app/bsky/embed/images";
-// Import { Photo } from "@the-convocation/twitter-scraper";
 import { BACKDATE_BLUESKY_POSTS, HANDLE_RETWEETS, VOID } from "env";
 import {
   buildReplyEntry,

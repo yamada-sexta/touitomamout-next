@@ -2,7 +2,6 @@ import { accessSync, constants } from "node:fs";
 import { join } from "node:path";
 import z from "zod";
 import packageInfo from "../package.json" assert { type: "json" };
-// import { debug } from "utils/logs";
 
 if (process.env.NODE_ENV !== "test") {
   const envPath = process.argv[2] ?? join(process.cwd(), ".env");

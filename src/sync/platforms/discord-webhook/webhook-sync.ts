@@ -16,8 +16,6 @@ function formatForDiscord(tweet: MetaPost): {
   embeds: APIEmbed[];
 } {
   const embeds: APIEmbed[] = [];
-
-  // Const cleanedText = (tweet.text ?? "").replace(/https:\/\/t\.co\/\S+/g, "").trim();
   const cleanedText = tweet.text ?? "";
 
   const baseEmbed: APIEmbed = {
@@ -25,7 +23,6 @@ function formatForDiscord(tweet: MetaPost): {
     author: {
       name: `${tweet.name} (@${tweet.username})`,
       url: `https://x.com/${tweet.username}`,
-      // Icon_url: tweet.avatarUrl, // if available in your fetcher
     },
     description: tweet.sensitiveContent
       ? `⚠️ **Sensitive Content**\n\n${cleanedText}`
