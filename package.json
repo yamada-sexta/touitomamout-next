@@ -30,7 +30,7 @@
     "cli-spinners": "^3.3.0",
     "cycletls": "^2.0.5",
     "discord-api-types": "^0.38.37",
-    "drizzle-kit": "0.31.8",
+    "drizzle-kit": "0.31.7",
     "drizzle-orm": "^0.45.1",
     "html-entities": "^2.6.0",
     "masto": "^7.10.0",
