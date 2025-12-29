@@ -33,7 +33,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 - Built on Bun with smaller runtime
 - More sensible default settings
 - Multi-account support
-- More target platform support
+- More supported platforms
 - Cron support
 - Less likely to trigger Cloudflare detection
 
