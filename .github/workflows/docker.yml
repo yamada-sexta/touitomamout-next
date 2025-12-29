@@ -15,7 +15,8 @@ on:
       - '.idea/**'
       - 'cookies.*.json'
       - 'cache.*.json'
-
+      - docker-compose.yml
+      - docker-compose.source.yml
 jobs:
   build-and-push:
     runs-on: ubuntu-latest

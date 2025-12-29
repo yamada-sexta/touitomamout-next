@@ -6,6 +6,6 @@ services:
     restart: unless-stopped
     env_file: ".env"
     environment:
-      - STORAGE_DIR=/data
+      - DATABASE_PATH=/data/database.sqlite
     volumes:
       - ./data:/data

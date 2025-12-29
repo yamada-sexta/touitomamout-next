@@ -102,7 +102,6 @@ export const DEBUG = envBool("TOUITOMAMOUT_DEBUG", false);
 
 export const DAEMON = envBool("DAEMON", true);
 export const VOID = "[VOID]";
-export const API_RATE_LIMIT = envInt("API_RATE_LIMIT", 30);
 export const TOUITOMAMOUT_VERSION = packageInfo.version ?? "UNKNOWN";
 export const MASTODON_MAX_POST_LENGTH = 500;
 export const BLUESKY_MAX_POST_LENGTH = 300;

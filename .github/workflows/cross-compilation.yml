@@ -14,6 +14,9 @@ on:
       - '.idea/**'
       - 'cookies.*.json'
       - 'cache.*.json'
+      - docker-compose.yml
+      - docker-compose.source.yml
+      
   workflow_dispatch: # Allows manual triggering from the Actions tab
 
 permissions:
