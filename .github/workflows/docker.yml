@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - '.env*'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'LICENSE'
+      - '.editorconfig'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'cookies.*.json'
+      - 'cache.*.json'
 
 jobs:
   build-and-push:

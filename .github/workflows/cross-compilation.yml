@@ -3,6 +3,17 @@ name: Build and Release
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - '**.md'
+      - '.env*'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'LICENSE'
+      - '.editorconfig'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'cookies.*.json'
+      - 'cache.*.json'
   workflow_dispatch: # Allows manual triggering from the Actions tab
 
 permissions:
