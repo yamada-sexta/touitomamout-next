@@ -16,6 +16,8 @@ import type { TaggedSynchronizer } from "./synchronizer";
 const { TweetMap } = Schema;
 const { TweetSynced } = Schema;
 
+let firstSync = true;
+
 export async function syncPosts(args: {
   db: DBType;
   handle: TwitterHandle;
@@ -37,11 +39,12 @@ export async function syncPosts(args: {
   let counter = 0;
   try {
     debug("getting", handle);
-    const iter = x.getTweets(handle.handle, HISTORICAL_SYNC_LIMIT);
+    const maxSync = firstSync ? HISTORICAL_SYNC_LIMIT : Infinity;
+    const iter = x.getTweets(handle.handle, maxSync);
     log.text = "Created async iterator";
     for await (const tweet of iter) {
       counter++;
-      log.text = `syncing [${counter}/${HISTORICAL_SYNC_LIMIT === Infinity ? "∞" : HISTORICAL_SYNC_LIMIT}] tweets...`;
+      log.text = `syncing [${counter}/${maxSync === Infinity ? "∞" : maxSync}] tweets...`;
       if (cachedCounter >= MAX_CONSECUTIVE_CACHED) {
         log.info("skipping because too many consecutive cached tweets");
         break;
@@ -131,4 +134,6 @@ export async function syncPosts(args: {
   }
 
   log.succeed("synced");
+
+  firstSync = false;
 }

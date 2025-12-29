@@ -35,7 +35,7 @@ const RKEY_REGEX = /\/(?<rkey>\w+)$/;
 
 export async function getExternalEmbedding(
   richText: RichText,
-  agent: Agent
+  agent: Agent,
 ): Promise<$Typed<AppBskyEmbedExternal.Main> | undefined> {
   try {
     const card = await getBlueskyChunkLinkMetadata(richText, agent);
@@ -81,7 +81,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
     const blueskyInstance = args.env.BLUESKY_INSTANCE;
 
     const session = new CredentialSession(
-      new URL(`https://${blueskyInstance}`)
+      new URL(`https://${blueskyInstance}`),
     );
 
     const agent = new Agent(session);
@@ -97,7 +97,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
     });
 
     async function getPostFromTid(
-      tid?: string
+      tid?: string,
     ): Promise<ReturnType<typeof agent.getPost> | void> {
       if (!tid) {
         return;
@@ -146,8 +146,8 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           if (embedUrl) {
             log.info(
               `☁️ | post sending: ${getPostExcerpt(
-                tweet.text ?? VOID
-              )} (as embed retweet)`
+                tweet.text ?? VOID,
+              )} (as embed retweet)`,
             );
             const richText = new RichText({ text: embedUrl });
             await richText.detectFacets(agent);
@@ -234,7 +234,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           } catch (error) {
             logError(
               log,
-              error
+              error,
             )`Error while uploading video to bluesky: ${error}`;
           }
         } else if (photos.length > 0) {
@@ -264,7 +264,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
             } catch (error) {
               logError(
                 log,
-                error
+                error,
               )`Failed to parse ${photo} for bluesky: ${error}`;
             }
           }
@@ -277,7 +277,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
                   ({
                     alt: p.alt_text ?? "",
                     image: i.data.blob,
-                  }) as BlueskyImage
+                  }) as BlueskyImage,
               ),
             };
           }
@@ -289,7 +289,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
 
         if (!media && !post.tweet.text) {
           log.warn(
-            `☁️ | post skipped: no compatible media nor text to post (tweet: ${post.tweet.id})`
+            `☁️ | post skipped: no compatible media nor text to post (tweet: ${post.tweet.id})`,
           );
           return;
         }
@@ -351,7 +351,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
               if (post.replyPost.value.reply) {
                 data.reply = buildReplyEntry(
                   post.replyPost.value.reply.root,
-                  post.replyPost
+                  post.replyPost,
                 );
               } else {
                 data.reply = buildReplyEntry(post.replyPost);
@@ -360,7 +360,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           } else {
             data.reply = buildReplyEntry(
               chunkReferences[0],
-              chunkReferences[i - 1]
+              chunkReferences[i - 1],
             );
           }
 
@@ -371,7 +371,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
             log,
             { before: "☁️ | post sending: " },
             i,
-            post.chunks.length
+            post.chunks.length,
           );
           debug("createdPost on bsky", createdPost);
           chunkReferences.push({

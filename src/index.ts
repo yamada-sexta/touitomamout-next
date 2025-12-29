@@ -90,7 +90,7 @@ for (const handle of TWITTER_HANDLES) {
         (fallback[key as keyof typeof fallback] as string | undefined);
       if (!value) {
         log.warn(
-          `${factory.DISPLAY_NAME} will not be synced because "${osKey}" is not set`
+          `${factory.DISPLAY_NAME} will not be synced because "${osKey}" is not set`,
         );
         skip = true;
         break;
@@ -123,7 +123,7 @@ for (const handle of TWITTER_HANDLES) {
     } catch (error) {
       logError(
         log,
-        error
+        error,
       )`Failed to connect to ${factory.DISPLAY_NAME}: ${error}`;
     } finally {
       log.stop();
@@ -146,7 +146,7 @@ const syncAll = async () => {
 
   for await (const user of users) {
     console.log(
-      `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`
+      `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`,
     );
     console.log(`| @${user.handle.handle}`);
     await syncProfile({
@@ -180,7 +180,7 @@ if (CRON_JOB_SCHEDULE) {
     `Scheduled next run: ${job
       .nextDates(1)
       .map((d) => `${d.toJSDate().toLocaleString()}`)
-      .join("")}`
+      .join("")}`,
   );
   job.start();
 } else if (DAEMON) {
@@ -191,7 +191,7 @@ if (CRON_JOB_SCHEDULE) {
     async () => {
       await syncAll();
     },
-    SYNC_FREQUENCY_MIN * 60 * 1000
+    SYNC_FREQUENCY_MIN * 60 * 1000,
   );
 } else {
   console.log("Running single sync...");

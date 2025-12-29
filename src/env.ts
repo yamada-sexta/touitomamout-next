@@ -54,7 +54,7 @@ export function envBool(key: string, defaultValue = false): boolean {
   const res = stringbool.safeParse(process.env[key]);
   if (!res.success) {
     console.warn(
-      `Invalid boolean for env ${key}: ${process.env[key]}, using default ${defaultValue}`
+      `Invalid boolean for env ${key}: ${process.env[key]}, using default ${defaultValue}`,
     );
     return defaultValue;
   }
@@ -71,7 +71,7 @@ export function envInt(key: string, defaultValue: number): number {
   const parsed = Number.parseInt(value, 10);
   if (isNaN(parsed)) {
     console.warn(
-      `Invalid integer for env ${key}: ${value}, using default ${defaultValue}`
+      `Invalid integer for env ${key}: ${value}, using default ${defaultValue}`,
     );
     return defaultValue;
   }
@@ -80,7 +80,7 @@ export function envInt(key: string, defaultValue: number): number {
 }
 
 export const TWITTER_USERNAME = trimTwitterHandle(
-  process.env.TWITTER_USERNAME ?? ""
+  process.env.TWITTER_USERNAME ?? "",
 );
 export const TWITTER_PASSWORD = (process.env.TWITTER_PASSWORD ?? "").trim();
 export const DATABASE_PATH = (
@@ -92,12 +92,11 @@ export const BACKDATE_BLUESKY_POSTS = envBool("BACKDATE_BLUESKY_POSTS", true);
 export const SYNC_FREQUENCY_MIN = envInt("SYNC_FREQUENCY_MIN", 30);
 export const SYNC_PROFILE_DESCRIPTION = envBool(
   "SYNC_PROFILE_DESCRIPTION",
-  true
+  true,
 );
 export const SYNC_PROFILE_PICTURE = envBool("SYNC_PROFILE_PICTURE", true);
 export const SYNC_PROFILE_NAME = envBool("SYNC_PROFILE_NAME", true);
 export const SYNC_PROFILE_HEADER = envBool("SYNC_PROFILE_HEADER", true);
-export const SYNC_DRY_RUN = envBool("SYNC_DRY_RUN", false);
 export const DEBUG = envBool("TOUITOMAMOUT_DEBUG", false);
 
 export const DAEMON = envBool("DAEMON", true);
@@ -125,7 +124,6 @@ export const BSKY_EMB_FIX = z
   .default("fxbsky.app")
   .parse(process.env.BSKY_EMB_FIX);
 
-
-export const CRON_JOB_SCHEDULE  = process.env.CRON_JOB_SCHEDULE?.trim() || "";
+export const CRON_JOB_SCHEDULE = process.env.CRON_JOB_SCHEDULE?.trim() || "";
 
 export const HISTORICAL_SYNC_LIMIT = envInt("HISTORICAL_SYNC_LIMIT", Infinity);

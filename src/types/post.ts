@@ -227,7 +227,7 @@ export const toMetaPost = (tweet: Post): MetaPost => {
         tweet.videos.map(async (v): Promise<DownloadedVideo> => {
           const file = await download(v.url);
           return { ...v, file };
-        })
+        }),
       );
       videoFiles = files;
       return files;
@@ -241,7 +241,7 @@ export const toMetaPost = (tweet: Post): MetaPost => {
         tweet.photos.map(async (photo): Promise<DownloadedPhoto> => {
           const blob = await download(photo.url);
           return { ...photo, file: blob };
-        })
+        }),
       );
       photoFiles = downloadedPhotos;
       return photoFiles;

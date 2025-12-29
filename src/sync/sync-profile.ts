@@ -143,8 +143,8 @@ export async function syncProfile(args: {
             log,
             profile,
             pfpFile: pfpBlob,
-          })
-        )
+          }),
+        ),
     );
   }
 
@@ -157,8 +157,8 @@ export async function syncProfile(args: {
             log,
             profile,
             bannerFile: bannerBlob,
-          })
-        )
+          }),
+        ),
     );
   }
 
@@ -173,8 +173,8 @@ export async function syncProfile(args: {
             profile,
             bio: profile.biography!,
             formattedBio,
-          })
-        )
+          }),
+        ),
     );
   }
 
@@ -187,8 +187,8 @@ export async function syncProfile(args: {
             log,
             profile,
             name: profile.name!,
-          })
-        )
+          }),
+        ),
     );
   }
 

@@ -5,16 +5,16 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**.md'
-      - '.env*'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'LICENSE'
-      - '.editorconfig'
-      - '.vscode/**'
-      - '.idea/**'
-      - 'cookies.*.json'
-      - 'cache.*.json'
+      - "**.md"
+      - ".env*"
+      - ".gitignore"
+      - ".gitattributes"
+      - "LICENSE"
+      - ".editorconfig"
+      - ".vscode/**"
+      - ".idea/**"
+      - "cookies.*.json"
+      - "cache.*.json"
       - docker-compose.yml
       - docker-compose.source.yml
 jobs:
