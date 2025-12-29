@@ -23,7 +23,9 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 [![Release](https://img.shields.io/github/v/release/yamada-sexta/touitomamout-next?label=release&style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/releases)
 [![Docker Image Version (tag)](https://img.shields.io/docker/v/yamadasexta/touitomamout/latest?style=flat-square)](https://hub.docker.com/r/yamadasexta/touitomamout)
+
 [![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fyamada--sexta%2Ftouitomamout--next-086dd7?logo=github&style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/pkgs/container/touitomamout-next)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-yamadasexta%2Ftouitomamout-086dd7?logo=docker&style=flat-square)](https://hub.docker.com/r/yamadasexta/touitomamout)
 
 ## Why this Fork?
 
