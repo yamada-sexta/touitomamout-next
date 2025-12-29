@@ -10,10 +10,20 @@
 Synchronize your 𝕏 posts to other social media platforms with ease.
 </p>
 
-[![Release](https://img.shields.io/github/v/release/yamada-sexta/touitomamout-next?label=release&style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/releases)
 [![Github Stars](https://img.shields.io/github/stars/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
-[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fyamada--sexta%2Ftouitomamout--next-086dd7?logo=github&style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/pkgs/container/touitomamout-next)
 [![Issues](https://img.shields.io/github/issues/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/issues)
+[![Docker Pulls](https://img.shields.io/docker/pulls/yamadasexta/touitomamout?style=flat-square&color=086dd7)](https://hub.docker.com/r/yamadasexta/touitomamout)
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/yamada-sexta/touitomamout-next/total?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/releases)
+[![GitHub License](https://img.shields.io/github/license/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/blob/main/LICENSE)
+
+### Release info:
+
+[![GitHub repo size](https://img.shields.io/github/repo-size/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
+[![Docker Image Size](https://img.shields.io/docker/image-size/yamadasexta/touitomamout?style=flat-square)](https://hub.docker.com/r/yamadasexta/touitomamout)
+
+[![Release](https://img.shields.io/github/v/release/yamada-sexta/touitomamout-next?label=release&style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/releases)
+[![Docker Image Version (tag)](https://img.shields.io/docker/v/yamadasexta/touitomamout/latest?style=flat-square)](https://hub.docker.com/r/yamadasexta/touitomamout)
+[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fyamada--sexta%2Ftouitomamout--next-086dd7?logo=github&style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/pkgs/container/touitomamout-next)
 
 ## Why this Fork?
 
