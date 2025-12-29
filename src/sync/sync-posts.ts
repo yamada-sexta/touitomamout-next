@@ -3,6 +3,7 @@ import { type DBType, Schema } from "db";
 import { eq } from "drizzle-orm";
 import {
   FORCE_SYNC_POSTS,
+  HISTORICAL_SYNC_LIMIT,
   MAX_CONSECUTIVE_CACHED,
   type TwitterHandle,
 } from "env";
@@ -11,8 +12,6 @@ import { debug, logError, oraPrefix } from "utils/logs";
 import { isPost, toMetaPost } from "types/post";
 import { getPostStore } from "../utils/get-post-store";
 import type { TaggedSynchronizer } from "./synchronizer";
-
-const MAX_TWEET = 200;
 
 const { TweetMap } = Schema;
 const { TweetSynced } = Schema;
@@ -38,11 +37,11 @@ export async function syncPosts(args: {
   let counter = 0;
   try {
     debug("getting", handle);
-    const iter = x.getTweets(handle.handle, MAX_TWEET);
+    const iter = x.getTweets(handle.handle, HISTORICAL_SYNC_LIMIT);
     log.text = "Created async iterator";
     for await (const tweet of iter) {
       counter++;
-      log.text = `syncing [${counter}/${MAX_TWEET}]`;
+      log.text = `syncing [${counter}/${HISTORICAL_SYNC_LIMIT === Infinity ? "∞" : HISTORICAL_SYNC_LIMIT}] tweets...`;
       if (cachedCounter >= MAX_CONSECUTIVE_CACHED) {
         log.info("skipping because too many consecutive cached tweets");
         break;
