@@ -16,7 +16,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/yamada-sexta/touitomamout-next/total?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/releases)
 [![GitHub License](https://img.shields.io/github/license/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/blob/main/LICENSE)
 
-### Release info:
+**Release info**
 
 [![GitHub repo size](https://img.shields.io/github/repo-size/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
 [![Docker Image Size](https://img.shields.io/docker/image-size/yamadasexta/touitomamout?style=flat-square)](https://hub.docker.com/r/yamadasexta/touitomamout)
