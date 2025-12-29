@@ -10,7 +10,10 @@ import { logError, oraPrefix } from "utils/logs";
 import { MisskeySynchronizerFactory } from "sync/platforms/misskey/missky-sync";
 import { DiscordWebhookSynchronizerFactory } from "sync/platforms/discord-webhook/webhook-sync";
 import { cycleTLSExit } from "@the-convocation/twitter-scraper/cycletls";
+import { CronJob } from "cron";
+
 import {
+  CRON_JOB_SCHEDULE,
   DAEMON,
   SYNC_FREQUENCY_MIN,
   SYNC_POSTS,
@@ -89,7 +92,6 @@ for (const handle of TWITTER_HANDLES) {
         log.warn(
           `${factory.DISPLAY_NAME} will not be synced because "${osKey}" is not set`
         );
-        // Console.warn(`Because ${osKey} is not set.`);
         skip = true;
         break;
       }
@@ -168,9 +170,22 @@ const syncAll = async () => {
   }
 };
 
-await syncAll();
-
-if (DAEMON) {
+if (CRON_JOB_SCHEDULE) {
+  console.log(`Scheduling sync with cron schedule: ${CRON_JOB_SCHEDULE}`);
+  const job = new CronJob(CRON_JOB_SCHEDULE, async () => {
+    console.log(`\nCron job triggered at ${new Date().toLocaleString()}`);
+    await syncAll();
+  });
+  console.log(
+    `Scheduled next run: ${job
+      .nextDates(1)
+      .map((d) => `${d.toJSDate().toLocaleString()}`)
+      .join("")}`
+  );
+  job.start();
+} else if (DAEMON) {
+  console.log("Running in daemon mode...");
+  await syncAll();
   console.log(`Run daemon every ${SYNC_FREQUENCY_MIN}min`);
   interval = setInterval(
     async () => {
@@ -178,6 +193,9 @@ if (DAEMON) {
     },
     SYNC_FREQUENCY_MIN * 60 * 1000
   );
+} else {
+  console.log("Running single sync...");
+  await syncAll();
 }
 
 cycleTLSExit();

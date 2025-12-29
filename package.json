@@ -28,6 +28,7 @@
     "@silvia-odwyer/photon-node": "^0.3.4",
     "@the-convocation/twitter-scraper": "^0.21.0",
     "cli-spinners": "^3.3.0",
+    "cron": "^4.4.0",
     "cycletls": "^2.0.5",
     "discord-api-types": "^0.38.37",
     "drizzle-kit": "0.31.7",

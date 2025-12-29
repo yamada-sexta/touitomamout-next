@@ -125,3 +125,6 @@ export const BSKY_EMB_FIX = z
   .literal(["fxbsky.app"])
   .default("fxbsky.app")
   .parse(process.env.BSKY_EMB_FIX);
+
+
+export const CRON_JOB_SCHEDULE  = process.env.CRON_JOB_SCHEDULE?.trim() || "";
