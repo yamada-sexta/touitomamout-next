@@ -8,3 +8,7 @@ __test__
 /.vscode
 *.sqlite
 *.db
+/dist
+README.md
+LICENSE
+*.env
