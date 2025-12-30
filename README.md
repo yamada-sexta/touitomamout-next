@@ -10,7 +10,7 @@
 Synchronize your 𝕏 posts to other social media platforms with ease.
 </p>
 
-[![Github Stars](https://img.shields.io/github/stars/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
+[![GitHub Stars](https://img.shields.io/github/stars/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
 [![Issues](https://img.shields.io/github/issues/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/issues)
 [![Docker Pulls](https://img.shields.io/docker/pulls/yamadasexta/touitomamout?style=flat-square&color=086dd7)](https://hub.docker.com/r/yamadasexta/touitomamout)
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/yamada-sexta/touitomamout-next/total?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/releases)
@@ -27,7 +27,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 [![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fyamada--sexta%2Ftouitomamout--next-086dd7?logo=github&style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/pkgs/container/touitomamout-next)
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-yamadasexta%2Ftouitomamout-086dd7?logo=docker&style=flat-square)](https://hub.docker.com/r/yamadasexta/touitomamout)
 
-## Why this Fork?
+## Why this fork?
 
 - Still maintained
 - Built on Bun with a smaller runtime
