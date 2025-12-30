@@ -57,18 +57,13 @@ export async function download(
     }
 
     // Derive a filename:
-    let finalName = filename;
-    if (!finalName) {
-      // Try Content-Disposition header
-      const contentDisposition = res.headers.get("content-disposition");
-      const match = contentDisposition?.match(/filename="?([^"]+)"?/);
-      if (match) {
-        finalName = match[1];
-      } else {
-        // Fallback to last part of URL
-        finalName = url.split("/").pop() || "downloaded-file";
-      }
-    }
+    const contentDisposition = res.headers.get("content-disposition");
+    const filenameFromHeader =
+      contentDisposition?.match(/filename="?([^"]+)"?/)?.[1];
+    const filenameFromUrl = url.split("/").pop();
+
+    const finalName =
+      filename ?? filenameFromHeader ?? filenameFromUrl ?? "downloaded-file";
 
     const file = new File(chunks, finalName, {
       type: contentType,

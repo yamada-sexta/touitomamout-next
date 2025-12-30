@@ -1,7 +1,6 @@
 import { SYNC_MASTODON, type TwitterHandle } from "env";
 import { createRestAPIClient, type mastodon } from "masto";
 import ora from "ora";
-import { TouitomamoutError } from "utils/error";
 import { oraPrefix } from "utils/logs";
 
 export async function createMastodonClient(args: {
@@ -41,10 +40,7 @@ export async function createMastodonClient(args: {
     .catch(() => {
       log.fail("authentication failure");
       throw new Error(
-        new TouitomamoutError(
-          "Touitomamout was unable to connect to mastodon with the given credentials",
-          ["Please check your .env settings."],
-        ),
+        "Touitomamout was unable to connect to mastodon with the given credentials",
       );
     });
 }

@@ -31,8 +31,8 @@ export async function migrate(
   currentVersion = Number(currentVersion);
 
   for (let i = currentVersion + 1; i < schemas.length; i++) {
-    const previousSchema = schemas[i - 1];
-    const currSchema = schemas[i];
+    const previousSchema = schemas[i - 1]!;
+    const currSchema = schemas[i]!;
 
     console.log(`Generating migration from v${i - 1} to v${i}...`);
 

@@ -86,8 +86,10 @@ export type Video = z.infer<typeof VideoSchema>;
 export type Photo = z.infer<typeof PhotoSchema>;
 export type Mention = z.infer<typeof MentionSchema>;
 
-export type DownloadedVideo = Video & { file?: File };
-export type DownloadedPhoto = Photo & { file?: File };
+export type WithOptionalFile<T> = T & { file?: File };
+
+export type DownloadedVideo = WithOptionalFile<Video>;
+export type DownloadedPhoto = WithOptionalFile<Photo>;
 
 export function isPost(data: unknown): data is Post {
   const res = PostSchema.safeParse(data);

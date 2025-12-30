@@ -1,5 +1,3 @@
-import { URL } from "node:url";
-
 // Set a constant for the 30-second timeout in milliseconds
 const TIMEOUT_MS = 30_000;
 
@@ -17,8 +15,8 @@ function extractMetaRefreshUrl(
     /<meta\s+http-equiv=["']refresh["']\s+content=["']\d+;\s*url=(.*?)["']/i.exec(
       html,
     );
-  if (metaTagMatch) {
-    const metaRedirectUrl = metaTagMatch[1];
+  const metaRedirectUrl = metaTagMatch?.[1];
+  if (metaRedirectUrl) {
     return new URL(metaRedirectUrl, baseUrl).href; // Resolve relative URL
   }
 

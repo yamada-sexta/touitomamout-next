@@ -53,5 +53,6 @@ export async function fetchLinkMetadata(
     return data;
   } catch (error) {
     console.error(`Error while fetching link metadata: ${error}`);
+    return undefined;
   }
 }

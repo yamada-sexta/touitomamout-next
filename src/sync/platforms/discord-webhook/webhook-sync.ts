@@ -37,7 +37,7 @@ function formatForDiscord(tweet: MetaPost): {
 
   // Media
   if (tweet.photos.length > 0) {
-    baseEmbed.image = { url: tweet.photos[0].url };
+    baseEmbed.image = { url: tweet.photos[0]!.url };
   }
 
   embeds.push(baseEmbed);

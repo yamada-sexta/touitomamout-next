@@ -140,7 +140,7 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
 
         if (attachments.length === 0 && !tweet.text) {
           log.warn(
-            `🦣️ | post skipped: no compatible media nor text to post (tweet: ${tweet.id})`,
+            `🦣️ | post skipped: no compatible media nor text to post (tweet: ${tweet.id})`
           );
           return;
         }
@@ -148,10 +148,8 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
         log.text = `🦣 | toot sending: ${getPostExcerpt(tweet.text ?? VOID)}`;
 
         const tootIds: string[] = [];
-
-        for (let i = 0; i < chunks.length; i++) {
+        for await (const [i, chunk] of chunks.entries()) {
           const first = i === 0;
-          const chunk = chunks[i];
           debug("Mastodon chunk to post:", {
             chunk,
             index: i,
@@ -163,7 +161,6 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
             visibility: "public",
             mediaIds: first ? attachments.map((m) => m.id) : undefined,
             inReplyToId: first ? inReplyToId : tootIds[i - 1],
-            // I === 0 ? post.inReplyToId : chunkReferences[chunkIndex - 1],
           });
           oraProgress(log, { before: "🦣 | toot sending: " }, i, chunks.length);
           // Save toot ID to be able to reference it while posting the next chunk.

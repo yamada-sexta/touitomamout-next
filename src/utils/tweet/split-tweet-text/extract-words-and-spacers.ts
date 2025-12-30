@@ -53,7 +53,8 @@ export const extractWordsAndSpacers = (
     );
 
     for (const match of result) {
-      const { word, spacer } = match.groups!;
+      const word = match.groups?.word ?? "";
+      const spacer = match.groups?.spacer ?? "";
       newEntries.push({ str: word, sep: spacer });
     }
   }

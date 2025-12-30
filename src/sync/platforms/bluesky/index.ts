@@ -22,7 +22,7 @@ import { getPostStore } from "utils/get-post-store";
 import { debug, logError, oraProgress } from "utils/logs";
 import { getPostExcerpt } from "utils/post/get-post-excerpt";
 import z from "zod";
-import { type Photo } from "types/post";
+import { type DownloadedVideo, type Photo } from "types/post";
 import { type SynchronizerFactory } from "../../synchronizer";
 import { syncProfile } from "./sync-profile";
 import { BLUESKY_KEYS, BlueskyPlatformStore, type BlueskyPost } from "./types";
@@ -215,13 +215,13 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
         const videos = await tweet.getVideos();
         const photos = await tweet.getPhotos();
 
-        if (videos.length > 0 && videos[0].file) {
+        if (videos.length > 0 && videos[0]!.file) {
           log.text = "Uploading video to bluesky...";
           if (videos.length > 1) {
             log.warn(`Unable to upload all ${videos.length} videos`);
           }
 
-          const [video] = videos;
+          const [video] = videos as [DownloadedVideo];
           try {
             const blob = await parseBlobForBluesky(video.file!);
             const uploadRes = await agent.uploadBlob(blob.blobData, {
@@ -248,7 +248,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
             }
 
             const photo = photos[i];
-            if (!photo.file) {
+            if (!photo?.file) {
               log.warn(`can't download ${photos}...`);
               continue;
             }
@@ -325,7 +325,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
         debug("first embed bsky:", { firstEmbed });
 
         for (let i = 0; i < post.chunks.length; i++) {
-          const chunk = post.chunks[i];
+          const chunk = post.chunks[i] as string;
 
           debug("bluesky post chunk: ", chunk);
 
@@ -359,7 +359,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
             }
           } else {
             data.reply = buildReplyEntry(
-              chunkReferences[0],
+              chunkReferences[0] as { uri: string; cid: string; rkey: string },
               chunkReferences[i - 1],
             );
           }
