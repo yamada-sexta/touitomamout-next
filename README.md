@@ -34,7 +34,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 - More sensible default settings
 - Multi-account support
 - More supported platforms
-- Cron support
+- Better Cron support
 - Less likely to trigger Cloudflare detection
 
 <img alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
