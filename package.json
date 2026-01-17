@@ -24,11 +24,11 @@
     "url": "https://github.com/yamada-sexta/touitomamout-next.git"
   },
   "dependencies": {
-    "@atproto/api": "^0.18.14",
+    "@atproto/api": "^0.18.16",
     "@mailbutler/eldr": "^1.3.1",
     "@silvia-odwyer/photon-node": "^0.3.4",
-    "@the-convocation/twitter-scraper": "^0.21.0",
-    "cli-spinners": "^3.3.0",
+    "@the-convocation/twitter-scraper": "^0.21.1",
+    "cli-spinners": "^3.4.0",
     "cron": "^4.4.0",
     "cycletls": "^2.0.5",
     "discord-api-types": "^0.38.37",
@@ -36,15 +36,15 @@
     "drizzle-orm": "^0.45.1",
     "html-entities": "^2.6.0",
     "masto": "^7.10.1",
-    "misskey-js": "^2025.12.2",
+    "misskey-js": "^2026.1.0-beta.0",
     "ora": "^9.0.0",
     "tough-cookie": "^6.0.0",
-    "zod": "^4.2.1"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@types/bun": "^1.3.5",
-    "prettier": "3.7.4",
+    "@types/bun": "^1.3.6",
+    "prettier": "3.8.0",
     "typescript": "^5.9.3"
   },
   "module": "src/index.ts",
