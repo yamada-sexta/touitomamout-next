@@ -16,7 +16,7 @@
         "drizzle-kit": "0.31.7",
         "drizzle-orm": "^0.45.1",
         "html-entities": "^2.6.0",
-        "masto": "^7.10.0",
+        "masto": "^7.10.1",
         "misskey-js": "^2025.12.2",
         "ora": "^9.0.0",
         "tough-cookie": "^6.0.0",
@@ -245,7 +245,7 @@
 
     "luxon": ["luxon@3.7.2", "", {}, "sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew=="],
 
-    "masto": ["masto@7.10.0", "", { "dependencies": { "change-case": "^5.4.4", "events-to-async": "^2.0.2", "isomorphic-ws": "^5.0.0", "ts-custom-error": "^3.3.1", "ws": "^8.18.3" } }, "sha512-BTaivOeHkb87oND2Dp/QzRP5kWJnB5khH9xSsfS0N8WzEAziuKV4DjZAHdbh2SNemqwikQeYtMPBsl52Q9sreQ=="],
+    "masto": ["masto@7.10.1", "", { "dependencies": { "change-case": "^5.4.4", "events-to-async": "^2.0.2", "isomorphic-ws": "^5.0.0", "ts-custom-error": "^3.3.1", "ws": "^8.18.3" } }, "sha512-dYJBSwilbuLof+sd9Ov7TE8qaVcP4XLY4oB0peHMdWzewxiC/ldIs4n4vtlUj8e4lbaeLYql7n2iRm4rZx6zaA=="],
 
     "math-intrinsics": ["math-intrinsics@1.1.0", "", {}, "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g=="],
 

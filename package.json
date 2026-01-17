@@ -35,7 +35,7 @@
     "drizzle-kit": "0.31.7",
     "drizzle-orm": "^0.45.1",
     "html-entities": "^2.6.0",
-    "masto": "^7.10.0",
+    "masto": "^7.10.1",
     "misskey-js": "^2025.12.2",
     "ora": "^9.0.0",
     "tough-cookie": "^6.0.0",
