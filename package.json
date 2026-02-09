@@ -32,7 +32,7 @@
     "cron": "^4.4.0",
     "cycletls": "^2.0.5",
     "discord-api-types": "^0.38.38",
-    "drizzle-kit": "0.31.7",
+    "drizzle-kit": "0.31.9",
     "drizzle-orm": "^0.45.1",
     "html-entities": "^2.6.0",
     "masto": "^7.10.1",
