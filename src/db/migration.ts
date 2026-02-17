@@ -2,12 +2,9 @@ import { type DBType } from "db";
 // Import * as v2 from "./schema/v2";
 // import * as v3 from "./schema/v3";
 // import * as v4 from "./schema/v4";
-import {
-  generateSQLiteDrizzleJson,
-  generateSQLiteMigration,
-} from "drizzle-kit/api";
 import { type BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import * as v1 from "./schema/v1";
+import migrations from "./sql";
 
 export const schemas = [{}, v1];
 // Export const latestSchema = schemas[schemas.length - 1];
@@ -31,24 +28,21 @@ export async function migrate(
   currentVersion = Number(currentVersion);
 
   for (let i = currentVersion + 1; i < schemas.length; i++) {
-    const previousSchema = schemas[i - 1]!;
-    const currSchema = schemas[i]!;
+    console.log(`Migrating to v${i}...`);
 
-    console.log(`Generating migration from v${i - 1} to v${i}...`);
+    const migrationScript = migrations[i - 1];
 
-    const migrationStatements = await generateSQLiteMigration(
-      await generateSQLiteDrizzleJson(previousSchema),
-      await generateSQLiteDrizzleJson(currSchema),
-    );
-
-    if (migrationStatements.length === 0) {
-      console.log("No schema changes detected.");
+    if (!migrationScript) {
+      console.log(`No migration script found for v${i}.`);
       continue;
     }
 
     try {
-      // Run all migration statements within a transaction
-      for (const s of migrationStatements) {
+    // Run all migration statements within a transaction
+      // Split by semicolon as sqlite run executes one statement at a time in some drivers, 
+      const statements = migrationScript.split(";\n").filter((s) => s.trim() !== "");
+      
+      for (const s of statements) {
         console.log("Executing:", s);
         db.run(s);
       }
