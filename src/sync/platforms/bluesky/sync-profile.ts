@@ -44,7 +44,7 @@ export function syncProfile(args: {
       await agent.upsertProfile((o) => {
         const existing: Un$Typed<AppBskyActorProfile.Record> = o ?? {};
         // WTF is going on with the bluesky api???
-        existing.avatar = BlobRef.asBlobRef(ref.ref) ?? undefined;
+        existing.avatar = BlobRef.asBlobRef(ref.original) ?? undefined;
         debug("o syncProfilePic bluesky", existing);
         return existing;
       });
@@ -61,7 +61,7 @@ export function syncProfile(args: {
 
       await agent.upsertProfile((o) => {
         const existing: Un$Typed<AppBskyActorProfile.Record> = o ?? {};
-        existing.banner = BlobRef.asBlobRef(ref.ref) ?? undefined;
+        existing.banner = BlobRef.asBlobRef(ref.original) ?? undefined;
         debug("o syncBanner bluesky", existing);
         return existing;
       });
