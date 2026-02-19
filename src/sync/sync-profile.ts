@@ -56,7 +56,6 @@ async function upsertProfileCache(args: {
   if (pfpHash !== cPfpHash) {
     pfpChanged = true;
   }
-
   let bannerChanged = false;
   const cBannerHash = row?.bannerHash ?? "";
   let bannerHash = "";
@@ -116,25 +115,33 @@ export async function syncProfile(args: {
 
   // --- COMMON LOGIC: FETCH ---
   const profile = await x.getProfile(args.twitterHandle.handle);
-  const pfpUrl = profile.avatar?.replace("_normal", "") ?? "";
-  const bannerUrl = profile.banner ?? "";
+  // const pfpUrl = profile.avatar ?? "";
+  // const bannerUrl = profile.banner ?? "";
 
-  log.text = "checking media cache...";
-  const {
-    pfpChanged,
-    bannerChanged,
-    pfp: pfpBlob,
-    banner: bannerBlob,
-  } = await upsertProfileCache({
-    db,
-    userId: args.twitterHandle.handle,
-    bannerUrl,
-    pfpUrl,
-  });
+  debug("Profile fetched:", profile);
 
+  // log.text = "checking media cache...";
+  // const {
+  //   // pfpChanged,
+  //   // bannerChanged,
+  //   pfp: pfpBlob,
+  //   banner: bannerBlob,
+  // } = await upsertProfileCache({
+  //   db,
+  //   userId: args.twitterHandle.handle,
+  //   bannerUrl,
+  //   pfpUrl,
+  // });
+  // debug("Change: ", {
+  //   pfpChanged,
+  //   bannerChanged,
+  // });
+
+  const pfpBlob = await download(profile.avatar ?? "");
+  const bannerBlob = await download(profile.banner ?? "");
   const jobs: Array<Promise<void>> = [];
 
-  if (SYNC_PROFILE_PICTURE && pfpChanged && pfpBlob) {
+  if (SYNC_PROFILE_PICTURE && pfpBlob) {
     jobs.push(
       ...synchronizers
         .filter((s) => s.syncProfilePic)
@@ -148,7 +155,7 @@ export async function syncProfile(args: {
     );
   }
 
-  if (SYNC_PROFILE_HEADER && bannerChanged && bannerBlob) {
+  if (SYNC_PROFILE_HEADER && bannerBlob) {
     jobs.push(
       ...synchronizers
         .filter((s) => s.syncBanner)
@@ -195,7 +202,10 @@ export async function syncProfile(args: {
   // Run all synchronization tasks in parallel
   log.text = "dispatching sync tasks...";
   try {
-    await Promise.all(jobs);
+    // await Promise.all(jobs);
+    for (const job of jobs) {
+      await job;
+    }
     log.succeed("synced");
   } catch (error) {
     logError(log, error)`Error during synchronization: ${error}`;

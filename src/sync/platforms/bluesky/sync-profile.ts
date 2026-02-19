@@ -1,7 +1,13 @@
-import { type Agent } from "@atproto/api";
+import {
+  AppBskyActorProfile,
+  BlobRef,
+  type Agent,
+  type Un$Typed,
+} from "@atproto/api";
 import { type Synchronizer } from "sync/synchronizer";
 import { type BlueskyPlatformStore } from "./types";
 import { uploadBlueskyMedia } from "./utils/upload-bluesky-media";
+import { debug } from "utils/logs";
 
 export function syncProfile(args: {
   agent: Agent;
@@ -25,13 +31,23 @@ export function syncProfile(args: {
     async syncProfilePic(args) {
       const avatar = await uploadBlueskyMedia(args.pfpFile, agent);
       if (!avatar) {
+        throw new Error(
+          "Failed to upload avatar to Bluesky: avatar is undefined.",
+        );
+      }
+      if (!avatar.success) {
         throw new Error("Failed to upload avatar");
       }
+      const ref = avatar.data.blob;
+      debug("bluesky avatar: ", avatar);
 
-      await agent.upsertProfile((o) => ({
-        ...o,
-        avatar: avatar.data.blob,
-      }));
+      await agent.upsertProfile((o) => {
+        const existing: Un$Typed<AppBskyActorProfile.Record> = o ?? {};
+        // WTF is going on with the bluesky api???
+        existing.avatar = BlobRef.asBlobRef(ref.ref) ?? undefined;
+        debug("o syncProfilePic bluesky", existing);
+        return existing;
+      });
     },
 
     async syncBanner(args) {
@@ -40,10 +56,15 @@ export function syncProfile(args: {
         throw new Error("Unable to upload banner");
       }
 
-      await agent.upsertProfile((o) => ({
-        ...o,
-        banner: res?.data.blob,
-      }));
+      const ref = res.data.blob;
+      debug("bluesky banner: ", res);
+
+      await agent.upsertProfile((o) => {
+        const existing: Un$Typed<AppBskyActorProfile.Record> = o ?? {};
+        existing.banner = BlobRef.asBlobRef(ref.ref) ?? undefined;
+        debug("o syncBanner bluesky", existing);
+        return existing;
+      });
     },
   };
 }

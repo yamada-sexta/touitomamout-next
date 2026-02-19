@@ -26,9 +26,10 @@
   },
   "dependencies": {
     "@atproto/api": "^0.18.21",
+    "@atproto/lex": "^0.0.16",
     "@mailbutler/eldr": "^1.3.1",
     "@silvia-odwyer/photon-node": "^0.3.4",
-    "@the-convocation/twitter-scraper": "^0.21.1",
+    "@the-convocation/twitter-scraper": "^0.22.0",
     "cli-spinners": "^3.4.0",
     "cron": "^4.4.0",
     "cycletls": "^2.0.5",
