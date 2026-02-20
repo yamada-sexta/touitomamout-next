@@ -55,6 +55,7 @@ async function upsertProfileCache(args: {
 
   if (pfpHash !== cPfpHash) {
     pfpChanged = true;
+    debug("PFP has a different hash");
   }
   let bannerChanged = false;
   const cBannerHash = row?.bannerHash ?? "";
@@ -115,33 +116,33 @@ export async function syncProfile(args: {
 
   // --- COMMON LOGIC: FETCH ---
   const profile = await x.getProfile(args.twitterHandle.handle);
-  // const pfpUrl = profile.avatar ?? "";
-  // const bannerUrl = profile.banner ?? "";
+  const pfpUrl = profile.avatar ?? "";
+  const bannerUrl = profile.banner ?? "";
 
   debug("Profile fetched:", profile);
 
   // log.text = "checking media cache...";
-  // const {
-  //   // pfpChanged,
-  //   // bannerChanged,
-  //   pfp: pfpBlob,
-  //   banner: bannerBlob,
-  // } = await upsertProfileCache({
-  //   db,
-  //   userId: args.twitterHandle.handle,
-  //   bannerUrl,
-  //   pfpUrl,
-  // });
-  // debug("Change: ", {
-  //   pfpChanged,
-  //   bannerChanged,
-  // });
+  const {
+    pfpChanged,
+    bannerChanged,
+    pfp: pfpBlob,
+    banner: bannerBlob,
+  } = await upsertProfileCache({
+    db,
+    userId: args.twitterHandle.handle,
+    bannerUrl,
+    pfpUrl,
+  });
+  debug("Change: ", {
+    pfpChanged,
+    bannerChanged,
+  });
 
-  const pfpBlob = await download(profile.avatar ?? "");
-  const bannerBlob = await download(profile.banner ?? "");
+  // const pfpBlob = await download(profile.avatar ?? "");
+  // const bannerBlob = await download(profile.banner ?? "");
   const jobs: Array<Promise<void>> = [];
 
-  if (SYNC_PROFILE_PICTURE && pfpBlob) {
+  if (SYNC_PROFILE_PICTURE && pfpBlob && pfpChanged) {
     jobs.push(
       ...synchronizers
         .filter((s) => s.syncProfilePic)
@@ -155,7 +156,7 @@ export async function syncProfile(args: {
     );
   }
 
-  if (SYNC_PROFILE_HEADER && bannerBlob) {
+  if (SYNC_PROFILE_HEADER && bannerBlob && bannerChanged) {
     jobs.push(
       ...synchronizers
         .filter((s) => s.syncBanner)
