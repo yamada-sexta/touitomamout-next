@@ -1,6 +1,5 @@
 FROM oven/bun:alpine
 
-# Expose the target architecture automatically provided by Docker BuildKit
 ARG TARGETARCH
 
 # Install dependencies for cycleTLS
@@ -9,7 +8,7 @@ RUN apk add --no-cache ca-certificates libc6-compat
 WORKDIR /app
 COPY package.json bun.lock tsconfig.json /app/
 
-# Install dependencies and dynamically delete the unused cycleTLS binaries
+# Install, clean cycletls, AND wipe the hidden Bun cache!
 RUN bun install --production --no-cache && \
     cd /app/node_modules/cycletls/dist && \
     if [ "$TARGETARCH" = "arm64" ]; then \
@@ -19,9 +18,9 @@ RUN bun install --production --no-cache && \
     elif [ "$TARGETARCH" = "arm" ]; then \
     rm -f index index-arm64 index.exe index-freebsd index-mac index-mac-arm64; \
     else \
-    # Fallback to just deleting Windows/Mac/FreeBSD if architecture is unknown
     rm -f index.exe index-freebsd index-mac index-mac-arm64; \
-    fi
+    fi && \
+    rm -rf /root/.bun/install/cache
 
 COPY src/ /app/src
 
