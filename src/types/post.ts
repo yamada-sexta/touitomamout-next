@@ -1,5 +1,5 @@
 import { decode } from "html-entities";
-import eldr from "@mailbutler/eldr/extra-small";
+// import eldr from "@mailbutler/eldr/extra-small";
 import { extractWordsAndSpacers } from "utils/tweet/split-tweet-text/extract-words-and-spacers";
 import { buildChunksFromSplitterEntries } from "utils/tweet/split-tweet-text/split-tweet-text";
 import { download } from "utils/medias/download-media";
@@ -118,7 +118,7 @@ export type MetaPost = {
   datetime: Date;
   rawText?: string;
   text: string;
-  language: string;
+  // language: string;
   sensitiveContent: boolean;
   quotedStatus?: MetaPost;
   retweetedStatus?: MetaPost;
@@ -207,7 +207,7 @@ export const toMetaPost = (tweet: Post): MetaPost => {
     datetime: new Date((tweet.timestamp ?? 0) * 1000),
     text,
     rawText: tweet.text,
-    language: eldr.detect(text).languageName,
+    // language: eldr.detect(text).languageName,
     sensitiveContent: tweet.sensitiveContent ?? false,
     async chunk(args: SplitTextArgs) {
       const entries = extractWordsAndSpacers(text, tweet.urls ?? []);
