@@ -6,7 +6,7 @@ RUN apk add --no-cache ca-certificates libc6-compat
 WORKDIR /app
 COPY package.json bun.lock tsconfig.json /app/
 
-RUN bun i --production
+RUN bun install --production --no-cache
 
 COPY src/ /app/src
 
