@@ -8,7 +8,7 @@ RUN apk add --no-cache ca-certificates libc6-compat
 WORKDIR /app
 COPY package.json bun.lock tsconfig.json /app/
 
-# Install, clean cycletls, AND wipe the hidden Bun cache!
+# Install, clean cycletls, wipe Bun cache, AND prune useless files!
 RUN bun install --production --no-cache && \
     cd /app/node_modules/cycletls/dist && \
     if [ "$TARGETARCH" = "arm64" ]; then \
@@ -20,7 +20,8 @@ RUN bun install --production --no-cache && \
     else \
     rm -f index.exe index-freebsd index-mac index-mac-arm64; \
     fi && \
-    rm -rf /root/.bun/install/cache
+    rm -rf /root/.bun/install/cache && \
+    find /app/node_modules -type f \( -name "*.md" -o -name "*.map" -o -name "*.d.ts" -o -name "LICENSE" \) -delete
 
 COPY src/ /app/src
 
