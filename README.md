@@ -30,7 +30,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 ## Why this fork?
 
 - Still maintained
-- Built on Bun with a smaller runtime
+- Built on Bun with a smaller bundle size
 - More sensible default settings
 - Multi-account support
 - More supported platforms
