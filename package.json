@@ -28,7 +28,7 @@
     "@atproto/api": "^0.18.21",
     "@atproto/lex": "^0.0.16",
     "@silvia-odwyer/photon-node": "^0.3.4",
-    "@the-convocation/twitter-scraper": "^0.22.0",
+    "@the-convocation/twitter-scraper": "^0.22.1",
     "cli-spinners": "^3.4.0",
     "cron": "^4.4.0",
     "cycletls": "^2.0.5",
