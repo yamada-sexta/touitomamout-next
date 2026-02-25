@@ -95,8 +95,16 @@ export const SYNC_PROFILE_DESCRIPTION = envBool(
   true,
 );
 export const SYNC_PROFILE_PICTURE = envBool("SYNC_PROFILE_PICTURE", true);
+export const FORCE_SYNC_PROFILE_PICTURE = envBool(
+  "FORCE_SYNC_PROFILE_PICTURE",
+  false,
+);
 export const SYNC_PROFILE_NAME = envBool("SYNC_PROFILE_NAME", true);
 export const SYNC_PROFILE_HEADER = envBool("SYNC_PROFILE_HEADER", true);
+export const FORCE_SYNC_PROFILE_HEADER = envBool(
+  "FORCE_SYNC_PROFILE_HEADER",
+  false,
+);
 export const DEBUG = envBool("TOUITOMAMOUT_DEBUG", false);
 
 export const DAEMON = envBool("DAEMON", true);

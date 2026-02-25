@@ -9,7 +9,8 @@ export async function uploadBlueskyMedia(
   mediaBlob: Blob,
   agent: Agent,
 ): Promise<ComAtprotoRepoUploadBlob.Response | undefined> {
-  const { blobData, mimeType } = await parseBlobForBluesky(mediaBlob);
+  const { data: data, mimeType } = await parseBlobForBluesky(mediaBlob);
+  const blobData = new Blob([data], { type: mimeType });
   return agent.uploadBlob(blobData, {
     encoding: mimeType,
   });

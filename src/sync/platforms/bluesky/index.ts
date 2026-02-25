@@ -229,7 +229,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           const [video] = videos as [DownloadedVideo];
           try {
             const blob = await parseBlobForBluesky(video.file!);
-            const uploadRes = await agent.uploadBlob(blob.blobData, {
+            const uploadRes = await agent.uploadBlob(blob.data, {
               encoding: blob.mimeType,
             });
             media = {
@@ -261,7 +261,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
             try {
               const blob = await parseBlobForBluesky(photo.file);
               photoRes.push([
-                await agent.uploadBlob(blob.blobData, {
+                await agent.uploadBlob(blob.data, {
                   encoding: blob.mimeType,
                 }),
                 photo,

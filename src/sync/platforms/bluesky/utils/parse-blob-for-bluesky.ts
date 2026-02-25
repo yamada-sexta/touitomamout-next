@@ -3,7 +3,7 @@ import { compressMedia } from "utils/medias/compress-media";
 
 type BlueskyBlob = {
   mimeType: string;
-  blobData: Uint8Array;
+  data: Blob;
 };
 
 const allowedMimeTypes = new Set([
@@ -30,7 +30,7 @@ export async function parseBlobForBluesky(
     )) || inputBlob;
 
   const ab = await blob.arrayBuffer();
-  const data = new Uint8Array(ab);
+  // const data = new Uint8Array(ab);
 
   const mimeType = blob.type || inputBlob.type;
 
@@ -44,6 +44,6 @@ export async function parseBlobForBluesky(
 
   return {
     mimeType,
-    blobData: data,
+    data: blob,
   };
 }

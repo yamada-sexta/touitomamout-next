@@ -40,7 +40,7 @@ export async function getBlueskyLinkMetadata(
 
   const blueskyBlob = await parseBlobForBluesky(mediaBlob);
 
-  const media = await client.uploadBlob(blueskyBlob.blobData, {
+  const media = await client.uploadBlob(blueskyBlob.data, {
     encoding: blueskyBlob.mimeType,
   });
 

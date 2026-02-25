@@ -2,6 +2,8 @@ import type { Scraper } from "@the-convocation/twitter-scraper";
 import { type DBType, Schema } from "db";
 import { eq } from "drizzle-orm";
 import {
+  FORCE_SYNC_PROFILE_HEADER,
+  FORCE_SYNC_PROFILE_PICTURE,
   SYNC_PROFILE_DESCRIPTION,
   SYNC_PROFILE_HEADER,
   SYNC_PROFILE_NAME,
@@ -14,6 +16,7 @@ import { download } from "utils/medias/download-media";
 import { getBlobHash } from "utils/medias/get-blob-hash";
 import { shortenedUrlsReplacer } from "utils/url/shortened-urls-replacer";
 import { type TaggedSynchronizer } from "./synchronizer";
+import { sleep } from "bun";
 
 const Table = Schema.TwitterProfileCache;
 
@@ -42,31 +45,38 @@ async function upsertProfileCache(args: {
     .from(Table)
     .where(eq(Table.userId, userId));
 
-  let pfpChanged = false;
-
   const cPfpHash = row?.pfpHash ?? "";
   // We have to check the actual content, because Twitter doesn't always change the URL when the image is changed
   const pfpBlob = SYNC_PROFILE_PICTURE ? await download(pfpUrl) : undefined;
-  const pfpHash = await getBlobHash(pfpBlob);
-  debug("PFP hash:", pfpHash, "Cached PFP hash:", cPfpHash);
+  const pfpHash = (await getBlobHash(pfpBlob)) ?? "";
 
-  if (pfpHash !== cPfpHash && SYNC_PROFILE_PICTURE) {
-    pfpChanged = true;
-    debug("PFP has a different hash");
-  }
-  let bannerChanged = false;
+  let pfpChanged = pfpHash !== cPfpHash && SYNC_PROFILE_PICTURE;
+  debug(
+    "PFP hash:",
+    pfpHash,
+    "Cached PFP hash:",
+    cPfpHash,
+    "Changed:",
+    pfpChanged,
+  );
+
   const cBannerHash = row?.bannerHash ?? "";
 
   const bannerBlob = SYNC_PROFILE_HEADER
     ? await download(bannerUrl)
     : undefined;
-  const bannerHash = await getBlobHash(bannerBlob);
-  debug("Banner hash:", bannerHash, "Cached banner hash:", cBannerHash);
+  const bannerHash = (await getBlobHash(bannerBlob)) ?? "";
 
-  if (bannerHash !== cBannerHash && SYNC_PROFILE_HEADER) {
-    bannerChanged = true;
-    debug("Banner has a different hash");
-  }
+  let bannerChanged = bannerHash !== cBannerHash && SYNC_PROFILE_HEADER;
+
+  debug(
+    "Banner hash:",
+    bannerHash,
+    "Cached banner hash:",
+    cBannerHash,
+    "Changed:",
+    bannerChanged,
+  );
 
   // Upsert (insert or update) the cache row
   await db
@@ -140,7 +150,9 @@ export async function syncProfile(args: {
   // const bannerBlob = await download(profile.banner ?? "");
   const jobs: Array<Promise<void>> = [];
 
-  if (SYNC_PROFILE_PICTURE && pfpBlob && pfpChanged) {
+  const needSyncPfp = SYNC_PROFILE_PICTURE && pfpChanged;
+
+  if ((needSyncPfp || FORCE_SYNC_PROFILE_PICTURE) && pfpBlob) {
     jobs.push(
       ...synchronizers
         .filter((s) => s.syncProfilePic)
@@ -154,7 +166,9 @@ export async function syncProfile(args: {
     );
   }
 
-  if (SYNC_PROFILE_HEADER && bannerBlob && bannerChanged) {
+  const needSyncBanner = SYNC_PROFILE_HEADER && bannerChanged;
+
+  if ((needSyncBanner || FORCE_SYNC_PROFILE_HEADER) && bannerBlob) {
     jobs.push(
       ...synchronizers
         .filter((s) => s.syncBanner)
@@ -204,6 +218,7 @@ export async function syncProfile(args: {
     // await Promise.all(jobs);
     for (const job of jobs) {
       await job;
+      await sleep(1000); // Sleep for a short time between tasks to fix the stupid bluesky api.
     }
     log.succeed("synced");
   } catch (error) {
