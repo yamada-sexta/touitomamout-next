@@ -11,8 +11,10 @@ const allowedMimeTypes = new Set([
   "image/png",
   "image/jpg",
   "image/jpeg",
+  "image/heic",
   "image/webp",
   "video/mp4",
+  "video/quicktime",
 ]);
 
 /**
