@@ -29,7 +29,7 @@ export async function parseBlobForBluesky(
       () => inputBlob,
     )) || inputBlob;
 
-  const ab = await blob.arrayBuffer();
+  // const ab = await blob.arrayBuffer();
   // const data = new Uint8Array(ab);
 
   const mimeType = blob.type || inputBlob.type;
