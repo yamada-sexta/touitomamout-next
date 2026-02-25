@@ -41,31 +41,30 @@ async function upsertProfileCache(args: {
     })
     .from(Table)
     .where(eq(Table.userId, userId));
+
   let pfpChanged = false;
 
-  // const cPfpUrl = row?.pfpUrl ?? "";
   const cPfpHash = row?.pfpHash ?? "";
-  // let pfpHash = "";
   let pfpBlob: File | undefined;
 
   // We have to check the actual content, because Twitter doesn't always change the URL when the image is changed
-
-  pfpBlob = await download(pfpUrl);
+  pfpBlob = SYNC_PROFILE_PICTURE ? await download(pfpUrl) : undefined;
   const pfpHash = await getBlobHash(pfpBlob);
+  debug("PFP hash:", pfpHash, "Cached PFP hash:", cPfpHash);
 
-  if (pfpHash !== cPfpHash) {
+  if (pfpHash !== cPfpHash && SYNC_PROFILE_PICTURE) {
     pfpChanged = true;
     debug("PFP has a different hash");
   }
   let bannerChanged = false;
   const cBannerHash = row?.bannerHash ?? "";
-  let bannerHash = "";
-  let bannerBlob: File | undefined;
 
-  bannerBlob = await download(bannerUrl);
-  const hash = await getBlobHash(bannerBlob);
-  bannerHash = hash;
-  if (hash !== cBannerHash) {
+  let bannerBlob: File | undefined;
+  bannerBlob = SYNC_PROFILE_HEADER ? await download(bannerUrl) : undefined;
+  const bannerHash = await getBlobHash(bannerBlob);
+  debug("Banner hash:", bannerHash, "Cached banner hash:", cBannerHash);
+
+  if (bannerHash !== cBannerHash && SYNC_PROFILE_HEADER) {
     bannerChanged = true;
     debug("Banner has a different hash");
   }
@@ -116,8 +115,8 @@ export async function syncProfile(args: {
 
   // --- COMMON LOGIC: FETCH ---
   const profile = await x.getProfile(args.twitterHandle.handle);
-  const pfpUrl = profile.avatar ?? "";
-  const bannerUrl = profile.banner ?? "";
+  const pfpUrl = SYNC_PROFILE_PICTURE ? profile.avatar : undefined;
+  const bannerUrl = SYNC_PROFILE_HEADER ? profile.banner : undefined;
 
   debug("Profile fetched:", profile);
 

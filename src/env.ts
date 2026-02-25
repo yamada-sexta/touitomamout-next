@@ -58,7 +58,7 @@ export function envBool(key: string, defaultValue = false): boolean {
     );
     return defaultValue;
   }
-
+  console.log(`${key}=${res.data}`);
   return res.data;
 }
 
