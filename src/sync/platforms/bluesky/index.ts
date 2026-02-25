@@ -16,7 +16,6 @@ import {
   buildReplyEntry,
   getBlueskyChunkLinkMetadata,
 } from "sync/platforms/bluesky/utils";
-import { parseBlobForBluesky } from "sync/platforms/bluesky/utils/parse-blob-for-bluesky";
 import { splitTextForBluesky } from "sync/platforms/bluesky/utils/split-text";
 import { getPostStore } from "utils/get-post-store";
 import { debug, logError, oraProgress } from "utils/logs";
@@ -26,6 +25,7 @@ import { type DownloadedVideo, type Photo } from "types/post";
 import { type SynchronizerFactory } from "../../synchronizer";
 import { syncProfile } from "./sync-profile";
 import { BLUESKY_KEYS, BlueskyPlatformStore, type BlueskyPost } from "./types";
+import { uploadBlueskyMedia } from "./utils/upload-bluesky-media";
 
 export const PostRefArraySchema = z.array(BlueskyPlatformStore);
 export type PostRefArray = z.infer<typeof PostRefArraySchema>;
@@ -228,10 +228,12 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
 
           const [video] = videos as [DownloadedVideo];
           try {
-            const blob = await parseBlobForBluesky(video.file!);
-            const uploadRes = await agent.uploadBlob(blob.data, {
-              encoding: blob.mimeType,
-            });
+            const uploadRes = await uploadBlueskyMedia(video.file!, agent);
+            if (!uploadRes) {
+              throw new Error(
+                "Failed to upload video to bluesky: uploadRes is undefined",
+              );
+            }
             media = {
               $type: "app.bsky.embed.video",
               video: uploadRes.data.blob,
@@ -259,13 +261,14 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
             }
 
             try {
-              const blob = await parseBlobForBluesky(photo.file);
-              photoRes.push([
-                await agent.uploadBlob(blob.data, {
-                  encoding: blob.mimeType,
-                }),
-                photo,
-              ]);
+              // const blob = await parseBlobForBluesky(photo.file);
+              const res = await uploadBlueskyMedia(photo.file, agent);
+              if (!res) {
+                throw new Error(
+                  "Failed to upload photo to bluesky: upload result is undefined",
+                );
+              }
+              photoRes.push([res, photo]);
             } catch (error) {
               logError(
                 log,

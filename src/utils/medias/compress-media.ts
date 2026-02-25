@@ -14,7 +14,7 @@ export async function compressMedia(
   targetSizeInBytes: number,
 ): Promise<Blob | void> {
   if (inputBlob.type.startsWith("video/")) {
-    console.log("Unable to compress videos");
+    console.warn("Unable to compress videos");
     return;
   }
 

@@ -41,11 +41,20 @@ export function syncProfile(args: {
       const ref = avatar.data.blob;
       debug("bluesky avatar: ", avatar);
 
-      await agent.upsertProfile((o) => {
+      // const agentProfile = await agent.sessionManager.did;
+      // debug("Current agent profile: ", agent.sessionManager.did);
+      const did = await agent.sessionManager.did;
+      if (!did) {
+        throw new Error("Failed to retrieve DID from agent session manager");
+      }
+
+      await agent.upsertProfile(async (o) => {
         const existing: Un$Typed<AppBskyActorProfile.Record> = o ?? {};
+        const profile = await agent.getProfile({ actor: did });
+
         // WTF is going on with the bluesky api???
         existing.avatar = BlobRef.asBlobRef(ref.original) ?? undefined;
-        debug("o syncProfilePic bluesky", existing);
+        debug("o syncProfilePic bluesky", existing, profile);
         return existing;
       });
     },

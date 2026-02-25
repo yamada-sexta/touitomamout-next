@@ -1,7 +1,8 @@
 import { type Agent, type ComAtprotoRepoUploadBlob } from "@atproto/api";
 import { download } from "utils/medias/download-media";
 import { fetchLinkMetadata, type LinkMetadata } from "./fetch-link-metadata";
-import { parseBlobForBluesky } from "./parse-blob-for-bluesky";
+import { uploadBlueskyMedia } from "./upload-bluesky-media";
+// import { parseBlobForBluesky } from "./parse-blob-for-bluesky";
 
 export type BlueskyLinkMetadata = Omit<LinkMetadata, "image"> & {
   image: ComAtprotoRepoUploadBlob.Response | undefined;
@@ -38,14 +39,15 @@ export async function getBlueskyLinkMetadata(
     return undefined;
   }
 
-  const blueskyBlob = await parseBlobForBluesky(mediaBlob);
+  // const blueskyBlob = await parseBlobForBluesky(mediaBlob);
 
-  const media = await client.uploadBlob(blueskyBlob.data, {
-    encoding: blueskyBlob.mimeType,
-  });
+  // const media = await client.uploadBlob(blueskyBlob.data, {
+  //   encoding: blueskyBlob.mimeType,
+  // });
+  const media = await uploadBlueskyMedia(mediaBlob, client);
 
   return {
     ...data,
-    image: blueskyBlob ? media : undefined,
+    image: media,
   };
 }
