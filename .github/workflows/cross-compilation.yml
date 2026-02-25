@@ -53,47 +53,44 @@ jobs:
         run: mkdir -p dist
 
       # ---------------------------------------------------------
-      # Cross-compilation Steps (with Target-Specific Pruning)
+      # Cross-compilation Steps (Corrected Binary Pruning)
       # ---------------------------------------------------------
-
-      # OPTIMIZATION 3: Keep only the target binary, and add `--minify` to compilation
 
       - name: Build for Linux (x64)
         run: |
           rm -rf node_modules/cycletls/dist && cp -r ./cycletls_backup node_modules/cycletls/dist
-          find node_modules/cycletls/dist -type f ! -name 'index' -delete
+          (cd node_modules/cycletls/dist && rm -f index-arm index-arm64 index.exe index-freebsd index-mac index-mac-arm64)
           bun build ./src/index.ts --compile --minify --target=bun-linux-x64 --outfile dist/touitomamout-linux-x64
 
       - name: Build for Linux (x64, musl)
         run: |
           rm -rf node_modules/cycletls/dist && cp -r ./cycletls_backup node_modules/cycletls/dist
-          find node_modules/cycletls/dist -type f ! -name 'index' -delete
+          (cd node_modules/cycletls/dist && rm -f index-arm index-arm64 index.exe index-freebsd index-mac index-mac-arm64)
           bun build ./src/index.ts --compile --minify --target=bun-linux-x64-musl --outfile dist/touitomamout-linux-x64-musl
 
       - name: Build for Linux (arm64, musl)
         run: |
           rm -rf node_modules/cycletls/dist && cp -r ./cycletls_backup node_modules/cycletls/dist
-          find node_modules/cycletls/dist -type f ! -name 'index-arm64' -delete
+          (cd node_modules/cycletls/dist && rm -f index index-arm index.exe index-freebsd index-mac index-mac-arm64)
           bun build ./src/index.ts --compile --minify --target=bun-linux-arm64-musl --outfile dist/touitomamout-linux-arm64-musl
 
       - name: Build for Windows (x64)
         run: |
           rm -rf node_modules/cycletls/dist && cp -r ./cycletls_backup node_modules/cycletls/dist
-          find node_modules/cycletls/dist -type f ! -name 'index.exe' -delete
+          (cd node_modules/cycletls/dist && rm -f index index-arm index-arm64 index-freebsd index-mac index-mac-arm64)
           bun build ./src/index.ts --compile --minify --target=bun-windows-x64 --outfile dist/touitomamout-windows-x64.exe
 
       - name: Build for macOS (Intel x64)
         run: |
           rm -rf node_modules/cycletls/dist && cp -r ./cycletls_backup node_modules/cycletls/dist
-          find node_modules/cycletls/dist -type f ! -name 'index-mac' -delete
+          (cd node_modules/cycletls/dist && rm -f index index-arm index-arm64 index.exe index-freebsd index-mac-arm64)
           bun build ./src/index.ts --compile --minify --target=bun-darwin-x64 --outfile dist/touitomamout-macos-x64
 
       - name: Build for macOS (Apple Silicon arm64)
         run: |
           rm -rf node_modules/cycletls/dist && cp -r ./cycletls_backup node_modules/cycletls/dist
-          find node_modules/cycletls/dist -type f ! -name 'index-mac-arm64' -delete
+          (cd node_modules/cycletls/dist && rm -f index index-arm index-arm64 index.exe index-freebsd index-mac)
           bun build ./src/index.ts --compile --minify --target=bun-darwin-arm64 --outfile dist/touitomamout-macos-arm64
-
       # ---------------------------------------------------------
       # Tagging and Releasing
       # ---------------------------------------------------------
