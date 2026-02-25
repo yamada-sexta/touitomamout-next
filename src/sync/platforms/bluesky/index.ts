@@ -78,23 +78,28 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
   STORE_SCHEMA: BlueskyPlatformStore,
 
   async create(args) {
-    const blueskyInstance = args.env.BLUESKY_INSTANCE;
+    // const blueskyInstance = args.env.BLUESKY_INSTANCE.trim();
+    let blueskyInstance = args.env.BLUESKY_INSTANCE;
+    // Check if it starts with https:// or http://, if not add https://
+    if (!/^https?:\/\//.test(blueskyInstance)) {
+      blueskyInstance = `https://${blueskyInstance}`;
+    }
+    // Remove trailing slash if exists
+    blueskyInstance = blueskyInstance.replace(/\/$/, "");
 
-    const session = new CredentialSession(
-      new URL(`https://${blueskyInstance}`),
-    );
+    const session = new CredentialSession(new URL(blueskyInstance));
 
-    const agent = new Agent(session);
     const identifier = args.env.BLUESKY_IDENTIFIER;
     const password = args.env.BLUESKY_PASSWORD;
-    const platformId = BlueskySynchronizerFactory.PLATFORM_ID;
-    const { env } = args;
-    const { db } = args;
-
     await session.login({
       identifier,
       password,
     });
+
+    const agent = new Agent(session);
+    const platformId = BlueskySynchronizerFactory.PLATFORM_ID;
+    const { env } = args;
+    const { db } = args;
 
     async function getPostFromTid(
       tid?: string,
