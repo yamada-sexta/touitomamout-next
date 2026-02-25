@@ -79,7 +79,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
 
   async create(args) {
     // const blueskyInstance = args.env.BLUESKY_INSTANCE.trim();
-    let blueskyInstance = args.env.BLUESKY_INSTANCE;
+    let blueskyInstance = args.env.BLUESKY_INSTANCE.trim();
     // Check if it starts with https:// or http://, if not add https://
     if (!/^https?:\/\//.test(blueskyInstance)) {
       blueskyInstance = `https://${blueskyInstance}`;
