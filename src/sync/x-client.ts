@@ -18,7 +18,7 @@ export async function createTwitterClient({
   const log = ora({
     color: "gray",
     prefixText: oraPrefix("𝕏 client"),
-  }).start("connecting to twitter...");
+  }).start("connecting to X...");
 
   const client = new Scraper({
     // Fetch: fetch,
