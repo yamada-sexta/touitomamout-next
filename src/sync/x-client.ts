@@ -32,6 +32,7 @@ export async function createTwitterClient({
   });
   if (!twitterPassword || !twitterUsername) {
     log.warn("connected as guest | some features may be limited");
+    log.stop();
     return client;
   }
 
