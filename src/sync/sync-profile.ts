@@ -45,10 +45,8 @@ async function upsertProfileCache(args: {
   let pfpChanged = false;
 
   const cPfpHash = row?.pfpHash ?? "";
-  let pfpBlob: File | undefined;
-
   // We have to check the actual content, because Twitter doesn't always change the URL when the image is changed
-  pfpBlob = SYNC_PROFILE_PICTURE ? await download(pfpUrl) : undefined;
+  const pfpBlob = SYNC_PROFILE_PICTURE ? await download(pfpUrl) : undefined;
   const pfpHash = await getBlobHash(pfpBlob);
   debug("PFP hash:", pfpHash, "Cached PFP hash:", cPfpHash);
 
@@ -59,8 +57,9 @@ async function upsertProfileCache(args: {
   let bannerChanged = false;
   const cBannerHash = row?.bannerHash ?? "";
 
-  let bannerBlob: File | undefined;
-  bannerBlob = SYNC_PROFILE_HEADER ? await download(bannerUrl) : undefined;
+  const bannerBlob = SYNC_PROFILE_HEADER
+    ? await download(bannerUrl)
+    : undefined;
   const bannerHash = await getBlobHash(bannerBlob);
   debug("Banner hash:", bannerHash, "Cached banner hash:", cBannerHash);
 
