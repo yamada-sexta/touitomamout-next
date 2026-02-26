@@ -154,11 +154,11 @@ export async function syncProfile(args: {
 
   if ((needSyncPfp || FORCE_SYNC_PROFILE_PICTURE) && pfpBlob) {
     log.text = "syncing profile picture...";
-    const syncPfpLog = log.spawn({ prefixText: oraPrefix("profile picture") });
     for (const s of synchronizers) {
       if (!s.syncProfilePic) {
         continue;
       }
+      debug(`Syncing profile picture for ${s.displayName}...`);
       try {
         await s.syncProfilePic({
           log,
@@ -173,6 +173,7 @@ export async function syncProfile(args: {
       }
       await wait();
     }
+    debug("Profile picture synced");
   }
 
   const needSyncBanner = SYNC_PROFILE_HEADER && bannerChanged;
@@ -183,6 +184,7 @@ export async function syncProfile(args: {
       if (!s.syncBanner) {
         continue;
       }
+      debug(`Syncing banner for ${s.displayName}...`);
       try {
         await s.syncBanner({
           log,
@@ -197,6 +199,7 @@ export async function syncProfile(args: {
       }
       await wait();
     }
+    debug("Banner synced");
   }
 
   if (SYNC_PROFILE_DESCRIPTION && profile.biography) {

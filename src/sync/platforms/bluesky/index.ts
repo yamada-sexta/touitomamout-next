@@ -12,10 +12,6 @@ import {
 } from "@atproto/api";
 import { type Image as BlueskyImage } from "@atproto/api/dist/client/types/app/bsky/embed/images";
 import { BACKDATE_BLUESKY_POSTS, HANDLE_RETWEETS, VOID } from "env";
-import {
-  buildReplyEntry,
-  getBlueskyChunkLinkMetadata,
-} from "sync/platforms/bluesky/utils";
 import { splitTextForBluesky } from "sync/platforms/bluesky/utils/split-text";
 import { getPostStore } from "utils/get-post-store";
 import { debug, logError, oraProgress } from "utils/logs";
@@ -26,6 +22,8 @@ import { type SynchronizerFactory } from "../../synchronizer";
 import { syncProfile } from "./sync-profile";
 import { BLUESKY_KEYS, BlueskyPlatformStore, type BlueskyPost } from "./types";
 import { uploadBlueskyMedia } from "./utils/upload-bluesky-media";
+import { getBlueskyChunkLinkMetadata } from "./utils/get-bluesky-chunk-link-metadata";
+import { buildReplyEntry } from "./utils/build-reply-entry";
 
 export const PostRefArraySchema = z.array(BlueskyPlatformStore);
 export type PostRefArray = z.infer<typeof PostRefArraySchema>;

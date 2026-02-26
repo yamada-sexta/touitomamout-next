@@ -1,4 +1,4 @@
-import { type Scraper } from "@the-convocation/twitter-scraper";
+import { type Scraper as XScraper } from "@the-convocation/twitter-scraper";
 import { type DBType, Schema } from "db";
 import { eq } from "drizzle-orm";
 import {
@@ -21,7 +21,7 @@ let firstSync = true;
 export async function syncPosts(args: {
   db: DBType;
   handle: TwitterHandle;
-  x: Scraper;
+  x: XScraper;
   synchronizers: TaggedSynchronizer[];
 }) {
   const { db, handle, x, synchronizers } = args;

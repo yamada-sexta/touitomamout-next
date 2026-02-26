@@ -32,7 +32,6 @@
     "cli-spinners": "^3.4.0",
     "cron": "^4.4.0",
     "cycletls": "^2.0.5",
-    "discord-api-types": "^0.38.40",
     "drizzle-orm": "^0.45.1",
     "html-entities": "^2.6.0",
     "masto": "^7.10.1",
@@ -42,6 +41,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "discord-api-types": "^0.38.40",
     "@eslint/js": "^10.0.1",
     "@types/bun": "^1.3.9",
     "drizzle-kit": "0.31.9",

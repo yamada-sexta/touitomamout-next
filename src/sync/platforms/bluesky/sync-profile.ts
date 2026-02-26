@@ -65,7 +65,7 @@ export function syncProfile(args: {
       }
 
       const ref = lastBanner.data.blob;
-      debug("bluesky banner: ", lastBanner);
+      debug("bluesky banner: ", lastBanner, "json", ref.toJSON());
 
       await agent.upsertProfile(async (o) => {
         const existing: Un$Typed<AppBskyActorProfile.Record> = o ?? {};
