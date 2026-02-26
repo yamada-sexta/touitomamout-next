@@ -1,6 +1,7 @@
 import {
   AppBskyActorProfile,
   BlobRef,
+  ComAtprotoRepoUploadBlob,
   type Agent,
   type Un$Typed,
 } from "@atproto/api";
@@ -13,6 +14,9 @@ export function syncProfile(args: {
   agent: Agent;
 }): Synchronizer<typeof BlueskyPlatformStore> {
   const { agent } = args;
+
+  let lastProfilePic: ComAtprotoRepoUploadBlob.Response | undefined = undefined;
+  let lastBanner: ComAtprotoRepoUploadBlob.Response | undefined = undefined;
   return {
     async syncBio(args) {
       await agent.upsertProfile((o) => ({
@@ -29,48 +33,44 @@ export function syncProfile(args: {
     },
 
     async syncProfilePic(args) {
-      const avatar = await uploadBlueskyMedia(args.pfpFile, agent);
-      if (!avatar) {
+      lastProfilePic = await uploadBlueskyMedia(args.pfpFile, agent);
+      if (!lastProfilePic) {
         throw new Error(
           "Failed to upload avatar to Bluesky: avatar is undefined.",
         );
       }
-      if (!avatar.success) {
+      if (!lastProfilePic.success) {
         throw new Error("Failed to upload avatar");
       }
-      const ref = avatar.data.blob;
-      debug("bluesky avatar: ", avatar);
 
-      // const agentProfile = await agent.sessionManager.did;
-      // debug("Current agent profile: ", agent.sessionManager.did);
-      const did = await agent.sessionManager.did;
-      if (!did) {
-        throw new Error("Failed to retrieve DID from agent session manager");
-      }
+      debug("bluesky avatar: ", lastProfilePic);
+
+      const ref = lastProfilePic.data.blob;
 
       await agent.upsertProfile(async (o) => {
         const existing: Un$Typed<AppBskyActorProfile.Record> = o ?? {};
-        const profile = await agent.getProfile({ actor: did });
 
         // WTF is going on with the bluesky api???
         existing.avatar = BlobRef.asBlobRef(ref.original) ?? undefined;
-        debug("o syncProfilePic bluesky", existing, profile);
+        existing.banner = lastBanner?.data.blob ?? existing.banner;
+        debug("o syncProfilePic bluesky", existing);
         return existing;
       });
     },
 
     async syncBanner(args) {
-      const res = await uploadBlueskyMedia(args.bannerFile, agent);
-      if (!res) {
+      lastBanner = await uploadBlueskyMedia(args.bannerFile, agent);
+      if (!lastBanner) {
         throw new Error("Unable to upload banner");
       }
 
-      const ref = res.data.blob;
-      debug("bluesky banner: ", res);
+      const ref = lastBanner.data.blob;
+      debug("bluesky banner: ", lastBanner);
 
-      await agent.upsertProfile((o) => {
+      await agent.upsertProfile(async (o) => {
         const existing: Un$Typed<AppBskyActorProfile.Record> = o ?? {};
         existing.banner = BlobRef.asBlobRef(ref.original) ?? undefined;
+        existing.avatar = lastProfilePic?.data.blob ?? existing.avatar;
         debug("o syncBanner bluesky", existing);
         return existing;
       });

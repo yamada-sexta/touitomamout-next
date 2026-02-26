@@ -129,7 +129,7 @@ export async function syncProfile(args: {
 
   debug("Profile fetched:", profile);
 
-  // log.text = "checking media cache...";
+  log.text = "checking media cache...";
   const {
     pfpChanged,
     bannerChanged,
@@ -146,83 +146,100 @@ export async function syncProfile(args: {
     bannerChanged,
   });
 
-  // const pfpBlob = await download(profile.avatar ?? "");
-  // const bannerBlob = await download(profile.banner ?? "");
-  const jobs: Array<Promise<void>> = [];
+  log.text = "syncing...";
+
+  const wait = async () => await sleep(1000); // Sleep for a short time between tasks to fix the stupid bluesky api.
 
   const needSyncPfp = SYNC_PROFILE_PICTURE && pfpChanged;
 
   if ((needSyncPfp || FORCE_SYNC_PROFILE_PICTURE) && pfpBlob) {
-    jobs.push(
-      ...synchronizers
-        .filter((s) => s.syncProfilePic)
-        .map(async (s) =>
-          s.syncProfilePic!({
-            log,
-            profile,
-            pfpFile: pfpBlob,
-          }),
-        ),
-    );
+    log.text = "syncing profile picture...";
+    const syncPfpLog = log.spawn({ prefixText: oraPrefix("profile picture") });
+    for (const s of synchronizers) {
+      if (!s.syncProfilePic) {
+        continue;
+      }
+      try {
+        await s.syncProfilePic({
+          log,
+          profile,
+          pfpFile: pfpBlob,
+        });
+      } catch (error) {
+        logError(
+          log,
+          error,
+        )`Failed to sync profile picture for ${s.displayName}: ${error}`;
+      }
+      await wait();
+    }
   }
 
   const needSyncBanner = SYNC_PROFILE_HEADER && bannerChanged;
 
   if ((needSyncBanner || FORCE_SYNC_PROFILE_HEADER) && bannerBlob) {
-    jobs.push(
-      ...synchronizers
-        .filter((s) => s.syncBanner)
-        .map(async (s) =>
-          s.syncBanner!({
-            log,
-            profile,
-            bannerFile: bannerBlob,
-          }),
-        ),
-    );
+    log.text = "syncing banner...";
+    for (const s of synchronizers) {
+      if (!s.syncBanner) {
+        continue;
+      }
+      try {
+        await s.syncBanner({
+          log,
+          profile,
+          bannerFile: bannerBlob,
+        });
+      } catch (error) {
+        logError(
+          log,
+          error,
+        )`Failed to sync banner for ${s.displayName}: ${error}`;
+      }
+      await wait();
+    }
   }
 
   if (SYNC_PROFILE_DESCRIPTION && profile.biography) {
     const formattedBio = await shortenedUrlsReplacer(profile.biography);
-    jobs.push(
-      ...synchronizers
-        .filter((s) => s.syncBio)
-        .map(async (s) =>
-          s.syncBio!({
-            log,
-            profile,
-            bio: profile.biography!,
-            formattedBio,
-          }),
-        ),
-    );
+    log.text = "syncing bio...";
+    for (const s of synchronizers) {
+      if (!s.syncBio) {
+        continue;
+      }
+      try {
+        await s.syncBio({
+          log,
+          profile,
+          bio: profile.biography!,
+          formattedBio,
+        });
+      } catch (error) {
+        logError(log, error)`Failed to sync bio for ${s.displayName}: ${error}`;
+      }
+      await wait();
+    }
   }
 
   if (SYNC_PROFILE_NAME && profile.name) {
-    jobs.push(
-      ...synchronizers
-        .filter((s) => s.syncUserName)
-        .map(async (s) =>
-          s.syncUserName!({
-            log,
-            profile,
-            name: profile.name!,
-          }),
-        ),
-    );
-  }
-
-  // Run all synchronization tasks in parallel
-  log.text = "dispatching sync tasks...";
-  try {
-    // await Promise.all(jobs);
-    for (const job of jobs) {
-      await job;
-      await sleep(1000); // Sleep for a short time between tasks to fix the stupid bluesky api.
+    log.text = "syncing name...";
+    for (const s of synchronizers) {
+      if (!s.syncUserName) {
+        continue;
+      }
+      try {
+        await s.syncUserName({
+          log,
+          profile,
+          name: profile.name,
+        });
+      } catch (error) {
+        logError(
+          log,
+          error,
+        )`Failed to sync name for ${s.displayName}: ${error}`;
+      }
+      await wait();
     }
-    log.succeed("synced");
-  } catch (error) {
-    logError(log, error)`Error during synchronization: ${error}`;
   }
 
   log.stop();
