@@ -226,15 +226,15 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
 
           const [video] = videos as [DownloadedVideo];
           try {
-            const uploadRes = await uploadBlueskyMedia(video.file!, agent);
-            if (!uploadRes) {
+            const { blobRef } = await uploadBlueskyMedia(video.file!, agent);
+            if (!blobRef) {
               throw new Error(
-                "Failed to upload video to bluesky: uploadRes is undefined",
+                "Failed to upload video to bluesky: blobRef is undefined",
               );
             }
             media = {
               $type: "app.bsky.embed.video",
-              video: uploadRes.data.blob,
+              video: blobRef,
             };
           } catch (error) {
             logError(
@@ -260,7 +260,10 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
 
             try {
               // const blob = await parseBlobForBluesky(photo.file);
-              const res = await uploadBlueskyMedia(photo.file, agent);
+              const { res, blobRef } = await uploadBlueskyMedia(
+                photo.file,
+                agent,
+              );
               if (!res) {
                 throw new Error(
                   "Failed to upload photo to bluesky: upload result is undefined",
