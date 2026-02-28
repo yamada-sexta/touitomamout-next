@@ -61,7 +61,7 @@ Ready to dive in? Visit our Wiki:
 
 ## Supported platforms
 
-- 🦣 [Mastodon](https://joinmastodon.org/)
-- ☁️ [Bluesky](https://bsky.app/)
-- Ⓜ️ [Misskey](https://misskey-hub.net/)
-- 🇩 [Discord](https://discord.com/) (Webhook)
+[![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?style=for-the-badge&logo=Bluesky&logoColor=white)](https://bsky.app/)
+[![Mastodon](https://img.shields.io/badge/-MASTODON-%232B90D9?style=for-the-badge&logo=mastodon&logoColor=white)](https://joinmastodon.org/)
+[![Discord](https://img.shields.io/badge/Discord_(webhook)-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/)
+[![Misskey](https://img.shields.io/badge/Misskey-%232EC866.svg?style=for-the-badge&logo=misskey&logoColor=white)](https://misskey-hub.net/)
