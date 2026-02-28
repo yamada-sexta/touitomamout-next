@@ -19,13 +19,6 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 </div>
 
-## Supported platforms
-
-[![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?style=for-the-badge&logo=Bluesky&logoColor=white)](https://bsky.app/)
-[![Mastodon](https://img.shields.io/badge/-MASTODON-%232B90D9?style=for-the-badge&logo=mastodon&logoColor=white)](https://joinmastodon.org/)
-[![Discord](https://img.shields.io/badge/Discord_(webhook)-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/)
-[![Misskey](https://img.shields.io/badge/Misskey-%232EC866.svg?style=for-the-badge&logo=misskey&logoColor=white)](https://misskey-hub.net/)
-
 **Release info**
 
 > [!note]
@@ -49,14 +42,12 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 - Better cron job support
 - Less likely to trigger Cloudflare detection
 
-<img alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
+## Supported platforms
 
-
-![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
-![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-%230D597F.svg?style=for-the-badge&logo=alpine-linux&logoColor=white)
-![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+[![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?style=for-the-badge&logo=Bluesky&logoColor=white)](https://bsky.app/)
+[![Mastodon](https://img.shields.io/badge/-MASTODON-%232B90D9?style=for-the-badge&logo=mastodon&logoColor=white)](https://joinmastodon.org/)
+[![Discord](https://img.shields.io/badge/Discord_(webhook)-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/)
+[![Misskey](https://img.shields.io/badge/Misskey-%232EC866.svg?style=for-the-badge&logo=misskey&logoColor=white)](https://misskey-hub.net/)
 
 ## Get started
 
@@ -66,3 +57,13 @@ Ready to dive in? Visit our Wiki:
 
 > Even though all most configs are the same, this fork doesn't support the old cache (cookie etc).
 
+
+
+<img alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
+
+
+![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
+![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-%230D597F.svg?style=for-the-badge&logo=alpine-linux&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
