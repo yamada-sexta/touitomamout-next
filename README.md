@@ -9,12 +9,15 @@
 <p align="center">
 Synchronize your 𝕏 posts to other social media platforms with ease.
 </p>
-
+<div align="center">
+  
 [![GitHub Stars](https://img.shields.io/github/stars/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
 [![Issues](https://img.shields.io/github/issues/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/issues)
 [![Docker Pulls](https://img.shields.io/docker/pulls/yamadasexta/touitomamout?style=flat-square&color=086dd7)](https://hub.docker.com/r/yamadasexta/touitomamout)
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/yamada-sexta/touitomamout-next/total?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/releases)
 [![GitHub License](https://img.shields.io/github/license/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/blob/main/LICENSE)
+
+</div>
 
 **Release info**
 
