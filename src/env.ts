@@ -135,3 +135,5 @@ export const BSKY_EMB_FIX = z
 export const CRON_JOB_SCHEDULE = process.env.CRON_JOB_SCHEDULE?.trim() || "";
 
 export const HISTORICAL_SYNC_LIMIT = envInt("HISTORICAL_SYNC_LIMIT", Infinity);
+
+export const SYNC_RETWEETS = envBool("SYNC_RETWEETS", true);

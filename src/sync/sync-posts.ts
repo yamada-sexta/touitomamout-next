@@ -5,6 +5,7 @@ import {
   FORCE_SYNC_POSTS,
   HISTORICAL_SYNC_LIMIT,
   MAX_CONSECUTIVE_CACHED,
+  SYNC_RETWEETS,
   type TwitterHandle,
 } from "env";
 import ora from "ora";
@@ -52,6 +53,11 @@ export async function syncPosts(args: {
 
       if (!isPost(tweet)) {
         log.warn(`tweet is not valid...\n${tweet}`);
+        continue;
+      }
+
+      if (tweet.isRetweet && !SYNC_RETWEETS) {
+        log.info("skipping retweet");
         continue;
       }
 
