@@ -34,7 +34,7 @@
     "cycletls": "^2.0.5",
     "drizzle-orm": "^0.45.1",
     "html-entities": "^2.6.0",
-    "masto": "^7.10.1",
+    "masto": "^7.10.2",
     "misskey-js": "^2026.1.0-beta.0",
     "ora": "^9.3.0",
     "tough-cookie": "^6.0.0",
