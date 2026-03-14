@@ -1,3 +1,4 @@
+import { POST_SEPARATOR } from "env";
 import { type SplitterEntry } from "../../../types/splitter";
 
 /**
@@ -63,12 +64,12 @@ export const extractWordsAndSpacers = (
 };
 
 const getSeparator = (inputString: string, currentChunk: string) => {
-  const SEPARATOR = /\s/;
+  // const SEPARATOR = /\s/;
 
   const previousCharIndex = inputString.indexOf(currentChunk) - 1;
   const previousChar = inputString.substring(
     previousCharIndex,
     previousCharIndex + 1,
   );
-  return SEPARATOR.test(previousChar) ? previousChar : "";
+  return POST_SEPARATOR.test(previousChar) ? previousChar : "";
 };

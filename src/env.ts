@@ -137,3 +137,9 @@ export const CRON_JOB_SCHEDULE = process.env.CRON_JOB_SCHEDULE?.trim() || "";
 export const HISTORICAL_SYNC_LIMIT = envInt("HISTORICAL_SYNC_LIMIT", Infinity);
 
 export const SYNC_RETWEETS = envBool("SYNC_RETWEETS", true);
+
+// const SEPARATOR = /\s/;
+// Post separator is a latex string that indicates a break of a single post when it is too long.
+export const POST_SEPARATOR = process.env.POST_BREAK
+  ? new RegExp(process.env.POST_BREAK)
+  : /\s/; // Replace /\s/ with whatever default regex you want
