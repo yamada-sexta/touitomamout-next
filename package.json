@@ -37,7 +37,7 @@
     "masto": "^7.10.2",
     "misskey-js": "^2026.1.0-beta.0",
     "ora": "^9.3.0",
-    "tough-cookie": "^6.0.0",
+    "tough-cookie": "^6.0.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
