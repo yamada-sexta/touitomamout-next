@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.19.3",
-    "@atproto/lex": "^0.0.20",
+    "@atproto/lex": "^0.0.22",
     "@silvia-odwyer/photon-node": "^0.3.4",
     "@the-convocation/twitter-scraper": "^0.22.1",
     "cli-spinners": "^3.4.0",
