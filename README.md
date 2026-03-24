@@ -21,7 +21,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 **Release info**
 
-> [!note]
+> [!warning]
 > 
 > Pre-built binaries are considered obsolete. Use the container instead.
 
@@ -55,7 +55,9 @@ Ready to dive in? Visit our Wiki:
 
 [<img src="https://github.com/louisgrasset/touitomamout/raw/main/.github/docs/documentation-center.svg"  width="300px"/>](https://github.com/yamada-sexta/touitomamout/wiki)
 
-> Even though all most configs are the same, this fork doesn't support the old cache (cookie etc). Beware of a one time re-login and resync.
+> [!info]
+> 
+> Even though most of the configs are the same, this fork doesn't support the old cache (cookie etc). Beware of a one time re-login and resync.
 
 
 
