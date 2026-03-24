@@ -110,6 +110,8 @@ export const DEBUG = envBool("TOUITOMAMOUT_DEBUG", false);
 export const DAEMON = envBool("DAEMON", true);
 export const VOID = "[VOID]";
 export const TOUITOMAMOUT_VERSION = packageInfo.version ?? "UNKNOWN";
+export const TOUITOMAMOUT_COMMIT_HASH =
+  process.env.TOUITOMAMOUT_COMMIT_HASH?.trim() || "dev";
 export const MASTODON_MAX_POST_LENGTH = 500;
 export const BLUESKY_MAX_POST_LENGTH = 300;
 export const BLUESKY_MEDIA_MAX_SIZE_BYTES = 976_560;

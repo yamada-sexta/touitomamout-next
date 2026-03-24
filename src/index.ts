@@ -17,6 +17,7 @@ import {
   DAEMON,
   SYNC_FREQUENCY_MIN,
   SYNC_POSTS,
+  TOUITOMAMOUT_COMMIT_HASH,
   TOUITOMAMOUT_VERSION,
   TWITTER_HANDLES,
   TWITTER_PASSWORD,
@@ -46,7 +47,7 @@ process.on("SIGTERM", () => {
 });
 
 console.log(`\n
-  Touitomamout@v${TOUITOMAMOUT_VERSION}
+  Touitomamout@v${TOUITOMAMOUT_VERSION} (${TOUITOMAMOUT_COMMIT_HASH})
   `);
 
 const factories = [

@@ -1,6 +1,8 @@
 FROM oven/bun:alpine
 
 ARG TARGETARCH
+ARG COMMIT_HASH=dev
+ENV TOUITOMAMOUT_COMMIT_HASH=$COMMIT_HASH
 
 # Install dependencies for cycleTLS
 RUN apk add --no-cache ca-certificates libc6-compat

@@ -58,6 +58,8 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            COMMIT_HASH=${{ steps.vars.outputs.sha_short }}
           # Added: Specify the platforms you want to build for
           platforms: linux/amd64,linux/arm64
           tags: |
