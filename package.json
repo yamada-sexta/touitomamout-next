@@ -32,7 +32,7 @@
     "cli-spinners": "^3.4.0",
     "cron": "^4.4.0",
     "cycletls": "^2.0.5",
-    "drizzle-orm": "^0.45.1",
+    "drizzle-orm": "^0.45.2",
     "html-entities": "^2.6.0",
     "masto": "^7.10.2",
     "misskey-js": "^2026.1.0-beta.0",
