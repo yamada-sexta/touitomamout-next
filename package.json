@@ -25,7 +25,7 @@
     "url": "https://github.com/yamada-sexta/touitomamout-next.git"
   },
   "dependencies": {
-    "@atproto/api": "^0.19.4",
+    "@atproto/api": "^0.19.5",
     "@atproto/lex": "^0.0.22",
     "@silvia-odwyer/photon-node": "^0.3.4",
     "@the-convocation/twitter-scraper": "^0.22.1",
