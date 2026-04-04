@@ -17,15 +17,12 @@ export async function migrate(
     // 1. Try to get the current version.
     // This will fail if the table or row doesn't exist.
     const result = db.select().from(v1.Version).get();
-    currentVersion = result?.version || 0;
+    currentVersion = result ? Number(result.version) : 0;
     console.log(`Current database version: ${currentVersion}`);
   } catch {
     // 2. If it fails, assume version 0.
     console.log("Could not determine database version, assuming 0.");
   }
-
-  // Fix Bigint issue
-  currentVersion = Number(currentVersion);
 
   for (let i = currentVersion + 1; i < schemas.length; i++) {
     console.log(`Migrating to v${i}...`);
