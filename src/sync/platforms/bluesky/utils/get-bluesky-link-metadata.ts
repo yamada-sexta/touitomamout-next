@@ -5,7 +5,7 @@ import { uploadBlueskyMedia } from "./upload-bluesky-media";
 // import { parseBlobForBluesky } from "./parse-blob-for-bluesky";
 
 export type BlueskyLinkMetadata = Omit<LinkMetadata, "image"> & {
-  image: ComAtprotoRepoUploadBlob.Response | undefined;
+  image: ComAtprotoRepoUploadBlob.OutputSchema["blob"] | undefined;
 };
 
 /**
@@ -44,10 +44,10 @@ export async function getBlueskyLinkMetadata(
   // const media = await client.uploadBlob(blueskyBlob.data, {
   //   encoding: blueskyBlob.mimeType,
   // });
-  const media = await uploadBlueskyMedia(mediaBlob, client);
+  const { blobRef } = await uploadBlueskyMedia(mediaBlob, client);
 
   return {
     ...data,
-    image: media,
+    image: blobRef,
   };
 }

@@ -34,7 +34,7 @@ export async function uploadBlueskyMedia(
     return { res };
   }
 
-  const blobRef = BlobRef.asBlobRef(res.data.blob.original) ?? undefined;
+  const blobRef = (res.data.blob as any).original ?? res.data.blob;
   debug("Uploaded media to Bluesky", { blobRef });
   return { res, blobRef };
 }

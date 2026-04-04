@@ -52,7 +52,7 @@ export async function getExternalEmbedding(
         uri: card.url,
         title: card.title,
         description: card.description,
-        thumb: card.image?.data.blob,
+        thumb: card.image,
         $type: "app.bsky.embed.external#external",
       },
     };
@@ -264,7 +264,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
                 photo.file,
                 agent,
               );
-              if (!res) {
+              if (!res || !blobRef) {
                 throw new Error(
                   "Failed to upload photo to bluesky: upload result is undefined",
                 );
