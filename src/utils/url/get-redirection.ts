@@ -2,6 +2,53 @@
 const TIMEOUT_MS = 30_000;
 
 /**
+ * Validates if a URL is safe to follow.
+ * Restricts to http and https protocols and blocks private/loopback IP address ranges.
+ * @param urlString - The URL string to validate.
+ * @returns - True if the URL is safe, false otherwise.
+ */
+export function isSafeUrl(urlString: string): boolean {
+  try {
+    const url = new URL(urlString);
+
+    // Only allow http and https protocols
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return false;
+    }
+
+    const hostname = url.hostname;
+
+    // Block common private and loopback IP addresses
+    // Check for IPv4 loopback and private ranges
+    const isIPv4Private =
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("192.168.") ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname);
+
+    // Check for IPv6 loopback (::1) and common local addresses
+    const isIPv6Private =
+      hostname === "[::1]" ||
+      hostname === "::1" ||
+      hostname === "[0:0:0:0:0:0:0:1]" ||
+      hostname === "0:0:0:0:0:0:0:1" ||
+      hostname.startsWith("[fe80:") ||
+      hostname.startsWith("fe80:");
+
+    // Check for localhost
+    const isLocalhost = hostname === "localhost";
+
+    if (isIPv4Private || isIPv6Private || isLocalhost) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Extracts the URL from a meta refresh tag in the HTML content.
  * @param html - The HTML content to search for a meta redirect.
  * @param baseUrl - The base URL for resolving relative URLs.
@@ -17,7 +64,10 @@ function extractMetaRefreshUrl(
     );
   const metaRedirectUrl = metaTagMatch?.[1];
   if (metaRedirectUrl) {
-    return new URL(metaRedirectUrl, baseUrl).href; // Resolve relative URL
+    const resolvedUrl = new URL(metaRedirectUrl, baseUrl).href;
+    if (isSafeUrl(resolvedUrl)) {
+      return resolvedUrl;
+    }
   }
 
   return;
@@ -33,6 +83,10 @@ export const getRedirectedUrl = async (
   url: string,
   hasRedirected = false,
 ): Promise<string | undefined> => {
+  if (!isSafeUrl(url)) {
+    return undefined;
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => {
     controller.abort();
