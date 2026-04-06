@@ -8,7 +8,7 @@
         "@atproto/api": "^0.19.5",
         "@atproto/lex": "^0.0.23",
         "@silvia-odwyer/photon-node": "^0.3.4",
-        "@the-convocation/twitter-scraper": "^0.22.2",
+        "@the-convocation/twitter-scraper": "^0.22.3",
         "cli-spinners": "^3.4.0",
         "cron": "^4.4.0",
         "cycletls": "^2.0.5",
@@ -151,7 +151,7 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@the-convocation/twitter-scraper": ["@the-convocation/twitter-scraper@0.22.2", "", { "dependencies": { "@sinclair/typebox": "^0.32.20", "cross-fetch": "^4.0.0-alpha.5", "debug": "^4.4.1", "headers-polyfill": "^3.1.2", "json-stable-stringify": "^1.0.2", "linkedom": "^0.18.12", "otpauth": "^9.2.2", "set-cookie-parser": "^2.6.0", "tough-cookie": "^4.1.2", "tslib": "^2.5.2", "x-client-transaction-id": "^0.2.0" }, "peerDependencies": { "cycletls": "^2.0.5" }, "optionalPeers": ["cycletls"] }, "sha512-bfwyqHsK8tq51xZ+8mRxLbEEUeawz6l1wF2WBoT580w22GYbEvyrOEBGUAzNTtK/7Up/bDAAExK+TOuMKAiurw=="],
+    "@the-convocation/twitter-scraper": ["@the-convocation/twitter-scraper@0.22.3", "", { "dependencies": { "@sinclair/typebox": "^0.32.20", "cross-fetch": "^4.0.0-alpha.5", "debug": "^4.4.1", "headers-polyfill": "^3.1.2", "json-stable-stringify": "^1.0.2", "linkedom": "^0.18.12", "otpauth": "^9.2.2", "set-cookie-parser": "^2.6.0", "tough-cookie": "^4.1.2", "tslib": "^2.5.2", "x-client-transaction-id": "^0.2.0" }, "peerDependencies": { "cycletls": "^2.0.5" }, "optionalPeers": ["cycletls"] }, "sha512-ul5jTuzHAR+XpSm64dl5ke/llc3s43p3rNvVgLmLyy3XcQghAfAaBjZBfCgidrYRDeh1T84VYRAjZd1X9/qqdg=="],
 
     "@ts-morph/common": ["@ts-morph/common@0.28.1", "", { "dependencies": { "minimatch": "^10.0.1", "path-browserify": "^1.0.1", "tinyglobby": "^0.2.14" } }, "sha512-W74iWf7ILp1ZKNYXY5qbddNaml7e9Sedv5lvU1V8lftlitkc9Pq1A+jlH23ltDgWYeZFFEqGCD1Ies9hqu3O+g=="],
 
