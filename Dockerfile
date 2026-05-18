@@ -23,7 +23,7 @@ RUN bun install --production --no-cache && \
     rm -f index.exe index-freebsd index-mac index-mac-arm64; \
     fi && \
     rm -rf /root/.bun/install/cache && \
-    find /app/node_modules -type f \( -name "*.md" -o -name "*.map" -o -name "*.d.ts" -o -name "LICENSE" \) -delete
+    find /app/node_modules -type f \( -name "*.md" -o -name "*.map" -o -name "*.d.ts" \) -delete
 
 COPY src/ /app/src
 
