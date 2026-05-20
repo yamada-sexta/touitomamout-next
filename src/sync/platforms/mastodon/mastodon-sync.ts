@@ -140,7 +140,7 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
 
         if (attachments.length === 0 && !tweet.text) {
           log.warn(
-            `🦣️ | post skipped: no compatible media nor text to post (tweet: ${tweet.id})`
+            `🦣️ | post skipped: no compatible media nor text to post (tweet: ${tweet.id})`,
           );
           return;
         }

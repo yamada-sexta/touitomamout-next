@@ -35,10 +35,12 @@ export async function migrate(
     }
 
     try {
-    // Run all migration statements within a transaction
-      // Split by semicolon as sqlite run executes one statement at a time in some drivers, 
-      const statements = migrationScript.split(";\n").filter((s) => s.trim() !== "");
-      
+      // Run all migration statements within a transaction
+      // Split by semicolon as sqlite run executes one statement at a time in some drivers,
+      const statements = migrationScript
+        .split(";\n")
+        .filter((s) => s.trim() !== "");
+
       for (const s of statements) {
         console.log("Executing:", s);
         db.run(s);

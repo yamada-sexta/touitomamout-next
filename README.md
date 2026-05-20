@@ -22,7 +22,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 **Release info**
 
 > [!warning]
-> 
+>
 > Pre-built binaries are considered obsolete. Use the container instead.
 
 [![GitHub repo size](https://img.shields.io/github/repo-size/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
@@ -46,25 +46,20 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 [![Bluesky](https://img.shields.io/badge/Bluesky-0285FF?style=for-the-badge&logo=Bluesky&logoColor=white)](https://bsky.app/)
 [![Mastodon](https://img.shields.io/badge/-MASTODON-%232B90D9?style=for-the-badge&logo=mastodon&logoColor=white)](https://joinmastodon.org/)
-[![Discord](https://img.shields.io/badge/Discord_(webhook)-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/)
+[![Discord](<https://img.shields.io/badge/Discord_(webhook)-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white>)](https://discord.com/)
 [![Misskey](https://img.shields.io/badge/Misskey-%232EC866.svg?style=for-the-badge&logo=misskey&logoColor=white)](https://misskey-hub.net/)
 
 ## Get started
-
-
 
 Ready to dive in? Visit our Wiki:
 
 [<img src="https://github.com/louisgrasset/touitomamout/raw/main/.github/docs/documentation-center.svg"  width="300px"/>](https://github.com/yamada-sexta/touitomamout/wiki)
 
-
 > [!note]
-> 
+>
 > Even though most of the configs are the same, this fork doesn't support the old cache (cookie etc). Beware of a one time re-login and resync.
 
-
 <img alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
-
 
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
