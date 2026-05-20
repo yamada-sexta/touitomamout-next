@@ -11,6 +11,7 @@ import { MisskeySynchronizerFactory } from "sync/platforms/misskey/missky-sync";
 import { DiscordWebhookSynchronizerFactory } from "sync/platforms/discord-webhook/webhook-sync";
 import { cycleTLSExit } from "@the-convocation/twitter-scraper/cycletls";
 import { CronJob } from "cron";
+import { isShutdownRequested, requestShutdown } from "./shutdown";
 
 import {
   CRON_JOB_SCHEDULE,
@@ -26,6 +27,36 @@ import {
 } from "./env";
 
 let interval: NodeJS.Timeout | undefined;
+let cronJob: CronJob | undefined;
+
+function stopSchedulers() {
+  if (interval) {
+    clearInterval(interval);
+    interval = undefined;
+  }
+
+  cronJob?.stop();
+  cronJob = undefined;
+}
+
+function shutdown(signal: NodeJS.Signals) {
+  const firstSignal = requestShutdown();
+
+  if (!firstSignal) {
+    console.log(`\nReceived ${signal} again. Forcing exit...`);
+    process.exit(signal === "SIGINT" ? 130 : 143);
+  }
+
+  console.log(`\nReceived ${signal}. Stopping...`);
+  stopSchedulers();
+  cycleTLSExit();
+
+  setTimeout(() => {
+    console.log("Shutdown timed out. Forcing exit...");
+    process.exit(signal === "SIGINT" ? 130 : 143);
+  }, 2000).unref();
+}
+
 process.on("exit", (code) => {
   // Clean up CycleTLS resources
   cycleTLSExit();
@@ -33,17 +64,11 @@ process.on("exit", (code) => {
 });
 // Register event
 process.on("SIGINT", () => {
-  console.log("\nReceived SIGINT (Ctrl+C). Exiting...");
-  if (interval) {
-    clearInterval(interval);
-  } // Stop daemon loop
-
-  process.exit(0);
+  shutdown("SIGINT");
 });
 
 process.on("SIGTERM", () => {
-  console.log("Received SIGTERM. Exiting...");
-  process.exit(0);
+  shutdown("SIGTERM");
 });
 
 console.log(`\n
@@ -146,6 +171,10 @@ const syncAll = async () => {
   }
 
   for await (const user of users) {
+    if (isShutdownRequested()) {
+      return;
+    }
+
     console.log(
       `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`,
     );
@@ -167,33 +196,45 @@ const syncAll = async () => {
       x: xClient,
       synchronizers: user.synchronizers,
     });
+    if (isShutdownRequested()) {
+      return;
+    }
+
     console.log(`| ${user.handle.handle} is up-to-date`);
   }
 };
 
 if (CRON_JOB_SCHEDULE) {
   console.log(`Scheduling sync with cron schedule: ${CRON_JOB_SCHEDULE}`);
-  const job = new CronJob(CRON_JOB_SCHEDULE, async () => {
+  cronJob = new CronJob(CRON_JOB_SCHEDULE, async () => {
+    if (isShutdownRequested()) {
+      return;
+    }
+
     console.log(`\nCron job triggered at ${new Date().toLocaleString()}`);
     await syncAll();
   });
   console.log(
-    `Scheduled next run: ${job
+    `Scheduled next run: ${cronJob
       .nextDates(1)
       .map((d) => `${d.toJSDate().toLocaleString()}`)
       .join("")}`,
   );
-  job.start();
+  cronJob.start();
 } else if (DAEMON) {
   console.log("Running in daemon mode...");
   await syncAll();
-  console.log(`Run daemon every ${SYNC_FREQUENCY_MIN}min`);
-  interval = setInterval(
-    async () => {
-      await syncAll();
-    },
-    SYNC_FREQUENCY_MIN * 60 * 1000,
-  );
+  if (!isShutdownRequested()) {
+    console.log(`Run daemon every ${SYNC_FREQUENCY_MIN}min`);
+    interval = setInterval(
+      async () => {
+        if (!isShutdownRequested()) {
+          await syncAll();
+        }
+      },
+      SYNC_FREQUENCY_MIN * 60 * 1000,
+    );
+  }
 } else {
   console.log("Running single sync...");
   await syncAll();

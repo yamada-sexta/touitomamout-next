@@ -17,6 +17,7 @@ import { getBlobHash } from "utils/medias/get-blob-hash";
 import { shortenedUrlsReplacer } from "utils/url/shortened-urls-replacer";
 import { type TaggedSynchronizer } from "./synchronizer";
 import { sleep } from "bun";
+import { isShutdownError, throwIfShutdownRequested } from "../shutdown";
 
 const Table = Schema.TwitterProfileCache;
 
@@ -78,31 +79,40 @@ async function upsertProfileCache(args: {
     bannerChanged,
   );
 
-  // Upsert (insert or update) the cache row
-  await db
-    .insert(Table)
-    .values({
-      userId,
-      pfpHash,
-      bannerHash,
-      bannerUrl,
-      pfpUrl,
-    })
-    .onConflictDoUpdate({
-      target: Table.userId,
-      set: {
-        pfpHash,
-        bannerHash,
-        bannerUrl,
-        pfpUrl,
-      },
-    });
   return {
     pfpChanged,
     bannerChanged,
     pfp: pfpBlob,
     banner: bannerBlob,
   };
+}
+
+async function markProfileCacheSynced(args: {
+  db: DBType;
+  userId: string;
+  pfpHash: string;
+  bannerHash: string;
+  pfpUrl: string;
+  bannerUrl: string;
+}) {
+  await args.db
+    .insert(Table)
+    .values({
+      userId: args.userId,
+      pfpHash: args.pfpHash,
+      bannerHash: args.bannerHash,
+      bannerUrl: args.bannerUrl,
+      pfpUrl: args.pfpUrl,
+    })
+    .onConflictDoUpdate({
+      target: Table.userId,
+      set: {
+        pfpHash: args.pfpHash,
+        bannerHash: args.bannerHash,
+        bannerUrl: args.bannerUrl,
+        pfpUrl: args.pfpUrl,
+      },
+    });
 }
 
 /**
@@ -120,130 +130,188 @@ export async function syncProfile(args: {
     color: "cyan",
     prefixText: oraPrefix("profile"),
   }).start();
-  log.text = "parsing";
 
-  // --- COMMON LOGIC: FETCH ---
-  const profile = await x.getProfile(args.twitterHandle.handle);
-  const pfpUrl = SYNC_PROFILE_PICTURE ? profile.avatar : undefined;
-  const bannerUrl = SYNC_PROFILE_HEADER ? profile.banner : undefined;
+  try {
+    log.text = "parsing";
+    throwIfShutdownRequested();
 
-  debug("Profile fetched:", profile);
+    // --- COMMON LOGIC: FETCH ---
+    const profile = await x.getProfile(args.twitterHandle.handle);
+    throwIfShutdownRequested();
 
-  log.text = "checking media cache...";
-  const {
-    pfpChanged,
-    bannerChanged,
-    pfp: pfpBlob,
-    banner: bannerBlob,
-  } = await upsertProfileCache({
-    db,
-    userId: args.twitterHandle.handle,
-    bannerUrl,
-    pfpUrl,
-  });
-  debug("Change: ", {
-    pfpChanged,
-    bannerChanged,
-  });
+    const pfpUrl = SYNC_PROFILE_PICTURE ? profile.avatar : undefined;
+    const bannerUrl = SYNC_PROFILE_HEADER ? profile.banner : undefined;
 
-  log.text = "syncing...";
+    debug("Profile fetched:", profile);
 
-  const wait = async () => await sleep(1000); // Sleep for a short time between tasks to fix the stupid bluesky api.
+    log.text = "checking media cache...";
+    const {
+      pfpChanged,
+      bannerChanged,
+      pfp: pfpBlob,
+      banner: bannerBlob,
+    } = await upsertProfileCache({
+      db,
+      userId: args.twitterHandle.handle,
+      bannerUrl,
+      pfpUrl,
+    });
+    throwIfShutdownRequested();
 
-  const needSyncPfp = SYNC_PROFILE_PICTURE && pfpChanged;
+    debug("Change: ", {
+      pfpChanged,
+      bannerChanged,
+    });
 
-  if ((needSyncPfp || FORCE_SYNC_PROFILE_PICTURE) && pfpBlob) {
-    log.text = "syncing profile picture...";
-    for (const s of synchronizers) {
-      if (!s.syncProfilePic) {
-        continue;
+    log.text = "syncing...";
+
+    const wait = async () => {
+      throwIfShutdownRequested();
+      await sleep(1000); // Sleep for a short time between tasks to fix the stupid bluesky api.
+      throwIfShutdownRequested();
+    };
+
+    const needSyncPfp = SYNC_PROFILE_PICTURE && pfpChanged;
+
+    if ((needSyncPfp || FORCE_SYNC_PROFILE_PICTURE) && pfpBlob) {
+      log.text = "syncing profile picture...";
+      for (const s of synchronizers) {
+        throwIfShutdownRequested();
+        if (!s.syncProfilePic) {
+          continue;
+        }
+        debug(`Syncing profile picture for ${s.displayName}...`);
+        try {
+          await s.syncProfilePic({
+            log,
+            profile,
+            pfpFile: pfpBlob,
+          });
+          throwIfShutdownRequested();
+        } catch (error) {
+          if (isShutdownError(error)) {
+            throw error;
+          }
+
+          logError(
+            log,
+            error,
+          )`Failed to sync profile picture for ${s.displayName}: ${error}`;
+        }
+        await wait();
       }
-      debug(`Syncing profile picture for ${s.displayName}...`);
-      try {
-        await s.syncProfilePic({
-          log,
-          profile,
-          pfpFile: pfpBlob,
-        });
-      } catch (error) {
-        logError(
-          log,
-          error,
-        )`Failed to sync profile picture for ${s.displayName}: ${error}`;
-      }
-      await wait();
+      debug("Profile picture synced");
     }
-    debug("Profile picture synced");
-  }
 
-  const needSyncBanner = SYNC_PROFILE_HEADER && bannerChanged;
+    const needSyncBanner = SYNC_PROFILE_HEADER && bannerChanged;
 
-  if ((needSyncBanner || FORCE_SYNC_PROFILE_HEADER) && bannerBlob) {
-    log.text = "syncing banner...";
-    for (const s of synchronizers) {
-      if (!s.syncBanner) {
-        continue;
+    if ((needSyncBanner || FORCE_SYNC_PROFILE_HEADER) && bannerBlob) {
+      log.text = "syncing banner...";
+      for (const s of synchronizers) {
+        throwIfShutdownRequested();
+        if (!s.syncBanner) {
+          continue;
+        }
+        debug(`Syncing banner for ${s.displayName}...`);
+        try {
+          await s.syncBanner({
+            log,
+            profile,
+            bannerFile: bannerBlob,
+          });
+          throwIfShutdownRequested();
+        } catch (error) {
+          if (isShutdownError(error)) {
+            throw error;
+          }
+
+          logError(
+            log,
+            error,
+          )`Failed to sync banner for ${s.displayName}: ${error}`;
+        }
+        await wait();
       }
-      debug(`Syncing banner for ${s.displayName}...`);
-      try {
-        await s.syncBanner({
-          log,
-          profile,
-          bannerFile: bannerBlob,
-        });
-      } catch (error) {
-        logError(
-          log,
-          error,
-        )`Failed to sync banner for ${s.displayName}: ${error}`;
-      }
-      await wait();
+      debug("Banner synced");
     }
-    debug("Banner synced");
-  }
 
-  if (SYNC_PROFILE_DESCRIPTION && profile.biography) {
-    const formattedBio = await shortenedUrlsReplacer(profile.biography);
-    log.text = "syncing bio...";
-    for (const s of synchronizers) {
-      if (!s.syncBio) {
-        continue;
+    await markProfileCacheSynced({
+      db,
+      userId: args.twitterHandle.handle,
+      pfpHash: (await getBlobHash(pfpBlob)) ?? "",
+      bannerHash: (await getBlobHash(bannerBlob)) ?? "",
+      pfpUrl: pfpUrl ?? "",
+      bannerUrl: bannerUrl ?? "",
+    });
+    throwIfShutdownRequested();
+
+    if (SYNC_PROFILE_DESCRIPTION && profile.biography) {
+      const formattedBio = await shortenedUrlsReplacer(profile.biography);
+      throwIfShutdownRequested();
+
+      log.text = "syncing bio...";
+      for (const s of synchronizers) {
+        throwIfShutdownRequested();
+        if (!s.syncBio) {
+          continue;
+        }
+        try {
+          await s.syncBio({
+            log,
+            profile,
+            bio: profile.biography!,
+            formattedBio,
+          });
+          throwIfShutdownRequested();
+        } catch (error) {
+          if (isShutdownError(error)) {
+            throw error;
+          }
+
+          logError(
+            log,
+            error,
+          )`Failed to sync bio for ${s.displayName}: ${error}`;
+        }
+        await wait();
       }
-      try {
-        await s.syncBio({
-          log,
-          profile,
-          bio: profile.biography!,
-          formattedBio,
-        });
-      } catch (error) {
-        logError(log, error)`Failed to sync bio for ${s.displayName}: ${error}`;
-      }
-      await wait();
     }
-  }
 
-  if (SYNC_PROFILE_NAME && profile.name) {
-    log.text = "syncing name...";
-    for (const s of synchronizers) {
-      if (!s.syncUserName) {
-        continue;
+    if (SYNC_PROFILE_NAME && profile.name) {
+      log.text = "syncing name...";
+      for (const s of synchronizers) {
+        throwIfShutdownRequested();
+        if (!s.syncUserName) {
+          continue;
+        }
+        try {
+          await s.syncUserName({
+            log,
+            profile,
+            name: profile.name,
+          });
+          throwIfShutdownRequested();
+        } catch (error) {
+          if (isShutdownError(error)) {
+            throw error;
+          }
+
+          logError(
+            log,
+            error,
+          )`Failed to sync name for ${s.displayName}: ${error}`;
+        }
+        await wait();
       }
-      try {
-        await s.syncUserName({
-          log,
-          profile,
-          name: profile.name,
-        });
-      } catch (error) {
-        logError(
-          log,
-          error,
-        )`Failed to sync name for ${s.displayName}: ${error}`;
-      }
-      await wait();
     }
-  }
+  } catch (error) {
+    if (isShutdownError(error)) {
+      log.warn("stopped");
+      return;
+    }
 
-  log.stop();
+    throw error;
+  } finally {
+    log.stop();
+  }
 }

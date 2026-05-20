@@ -13,6 +13,7 @@ import { debug, logError, oraPrefix } from "utils/logs";
 import { isPost, toMetaPost } from "types/post";
 import { getPostStore } from "../utils/get-post-store";
 import type { TaggedSynchronizer } from "./synchronizer";
+import { isShutdownError, throwIfShutdownRequested } from "../shutdown";
 
 const { TweetMap } = Schema;
 const { TweetSynced } = Schema;
@@ -44,6 +45,7 @@ export async function syncPosts(args: {
     const iter = x.getTweets(handle.handle, maxSync);
     log.text = "Created async iterator";
     for await (const tweet of iter) {
+      throwIfShutdownRequested();
       counter++;
       log.text = `syncing [${counter}/${maxSync === Infinity ? "∞" : maxSync}] tweets...`;
       if (cachedCounter >= MAX_CONSECUTIVE_CACHED) {
@@ -80,6 +82,7 @@ export async function syncPosts(args: {
       const metaTweet = toMetaPost(tweet);
       try {
         for (const s of args.synchronizers) {
+          throwIfShutdownRequested();
           // Might have race condition if done in parallel
           if (!s.syncPost) {
             continue;
@@ -97,11 +100,13 @@ export async function syncPosts(args: {
               platformId: s.platformId,
               s: s.storeSchema,
             });
+            throwIfShutdownRequested();
             const syncRes = await s.syncPost({
               log: platformLog,
               tweet: metaTweet,
               store,
             });
+            throwIfShutdownRequested();
             const storeString = syncRes ? JSON.stringify(syncRes.store) : "";
             await db.insert(TweetMap).values({
               tweetId: tweet.id,
@@ -110,6 +115,11 @@ export async function syncPosts(args: {
             });
             platformLog.succeed(`${s.emoji} ${s.displayName} synced`);
           } catch (error) {
+            if (isShutdownError(error)) {
+              platformLog.stop();
+              throw error;
+            }
+
             logError(
               platformLog,
               error,
@@ -120,6 +130,7 @@ export async function syncPosts(args: {
           platformLog.stop();
         }
 
+        throwIfShutdownRequested();
         // Mark as synced
         await db
           .insert(TweetSynced)
@@ -130,12 +141,21 @@ export async function syncPosts(args: {
           })
           .run();
       } catch (error) {
+        if (isShutdownError(error)) {
+          throw error;
+        }
+
         logError(log, error)`Failed to sync tweet: ${error}`;
         console.error(error);
         console.error(tweet);
       }
     }
   } catch (error) {
+    if (isShutdownError(error)) {
+      log.warn("stopped");
+      return;
+    }
+
     console.error("Scraper failed with an error:", error);
   }
 
