@@ -48,6 +48,9 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 [![Mastodon](https://img.shields.io/badge/-MASTODON-%232B90D9?style=for-the-badge&logo=mastodon&logoColor=white)](https://joinmastodon.org/)
 [![Discord](<https://img.shields.io/badge/Discord_(webhook)-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white>)](https://discord.com/)
 [![Misskey](https://img.shields.io/badge/Misskey-%232EC866.svg?style=for-the-badge&logo=misskey&logoColor=white)](https://misskey-hub.net/)
+[![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/)
+
+Instagram sync uses Meta's official publishing API. It requires an Instagram professional account and an access token with publishing permissions; text-only X posts are skipped because Instagram posts require image or video media.
 
 ## Get started
 

@@ -1,7 +1,7 @@
 import { accessSync, constants } from "node:fs";
 import { join } from "node:path";
 import z from "zod";
-import packageInfo from "../package.json" assert { type: "json" };
+import packageInfo from "../package.json" with { type: "json" };
 
 if (process.env.NODE_ENV !== "test") {
   const envPath = process.argv[2] ?? join(process.cwd(), ".env");
@@ -88,6 +88,7 @@ export const DATABASE_PATH = (
 ).trim();
 export const SYNC_MASTODON = envBool("SYNC_MASTODON", true);
 export const SYNC_BLUESKY = envBool("SYNC_BLUESKY", true);
+export const SYNC_INSTAGRAM = envBool("SYNC_INSTAGRAM", true);
 export const BACKDATE_BLUESKY_POSTS = envBool("BACKDATE_BLUESKY_POSTS", true);
 export const SYNC_FREQUENCY_MIN = envInt("SYNC_FREQUENCY_MIN", 30);
 export const SYNC_PROFILE_DESCRIPTION = envBool(
