@@ -48,6 +48,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 [![Mastodon](https://img.shields.io/badge/-MASTODON-%232B90D9?style=for-the-badge&logo=mastodon&logoColor=white)](https://joinmastodon.org/)
 [![Discord](<https://img.shields.io/badge/Discord_(webhook)-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white>)](https://discord.com/)
 [![Misskey](https://img.shields.io/badge/Misskey-%232EC866.svg?style=for-the-badge&logo=misskey&logoColor=white)](https://misskey-hub.net/)
+[![Tumblr](https://img.shields.io/badge/Tumblr-%2336455D.svg?style=for-the-badge&logo=tumblr&logoColor=white)](https://www.tumblr.com/)
 
 ## Get started
 

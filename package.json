@@ -38,6 +38,7 @@
     "misskey-js": "^2026.5.3",
     "ora": "^9.4.0",
     "tough-cookie": "^6.0.1",
+    "tumblr.js": "^5.0.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
