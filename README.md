@@ -1,4 +1,4 @@
-# A Fork of the [Touitomamout](https://github.com/louisgrasset/touitomamout)
+# A Fork of [Touitomamout](https://github.com/louisgrasset/touitomamout)
 
 <p align="center">
   <a href="https://yamada-sexta.github.io/touitomamout/docs/discover">
@@ -23,7 +23,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 > [!warning]
 >
-> Pre-built binaries are considered obsolete. Use the container instead.
+> Pre-built binaries are considered obsolete. Use the containers instead.
 
 [![GitHub repo size](https://img.shields.io/github/repo-size/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
 [![Docker Image Size](https://img.shields.io/docker/image-size/yamadasexta/touitomamout?style=flat-square)](https://hub.docker.com/r/yamadasexta/touitomamout)
@@ -34,7 +34,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 ## Why this fork?
 
-- Still maintained
+- Still maintained (actually works)
 - Built on Bun with a smaller bundle size
 - More sensible default settings
 - Multi-account support
