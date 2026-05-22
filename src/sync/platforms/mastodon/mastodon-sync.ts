@@ -1,4 +1,4 @@
-import { SYNC_MASTODON, VOID } from "env";
+import { HANDLE_RETWEETS, SYNC_MASTODON, VOID } from "env";
 import { createRestAPIClient } from "masto";
 import { type MediaAttachment } from "masto/mastodon/entities/v1/index.js";
 import { type UpdateCredentialsParams } from "masto/mastodon/rest/v1/accounts.js";
@@ -77,29 +77,59 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
           .verifyCredentials()
           .then((account) => account.username);
 
-        const chunks = await splitTextForMastodon({
+        if (tweet.isRetweet && tweet.retweetedStatus) {
+          const store = await getPostStore({
+            s: MastodonStoreSchema,
+            db,
+            tweet: tweet.retweetedStatus.id,
+            platformId: MastodonSynchronizerFactory.PLATFORM_ID,
+          });
+
+          if (HANDLE_RETWEETS === "none") {
+            log.info("skipping retweet");
+            return;
+          }
+
+          if (HANDLE_RETWEETS === "repost" && store.success) {
+            const tootId = store.data.tootIds.at(-1);
+            if (tootId) {
+              log.text = `🦣 | reposting: ${getPostExcerpt(tweet.retweetedStatus.text ?? VOID)}`;
+              await client.v1.statuses.$select(tootId).reblog();
+              return {
+                store: store.data,
+              };
+            }
+          }
+
+          if (
+            (HANDLE_RETWEETS === "repost" || HANDLE_RETWEETS === "embed") &&
+            tweet.retweetedStatus.embLink
+          ) {
+            log.text = `🦣 | repost fallback: ${getPostExcerpt(tweet.retweetedStatus.text ?? VOID)}`;
+            const toot = await client.v1.statuses.create({
+              status: tweet.retweetedStatus.embLink,
+              visibility: "public",
+            });
+            return {
+              store: {
+                tootIds: [toot.id],
+              },
+            };
+          }
+
+          return;
+        }
+
+        const mastodonText = await splitTextForMastodon({
           tweet,
           db,
           mastodonInstance: env.MASTODON_INSTANCE,
           mastodonUsername: username,
         });
+        const { chunks } = mastodonText;
 
         // Const dt = await downloadTweet(tweet);
         const attachments: MediaAttachment[] = [];
-
-        let inReplyToId: undefined | string;
-        if (tweet.inReplyToStatusId) {
-          const store = await getPostStore({
-            s: MastodonStoreSchema,
-            db,
-            tweet: tweet.inReplyToStatusId,
-            platformId: MastodonSynchronizerFactory.PLATFORM_ID,
-          });
-
-          if (store.success) {
-            [inReplyToId] = store.data.tootIds;
-          }
-        }
 
         for (const p of await tweet.getPhotos()) {
           debug("Uploading photo to Mastodon:", p);
@@ -138,7 +168,7 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
           debug("Uploaded video to Mastodon:", a);
         }
 
-        if (attachments.length === 0 && !tweet.text) {
+        if (attachments.length === 0 && chunks.length === 0) {
           log.warn(
             `🦣️ | post skipped: no compatible media nor text to post (tweet: ${tweet.id})`,
           );
@@ -160,7 +190,8 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
             status: chunk,
             visibility: "public",
             mediaIds: first ? attachments.map((m) => m.id) : undefined,
-            inReplyToId: first ? inReplyToId : tootIds[i - 1],
+            inReplyToId: first ? mastodonText.inReplyToId : tootIds[i - 1],
+            quotedStatusId: first ? mastodonText.quotedStatusId : undefined,
           });
           oraProgress(log, { before: "🦣 | toot sending: " }, i, chunks.length);
           // Save toot ID to be able to reference it while posting the next chunk.

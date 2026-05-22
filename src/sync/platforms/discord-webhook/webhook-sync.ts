@@ -1,8 +1,9 @@
 import { type SynchronizerFactory } from "sync/synchronizer";
 import z from "zod";
+import { HANDLE_RETWEETS } from "env";
 import { type APIEmbed } from "discord-api-types/payloads";
 import { type RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
-import { type MetaPost } from "types/post";
+import { type MetaPost, toStatusEmbLink } from "types/post";
 import { debug } from "utils/logs";
 
 const KEYS = ["DISCORD_WEBHOOK_URL"] as const;
@@ -69,7 +70,15 @@ function formatForDiscord(tweet: MetaPost): {
         url: `https://x.com/${tweet.quotedStatus.username}`,
       },
       description: tweet.quotedStatus.text ?? "",
-      url: tweet.quotedStatus.permanentUrl,
+      url: tweet.quotedStatus.embLink ?? tweet.quotedStatus.permanentUrl,
+    });
+  }
+
+  if (tweet.inReplyToStatusId) {
+    embeds.push({
+      color: 0x88_99_a6,
+      description: "Replying to original post",
+      url: toStatusEmbLink(tweet.inReplyToStatusId),
     });
   }
 
@@ -171,6 +180,15 @@ export const DiscordWebhookSynchronizerFactory: SynchronizerFactory<
         if (args.store.success) {
           args.log.info("skipping...");
           return { store: args.store.data };
+        }
+
+        if (
+          HANDLE_RETWEETS === "none" &&
+          args.tweet.isRetweet &&
+          args.tweet.retweetedStatus
+        ) {
+          args.log.info("skipping retweet");
+          return;
         }
 
         const payload = formatForDiscord(args.tweet);

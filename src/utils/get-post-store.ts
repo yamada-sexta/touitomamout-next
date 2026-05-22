@@ -39,6 +39,15 @@ export async function getPostStore<S extends z.ZodObject = z.ZodObject>(args: {
   platformId: string;
 }) {
   const string_ = await getPostStoreStr({ ...args });
-  const p = args.s.safeParse(string_);
+  let platformStore: unknown;
+  if (string_) {
+    try {
+      platformStore = JSON.parse(string_.platformStore);
+    } catch {
+      platformStore = undefined;
+    }
+  }
+
+  const p = args.s.safeParse(platformStore);
   return p;
 }

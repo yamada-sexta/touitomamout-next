@@ -169,11 +169,15 @@ export const formatTweetText = (tweet: Post): string => {
   return text.trim();
 };
 
-function toEmbLink(permanentUrl: string): string {
+export function toEmbLink(permanentUrl: string): string {
   const link = new URL(permanentUrl);
   const domain = X_EMB_FIX;
   link.hostname = domain;
   return link.toString();
+}
+
+export function toStatusEmbLink(statusId: string): string {
+  return toEmbLink(`https://x.com/i/status/${statusId}`);
 }
 
 /**

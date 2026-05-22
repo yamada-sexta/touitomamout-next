@@ -17,7 +17,7 @@ import { getPostStore } from "utils/get-post-store";
 import { debug, logError, oraProgress } from "utils/logs";
 import { getPostExcerpt } from "utils/post/get-post-excerpt";
 import z from "zod";
-import { type DownloadedVideo, type Photo } from "types/post";
+import { type DownloadedVideo, type Photo, toStatusEmbLink } from "types/post";
 import { type SynchronizerFactory } from "../../synchronizer";
 import { syncProfile } from "./sync-profile";
 import { BLUESKY_KEYS, BlueskyPlatformStore, type BlueskyPost } from "./types";
@@ -60,6 +60,19 @@ export async function getExternalEmbedding(
   } catch {
     return undefined;
   }
+}
+
+async function getExternalEmbeddingForUrl(
+  url: string | undefined,
+  agent: Agent,
+): Promise<$Typed<AppBskyEmbedExternal.Main> | undefined> {
+  if (!url) {
+    return;
+  }
+
+  const richText = new RichText({ text: url });
+  await richText.detectFacets(agent);
+  return getExternalEmbedding(richText, agent);
 }
 
 export const BlueskySynchronizerFactory: SynchronizerFactory<
@@ -140,13 +153,31 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           .getProfile({ actor: env.BLUESKY_IDENTIFIER })
           .then((account) => account.data.handle);
 
-        if (
-          HANDLE_RETWEETS === "embed" &&
-          tweet.isRetweet &&
-          tweet.retweetedStatus
-        ) {
+        if (tweet.isRetweet && tweet.retweetedStatus) {
+          const retweetedPost = await getPostFromTid(tweet.retweetedStatus.id);
+          if (HANDLE_RETWEETS === "none") {
+            log.info("skipping retweet");
+            return;
+          }
+
+          if (HANDLE_RETWEETS === "repost" && retweetedPost) {
+            log.text = `☁️ | reposting: ${getPostExcerpt(
+              tweet.retweetedStatus.text ?? VOID,
+            )}`;
+            await agent.repost(retweetedPost.uri, retweetedPost.cid);
+            return {
+              store: {
+                cid: retweetedPost.cid,
+                rkey: RKEY_REGEX.exec(retweetedPost.uri)?.groups?.rkey ?? "",
+              },
+            };
+          }
+
           const embedUrl = tweet.retweetedStatus.embLink;
-          if (embedUrl) {
+          if (
+            (HANDLE_RETWEETS === "embed" || HANDLE_RETWEETS === "repost") &&
+            embedUrl
+          ) {
             log.info(
               `☁️ | post sending: ${getPostExcerpt(
                 tweet.text ?? VOID,
@@ -178,6 +209,8 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
               },
             };
           }
+
+          return;
         }
 
         const quotePost =
@@ -214,6 +247,20 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           | undefined;
 
         const externalRecord = await getExternalEmbedding(richText, agent);
+        const quoteExternalRecord = quotePost
+          ? undefined
+          : await getExternalEmbeddingForUrl(
+              tweet.quotedStatus?.embLink,
+              agent,
+            );
+        const replyExternalRecord = replyPost
+          ? undefined
+          : await getExternalEmbeddingForUrl(
+              tweet.inReplyToStatusId
+                ? toStatusEmbLink(tweet.inReplyToStatusId)
+                : undefined,
+              agent,
+            );
 
         const videos = await tweet.getVideos();
         const photos = await tweet.getPhotos();
@@ -296,7 +343,13 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
           log.info(`no media to upload for tweet ${tweet.id}`);
         }
 
-        if (!media && !post.tweet.text) {
+        if (
+          !media &&
+          !post.tweet.text &&
+          !quoteRecord &&
+          !quoteExternalRecord &&
+          !replyExternalRecord
+        ) {
           log.warn(
             `☁️ | post skipped: no compatible media nor text to post (tweet: ${post.tweet.id})`,
           );
@@ -315,6 +368,10 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
         } else if (quoteRecord) {
           // --- Case 2: Post has only a quote ---
           firstEmbed = quoteRecord;
+        } else if (quoteExternalRecord) {
+          firstEmbed = quoteExternalRecord;
+        } else if (replyExternalRecord) {
+          firstEmbed = replyExternalRecord;
         } else if (media) {
           // --- Case 3: Post has only media ---
           // Use the media embed directly (e.g., app.bsky.embed.images)
