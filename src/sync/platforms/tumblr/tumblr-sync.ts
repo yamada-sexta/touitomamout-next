@@ -98,6 +98,28 @@ function buildLinkEmbedContent(url: string): TumblrContentBlock[] {
   ];
 }
 
+function buildPostLinkEmbedContent(tweet: MetaPost): TumblrContentBlock[] {
+  const posterUrl = tweet.photos[0]?.url ?? tweet.videos[0]?.preview;
+  return [
+    {
+      type: "link",
+      url: tweet.embLink ?? tweet.permanentUrl ?? toStatusEmbLink(tweet.id),
+      title: `${tweet.name ?? tweet.username ?? "Post"}${tweet.username ? ` (@${tweet.username})` : ""}`,
+      description: tweet.text ?? "",
+      author: tweet.name ?? tweet.username,
+      site_name: "X",
+      display_url: "x.com",
+      poster: posterUrl
+        ? [
+            {
+              url: posterUrl,
+            },
+          ]
+        : undefined,
+    },
+  ];
+}
+
 function getTumblrBlogIdentifier(userInfo: unknown): string {
   const parsed = TumblrUserInfoSchema.safeParse(userInfo);
   if (!parsed.success) {
@@ -248,9 +270,7 @@ export const TumblrSynchronizerFactory: SynchronizerFactory<
               args.tweet.retweetedStatus.text ?? VOID,
             )}`;
             const response = await client.createPost(blogIdentifier, {
-              content: buildLinkEmbedContent(
-                args.tweet.retweetedStatus.embLink,
-              ),
+              content: buildPostLinkEmbedContent(args.tweet.retweetedStatus),
               date: args.tweet.datetime.toISOString(),
             });
 
@@ -282,9 +302,7 @@ export const TumblrSynchronizerFactory: SynchronizerFactory<
               return { store };
             }
           } else if (args.tweet.quotedStatus?.embLink) {
-            content.push(
-              ...buildLinkEmbedContent(args.tweet.quotedStatus.embLink),
-            );
+            content.push(...buildPostLinkEmbedContent(args.tweet.quotedStatus));
           }
         }
 
