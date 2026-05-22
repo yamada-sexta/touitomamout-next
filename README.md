@@ -50,7 +50,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 [![Misskey](https://img.shields.io/badge/Misskey-%232EC866.svg?style=for-the-badge&logo=misskey&logoColor=white)](https://misskey-hub.net/)
 [![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/)
 
-Instagram sync uses Meta's official publishing API. It requires an Instagram professional account and an access token with publishing permissions; text-only X posts are skipped because Instagram posts require image or video media.
+Instagram sync uses an unofficial private mobile API client with username/password login. Text-only X posts are skipped because Instagram feed posts require image or video media. If Instagram asks for two-factor auth, set `INSTAGRAM_TWO_FACTOR_CODE` for one run so Touitomamout can cache the session, then remove it.
 
 ## Get started
 

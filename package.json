@@ -34,6 +34,7 @@
     "cycletls": "^2.0.5",
     "drizzle-orm": "^0.45.2",
     "html-entities": "^2.6.0",
+    "instagram-private-api": "^1.46.1",
     "masto": "^7.11.1",
     "misskey-js": "^2026.5.3",
     "ora": "^9.4.0",

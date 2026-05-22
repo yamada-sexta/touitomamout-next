@@ -1,53 +1,45 @@
+import {
+  IgApiClient,
+  IgLoginTwoFactorRequiredError,
+} from "instagram-private-api";
 import { SYNC_INSTAGRAM, VOID } from "env";
+import { type DBType, Schema } from "db";
+import { eq } from "drizzle-orm";
 import { type SynchronizerFactory } from "sync/synchronizer";
+import { type DownloadedPhoto, type DownloadedVideo } from "types/post";
+import { download } from "utils/medias/download-media";
 import { debug, oraProgress } from "utils/logs";
 import { getPostExcerpt } from "utils/post/get-post-excerpt";
 import z from "zod";
 
-const KEYS = [
-  "INSTAGRAM_ACCESS_TOKEN",
-  "INSTAGRAM_USER_ID",
-  "INSTAGRAM_GRAPH_BASE_URL",
-  "INSTAGRAM_GRAPH_VERSION",
-  "INSTAGRAM_VIDEO_MEDIA_TYPE",
-  "INSTAGRAM_SHARE_REELS_TO_FEED",
-] as const;
+const KEYS = ["INSTAGRAM_USERNAME", "INSTAGRAM_PASSWORD"] as const;
 
 const INSTAGRAM_CAPTION_MAX_LENGTH = 2200;
-const INSTAGRAM_CAROUSEL_MAX_ITEMS = 10;
-const CONTAINER_POLL_ATTEMPTS = 12;
-const CONTAINER_POLL_INTERVAL_MS = 5000;
+const INSTAGRAM_ALBUM_MAX_ITEMS = 10;
+const trimInstagramUsername = (username: string): string =>
+  username.toLowerCase().trim().replace(/^@+/, "");
 
 const InstagramStoreSchema = z.object({
   mediaId: z.string(),
-  containerId: z.string(),
 });
 
-type InstagramContainerStatus =
-  | "EXPIRED"
-  | "ERROR"
-  | "FINISHED"
-  | "IN_PROGRESS"
-  | "PUBLISHED";
-
-type InstagramContainer = {
-  id: string;
-};
-
 type InstagramPublishResponse = {
-  id: string;
+  media?: {
+    id?: string;
+    pk?: string | number;
+  };
 };
 
-type InstagramStatusResponse = {
-  status_code?: InstagramContainerStatus;
-  status?: string;
+type InstagramAlbumPhotoItem = {
+  file: Buffer;
 };
 
-type InstagramMediaInput = {
-  type: "image" | "video";
-  url: string;
-  altText?: string;
+type InstagramAlbumVideoItem = {
+  video: Buffer;
+  coverImage: Buffer;
 };
+
+type InstagramAlbumItem = InstagramAlbumPhotoItem | InstagramAlbumVideoItem;
 
 function trimCaption(text: string): string {
   if (text.length <= INSTAGRAM_CAPTION_MAX_LENGTH) {
@@ -57,32 +49,49 @@ function trimCaption(text: string): string {
   return text.slice(0, INSTAGRAM_CAPTION_MAX_LENGTH - 1).trimEnd() + "…";
 }
 
-function joinUrl(baseUrl: string, graphVersion: string, path: string): string {
-  const base = baseUrl.replace(/\/$/, "");
-  const version = graphVersion.replace(/^\/|\/$/g, "");
-  const normalizedPath = path.replace(/^\//, "");
-  return `${base}/${version}/${normalizedPath}`;
+async function fileToBuffer(file: File): Promise<Buffer> {
+  return Buffer.from(await file.arrayBuffer());
 }
 
-function getJsonMessage(data: unknown): string | undefined {
-  if (!data || typeof data !== "object") {
-    return;
-  }
-
-  const error = "error" in data ? data.error : undefined;
-  if (error && typeof error === "object" && "message" in error) {
-    return String(error.message);
-  }
-
-  if ("message" in data) {
-    return String(data.message);
-  }
-
-  return undefined;
+function getSlotEnv(key: string, slot: number): string {
+  const suffix = slot === 0 ? "" : String(slot);
+  return process.env[`${key}${suffix}`]?.trim() ?? "";
 }
 
-async function sleep(ms: number): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, ms));
+async function getCachedSession(db: DBType, username: string): Promise<string> {
+  const cacheKey = `instagram:${username}`;
+  const previousSession = await db
+    .select()
+    .from(Schema.TwitterCookieCache)
+    .where(eq(Schema.TwitterCookieCache.userHandle, cacheKey));
+
+  return previousSession[0]?.cookie ?? "";
+}
+
+async function cacheSession(
+  db: DBType,
+  username: string,
+  ig: IgApiClient,
+): Promise<void> {
+  const cacheKey = `instagram:${username}`;
+  const state = JSON.stringify(await ig.state.serialize());
+  await db
+    .insert(Schema.TwitterCookieCache)
+    .values({
+      userHandle: cacheKey,
+      cookie: state,
+    })
+    .onConflictDoUpdate({
+      target: Schema.TwitterCookieCache.userHandle,
+      set: {
+        cookie: state,
+      },
+    });
+}
+
+function getPublishedMediaId(response: InstagramPublishResponse): string {
+  const id = response.media?.id ?? response.media?.pk;
+  return id ? String(id) : "";
 }
 
 export const InstagramSynchronizerFactory: SynchronizerFactory<
@@ -94,151 +103,92 @@ export const InstagramSynchronizerFactory: SynchronizerFactory<
   PLATFORM_ID: "instagram",
   ENV_KEYS: KEYS,
   STORE_SCHEMA: InstagramStoreSchema,
-  FALLBACK_ENV: {
-    INSTAGRAM_GRAPH_BASE_URL: "https://graph.instagram.com",
-    INSTAGRAM_GRAPH_VERSION: "v24.0",
-    INSTAGRAM_VIDEO_MEDIA_TYPE: "REELS",
-    INSTAGRAM_SHARE_REELS_TO_FEED: "true",
-  },
   async create(args) {
     if (!SYNC_INSTAGRAM) {
       throw new Error("Instagram will not be synced");
     }
 
-    const accessToken = args.env.INSTAGRAM_ACCESS_TOKEN;
-    const instagramUserId = args.env.INSTAGRAM_USER_ID;
-    const graphBaseUrl = args.env.INSTAGRAM_GRAPH_BASE_URL;
-    const graphVersion = args.env.INSTAGRAM_GRAPH_VERSION;
-    const singleVideoMediaType = args.env.INSTAGRAM_VIDEO_MEDIA_TYPE;
-    const shareReelsToFeed =
-      args.env.INSTAGRAM_SHARE_REELS_TO_FEED.toLowerCase() === "true";
+    const username = trimInstagramUsername(args.env.INSTAGRAM_USERNAME);
+    const password = args.env.INSTAGRAM_PASSWORD;
+    const sessionState = getSlotEnv("INSTAGRAM_SESSION_STATE", args.slot);
+    const twoFactorCode = getSlotEnv("INSTAGRAM_TWO_FACTOR_CODE", args.slot);
+    const db = args.db;
+    const ig = new IgApiClient();
+    ig.state.generateDevice(username);
 
-    async function instagramFetch<T>(
-      path: string,
-      init?: RequestInit,
-    ): Promise<T> {
-      const res = await fetch(joinUrl(graphBaseUrl, graphVersion, path), init);
-      const text = await res.text();
-      const data = text ? JSON.parse(text) : {};
-
-      if (!res.ok) {
-        throw new Error(
-          `Instagram API failed with status ${res.status}: ${
-            getJsonMessage(data) ?? text
-          }`,
-        );
-      }
-
-      return data as T;
+    const session = sessionState || (await getCachedSession(db, username));
+    if (session) {
+      await ig.state.deserialize(session);
     }
 
-    async function postToInstagram<T>(
-      path: string,
-      params: Record<string, string>,
-    ): Promise<T> {
-      const body = new URLSearchParams({
-        ...params,
-        access_token: accessToken,
-      });
+    try {
+      await ig.account.currentUser();
+      args.log.text = "connected (session restored)";
+    } catch {
+      try {
+        await ig.simulate.preLoginFlow();
+        await ig.account.login(username, password);
+        process.nextTick(async () => ig.simulate.postLoginFlow());
+        args.log.text = "connected (using credentials)";
+        await cacheSession(db, username, ig);
+      } catch (error) {
+        if (error instanceof IgLoginTwoFactorRequiredError) {
+          if (!twoFactorCode) {
+            throw new Error(
+              "Instagram requires a two-factor code. Set INSTAGRAM_TWO_FACTOR_CODE for this run, then remove it after the session is cached.",
+            );
+          }
 
-      return instagramFetch<T>(path, {
-        method: "POST",
-        body,
-      });
-    }
-
-    async function getContainerStatus(
-      containerId: string,
-    ): Promise<InstagramStatusResponse> {
-      const body = new URLSearchParams({
-        fields: "status_code,status",
-        access_token: accessToken,
-      });
-      return instagramFetch<InstagramStatusResponse>(
-        `${containerId}?${body.toString()}`,
-      );
-    }
-
-    async function waitForContainer(containerId: string): Promise<void> {
-      for (let i = 0; i < CONTAINER_POLL_ATTEMPTS; i++) {
-        const status = await getContainerStatus(containerId);
-        debug("Instagram container status:", { containerId, status });
-
-        if (
-          status.status_code === "FINISHED" ||
-          status.status_code === "PUBLISHED" ||
-          status.status === "Finished"
-        ) {
-          return;
-        }
-
-        if (status.status_code === "ERROR" || status.status_code === "EXPIRED") {
-          throw new Error(
-            `Instagram container ${containerId} is ${status.status_code}`,
-          );
-        }
-
-        await sleep(CONTAINER_POLL_INTERVAL_MS);
-      }
-
-      throw new Error(`Instagram container ${containerId} was not ready in time`);
-    }
-
-    async function createContainer(
-      media: InstagramMediaInput,
-      options: {
-        caption?: string;
-        carouselItem?: boolean;
-      } = {},
-    ): Promise<InstagramContainer> {
-      const params: Record<string, string> = {};
-
-      if (media.type === "image") {
-        params.image_url = media.url;
-        if (media.altText) {
-          params.alt_text = media.altText;
-        }
-      } else {
-        params.video_url = media.url;
-        params.media_type = options.carouselItem
-          ? "VIDEO"
-          : singleVideoMediaType;
-        if (!options.carouselItem && singleVideoMediaType === "REELS") {
-          params.share_to_feed = String(shareReelsToFeed);
+          const twoFactorInfo = error.response.body.two_factor_info;
+          await ig.account.twoFactorLogin({
+            username,
+            verificationCode: twoFactorCode,
+            twoFactorIdentifier: twoFactorInfo.two_factor_identifier,
+            verificationMethod: twoFactorInfo.totp_two_factor_on ? "3" : "1",
+            trustThisDevice: "1",
+          });
+          args.log.text = "connected (using two-factor code)";
+          await cacheSession(db, username, ig);
+        } else {
+          throw error;
         }
       }
-
-      if (options.carouselItem) {
-        params.is_carousel_item = "true";
-      }
-
-      if (options.caption) {
-        params.caption = options.caption;
-      }
-
-      return postToInstagram<InstagramContainer>(
-        `${instagramUserId}/media`,
-        params,
-      );
     }
 
-    async function publishContainer(
-      containerId: string,
-    ): Promise<InstagramPublishResponse> {
-      return postToInstagram<InstagramPublishResponse>(
-        `${instagramUserId}/media_publish`,
-        {
-          creation_id: containerId,
-        },
-      );
-    }
+    async function getAlbumItems(
+      photos: DownloadedPhoto[],
+      videos: DownloadedVideo[],
+    ): Promise<InstagramAlbumItem[]> {
+      const photoItems: InstagramAlbumPhotoItem[] = [];
+      for (const photo of photos) {
+        if (!photo.file) {
+          continue;
+        }
 
-    await instagramFetch<{ id: string }>(
-      `${instagramUserId}?${new URLSearchParams({
-        fields: "id,username",
-        access_token: accessToken,
-      }).toString()}`,
-    );
+        photoItems.push({ file: await fileToBuffer(photo.file) });
+      }
+
+      const videoItems: InstagramAlbumVideoItem[] = [];
+      for (const video of videos) {
+        if (!video.file) {
+          continue;
+        }
+
+        const coverImageFile = video.preview
+          ? await download(video.preview)
+          : undefined;
+        if (!coverImageFile) {
+          continue;
+        }
+
+        videoItems.push({
+          video: await fileToBuffer(video.file),
+          coverImage: await fileToBuffer(coverImageFile),
+        });
+      }
+
+      return [...photoItems, ...videoItems].slice(0, INSTAGRAM_ALBUM_MAX_ITEMS);
+    }
 
     return {
       async syncPost(args) {
@@ -248,23 +198,13 @@ export const InstagramSynchronizerFactory: SynchronizerFactory<
           return { store: args.store.data };
         }
 
-        const media: InstagramMediaInput[] = [
-          ...tweet.photos.map((photo) => ({
-            type: "image" as const,
-            url: photo.url,
-            altText: photo.alt_text,
-          })),
-          ...tweet.videos
-            .filter((video) => video.url)
-            .map((video) => ({
-              type: "video" as const,
-              url: video.url!,
-            })),
-        ].slice(0, INSTAGRAM_CAROUSEL_MAX_ITEMS);
+        const photos = await tweet.getPhotos();
+        const videos = await tweet.getVideos();
+        const albumItems = await getAlbumItems(photos, videos);
 
-        if (media.length === 0) {
+        if (albumItems.length === 0) {
           log.warn(
-            `📸 | post skipped: Instagram requires image or video media (tweet: ${tweet.id})`,
+            `📸 | post skipped: Instagram requires downloaded image or video media (tweet: ${tweet.id})`,
           );
           return;
         }
@@ -272,46 +212,34 @@ export const InstagramSynchronizerFactory: SynchronizerFactory<
         const caption = trimCaption(tweet.text || tweet.permanentUrl || VOID);
         log.text = `📸 | post sending: ${getPostExcerpt(caption)}`;
 
-        let containerId: string;
-        if (media.length === 1) {
-          const container = await createContainer(media[0]!, { caption });
-          containerId = container.id;
-          await waitForContainer(containerId);
+        let response: InstagramPublishResponse;
+        if (albumItems.length === 1) {
+          const item = albumItems[0]!;
+          response =
+            "file" in item
+              ? await ig.publish.photo({
+                  file: item.file,
+                  caption,
+                })
+              : await ig.publish.video({
+                  video: item.video,
+                  coverImage: item.coverImage,
+                  caption,
+                });
         } else {
-          const childContainerIds: string[] = [];
-          for (let i = 0; i < media.length; i++) {
-            const child = await createContainer(media[i]!, {
-              carouselItem: true,
-            });
-            await waitForContainer(child.id);
-            childContainerIds.push(child.id);
-            oraProgress(
-              log,
-              { before: "📸 | media processing: " },
-              i + 1,
-              media.length,
-            );
-          }
-
-          const carousel = await postToInstagram<InstagramContainer>(
-            `${instagramUserId}/media`,
-            {
-              media_type: "CAROUSEL",
-              children: childContainerIds.join(","),
-              caption,
-            },
-          );
-          containerId = carousel.id;
-          await waitForContainer(containerId);
+          response = await ig.publish.album({
+            caption,
+            items: albumItems,
+          });
         }
 
-        const published = await publishContainer(containerId);
-        debug("Published Instagram media:", published);
+        await cacheSession(db, username, ig);
+        oraProgress(log, { before: "📸 | post sending: " }, 1, 1);
+        debug("Published Instagram media:", response);
 
         return {
           store: {
-            mediaId: published.id,
-            containerId,
+            mediaId: getPublishedMediaId(response),
           },
         };
       },
