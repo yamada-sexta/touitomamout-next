@@ -9,7 +9,6 @@ import { createTwitterClient } from "sync/x-client";
 import { logError, oraPrefix } from "utils/logs";
 import { MisskeySynchronizerFactory } from "sync/platforms/misskey/missky-sync";
 import { DiscordWebhookSynchronizerFactory } from "sync/platforms/discord-webhook/webhook-sync";
-import { InstagramSynchronizerFactory } from "sync/platforms/instagram/instagram-sync";
 import { cycleTLSExit } from "@the-convocation/twitter-scraper/cycletls";
 import { CronJob } from "cron";
 import { isShutdownRequested, requestShutdown } from "./shutdown";
@@ -81,7 +80,6 @@ const factories = [
   MastodonSynchronizerFactory,
   MisskeySynchronizerFactory,
   DiscordWebhookSynchronizerFactory,
-  InstagramSynchronizerFactory,
 ] as const;
 
 const xClient = await createTwitterClient({
