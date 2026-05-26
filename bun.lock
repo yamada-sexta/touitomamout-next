@@ -15,7 +15,7 @@
         "drizzle-orm": "^0.45.2",
         "html-entities": "^2.6.0",
         "masto": "^7.11.1",
-        "misskey-js": "^2026.5.3",
+        "misskey-js": "^2026.5.4",
         "ora": "^9.4.0",
         "tough-cookie": "^6.0.1",
         "tumblr.js": "^5.0.1",
@@ -344,7 +344,7 @@
 
     "minimatch": ["minimatch@10.2.1", "", { "dependencies": { "brace-expansion": "^5.0.2" } }, "sha512-MClCe8IL5nRRmawL6ib/eT4oLyeKMGCghibcDWK+J0hh0Q8kqSdia6BvbRMVk6mPa6WqUa5uR2oxt6C5jd533A=="],
 
-    "misskey-js": ["misskey-js@2026.5.3", "", { "dependencies": { "@simplewebauthn/browser": "13.3.0", "eventemitter3": "5.0.4", "reconnecting-websocket": "4.4.0" } }, "sha512-wqgYri8WkytL8wjaI2Drrn5QPcC4866yN46KFOPN7KMWZzP/cDFZJ+khywmTrTdYptqDQj9ehvarL4jnASc33g=="],
+    "misskey-js": ["misskey-js@2026.5.4", "", { "dependencies": { "@simplewebauthn/browser": "13.3.0", "eventemitter3": "5.0.4", "reconnecting-websocket": "4.4.0" } }, "sha512-885N7qBRueiqT0KM7pOHk/LuMdW+3dR1lmyL8Cvqng5taIii5qnwHHTHC2AGuao3Zg9Fgyu0G67ClPNh1/C91w=="],
 
     "ms": ["ms@2.1.3", "", {}, "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="],
 
