@@ -10,7 +10,7 @@ import z from "zod";
 import {
   defineSynchronizerFactory,
   envString,
-  envStringWithDefault,
+  envURLWithDefault,
 } from "../../synchronizer";
 
 export const MastodonStoreSchema = z.object({
@@ -19,7 +19,7 @@ export const MastodonStoreSchema = z.object({
 
 const MASTODON_PLATFORM_ID = "mastodon";
 const MastodonEnvSchema = z.object({
-  MASTODON_INSTANCE: envStringWithDefault("mastodon.social"),
+  MASTODON_INSTANCE: envURLWithDefault("mastodon.social"),
   MASTODON_ACCESS_TOKEN: envString,
 });
 
@@ -35,7 +35,7 @@ export const MastodonSynchronizerFactory = defineSynchronizerFactory({
     }
 
     const client = createRestAPIClient({
-      url: `https://${args.env.MASTODON_INSTANCE}`,
+      url: args.env.MASTODON_INSTANCE.href,
       accessToken: args.env.MASTODON_ACCESS_TOKEN,
     });
     await client.v1.accounts.verifyCredentials();

@@ -1,4 +1,8 @@
-import { defineSynchronizerFactory, envString } from "~/sync/synchronizer";
+import {
+  defineSynchronizerFactory,
+  envString,
+  envURL,
+} from "~/sync/synchronizer";
 import z from "zod";
 import * as Misskey from "misskey-js";
 import { DEBUG, HANDLE_RETWEETS } from "~/env";
@@ -12,7 +16,7 @@ const MisskeyStoreSchema = z.object({
 
 const MISSKEY_PLATFORM_ID = "misskey";
 const MisskeyEnvSchema = z.object({
-  MISSKEY_INSTANCE: envString,
+  MISSKEY_INSTANCE: envURL,
   MISSKEY_ACCESS_CODE: envString,
 });
 
@@ -25,7 +29,7 @@ export const MisskeySynchronizerFactory = defineSynchronizerFactory({
   async create(args) {
     const { db } = args;
     const api = new Misskey.api.APIClient({
-      origin: `https://${args.env.MISSKEY_INSTANCE}`,
+      origin: args.env.MISSKEY_INSTANCE.href,
       credential: args.env.MISSKEY_ACCESS_CODE,
     });
 

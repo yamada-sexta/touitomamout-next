@@ -13,7 +13,7 @@ export async function splitTextForMastodon(
     tweet: MetaPost;
     db: DBType;
     mastodonUsername: string;
-    mastodonInstance: string;
+    mastodonInstance: URL;
   },
   // MastodonUsername: string
 ): Promise<{

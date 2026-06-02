@@ -16,11 +16,15 @@ import { getPostStore } from "~/utils/get-post-store";
 import { debug, logError, oraProgress } from "~/utils/logs";
 import { getPostExcerpt } from "~/utils/post/get-post-excerpt";
 import z from "zod";
-import { type DownloadedVideo, type Photo, toStatusEmbLink } from "~/types/post";
+import {
+  type DownloadedVideo,
+  type Photo,
+  toStatusEmbLink,
+} from "~/types/post";
 import {
   defineSynchronizerFactory,
   envString,
-  envStringWithDefault,
+  envURLWithDefault,
 } from "../../synchronizer";
 import { syncProfile } from "./sync-profile";
 import { BlueskyPlatformStore, type BlueskyPost } from "./types";
@@ -36,7 +40,7 @@ const BLUESKY_MEDIA_IMAGES_MAX_COUNT = 4;
 const RKEY_REGEX = /\/(?<rkey>\w+)$/;
 const BLUESKY_PLATFORM_ID = "bluesky";
 const BlueskyEnvSchema = z.object({
-  BLUESKY_INSTANCE: envStringWithDefault("bsky.social"),
+  BLUESKY_INSTANCE: envURLWithDefault("bsky.social"),
   BLUESKY_IDENTIFIER: envString,
   BLUESKY_PASSWORD: envString,
 });
@@ -93,16 +97,7 @@ export const BlueskySynchronizerFactory = defineSynchronizerFactory({
   STORE_SCHEMA: BlueskyPlatformStore,
 
   async create(args) {
-    // const blueskyInstance = args.env.BLUESKY_INSTANCE.trim();
-    let blueskyInstance = args.env.BLUESKY_INSTANCE.trim();
-    // Check if it starts with https:// or http://, if not add https://
-    if (!/^https?:\/\//.test(blueskyInstance)) {
-      blueskyInstance = `https://${blueskyInstance}`;
-    }
-    // Remove trailing slash if exists
-    blueskyInstance = blueskyInstance.replace(/\/$/, "");
-
-    const session = new CredentialSession(new URL(blueskyInstance));
+    const session = new CredentialSession(args.env.BLUESKY_INSTANCE);
 
     const identifier = args.env.BLUESKY_IDENTIFIER;
     const password = args.env.BLUESKY_PASSWORD;

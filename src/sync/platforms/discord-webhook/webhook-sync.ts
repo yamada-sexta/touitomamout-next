@@ -1,4 +1,4 @@
-import { defineSynchronizerFactory, envString } from "~/sync/synchronizer";
+import { defineSynchronizerFactory, envURL } from "~/sync/synchronizer";
 import z from "zod";
 import { HANDLE_RETWEETS } from "~/env";
 import { type APIEmbed } from "discord-api-types/payloads";
@@ -11,7 +11,7 @@ const WebhookStoreSchema = z.object({
 });
 
 const DiscordWebhookEnvSchema = z.object({
-  DISCORD_WEBHOOK_URL: envString,
+  DISCORD_WEBHOOK_URL: envURL,
 });
 
 function formatForDiscord(tweet: MetaPost): {

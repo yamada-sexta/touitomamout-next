@@ -1,7 +1,12 @@
 export function getMastodonQuoteLinkSection(args: {
   mastodonQuotedId: string;
   mastodonUsername: string;
-  mastodonInstance: string;
+  mastodonInstance: URL;
 }) {
-  return `\n\nhttps://${args.mastodonInstance}/@${args.mastodonUsername}/${args.mastodonQuotedId}`;
+  const statusURL = new URL(
+    `/@${args.mastodonUsername}/${args.mastodonQuotedId}`,
+    args.mastodonInstance,
+  );
+
+  return `\n\n${statusURL.href}`;
 }

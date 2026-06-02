@@ -34,6 +34,52 @@ export const envStringWithDefault = (defaultValue: string) =>
     )
     .pipe(z.string().trim().min(1));
 
+function normalizeURLString(value: string) {
+  const trimmed = value.trim();
+  const urlString = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    return new URL(urlString).href.replace(/\/$/, "");
+  } catch {
+    return urlString;
+  }
+}
+
+const httpURLString = z.url().refine(
+  (value) => {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  },
+  { message: "must be an HTTP(S) URL" },
+);
+
+const httpURL = httpURLString.transform((value) => new URL(value));
+
+export const envURL = z.preprocess((value) => {
+  if (value instanceof URL) {
+    return normalizeURLString(value.href);
+  }
+
+  return typeof value === "string" ? normalizeURLString(value) : value;
+}, httpURL);
+
+export const envURLWithDefault = (defaultValue: string) => {
+  const normalizedDefault = envURL.parse(defaultValue);
+
+  return z.preprocess((value) => {
+    const defaultedValue = value === undefined ? normalizedDefault : value;
+    if (defaultedValue instanceof URL) {
+      return normalizeURLString(defaultedValue.href);
+    }
+
+    return typeof defaultedValue === "string"
+      ? normalizeURLString(defaultedValue.trim() || normalizedDefault.href)
+      : defaultedValue;
+  }, httpURL);
+};
+
 export type SynchronizerFactory<
   E extends z.ZodObject,
   S extends z.ZodObject,
@@ -184,9 +230,7 @@ function synchronizerSchema<S extends z.ZodObject>(storeSchema: S) {
 export function defineSynchronizerFactory<
   const E extends z.ZodObject,
   const S extends z.ZodObject,
->(
-  definition: SynchronizerFactoryDefinition<E, S>,
-): SynchronizerFactory<E, S> {
+>(definition: SynchronizerFactoryDefinition<E, S>): SynchronizerFactory<E, S> {
   const createArgsSchema = z.object({
     xClient: XClientSchema,
     env: definition.ENV_SCHEMA,
