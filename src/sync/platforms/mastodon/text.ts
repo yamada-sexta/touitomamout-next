@@ -1,8 +1,8 @@
-import { type DBType } from "db";
-import { MASTODON_MAX_POST_LENGTH } from "env";
-import { getPostStore } from "utils/get-post-store";
-import { splitTweetTextCore } from "utils/tweet/split-tweet-text/split-tweet-text";
-import { type MetaPost, toStatusEmbLink } from "types/post";
+import { type DBType } from "~/db";
+import { MASTODON_MAX_POST_LENGTH } from "~/env";
+import { getPostStore } from "~/utils/get-post-store";
+import { splitTweetTextCore } from "~/utils/tweet/split-tweet-text/split-tweet-text";
+import { type MetaPost, toStatusEmbLink } from "~/types/post";
 import {
   MastodonStoreSchema,
   MastodonSynchronizerFactory,

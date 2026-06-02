@@ -1,7 +1,7 @@
-import { SYNC_MASTODON, type TwitterHandle } from "env";
+import { SYNC_MASTODON, type TwitterHandle } from "~/env";
 import { createRestAPIClient, type mastodon } from "masto";
 import ora from "ora";
-import { oraPrefix } from "utils/logs";
+import { oraPrefix } from "~/utils/logs";
 
 export async function createMastodonClient(args: {
   handle: TwitterHandle;

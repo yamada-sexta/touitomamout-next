@@ -1,4 +1,4 @@
-import { DEBUG } from "env";
+import { DEBUG } from "~/env";
 import { type Ora } from "ora";
 
 export function logError(

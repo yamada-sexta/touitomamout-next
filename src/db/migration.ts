@@ -1,4 +1,4 @@
-import { type DBType } from "db";
+import { type DBType } from "~/db";
 // Import * as v2 from "./schema/v2";
 // import * as v3 from "./schema/v3";
 // import * as v4 from "./schema/v4";

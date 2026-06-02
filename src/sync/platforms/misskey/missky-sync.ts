@@ -1,24 +1,26 @@
-import { type SynchronizerFactory } from "sync/synchronizer";
+import { defineSynchronizerFactory, envString } from "~/sync/synchronizer";
 import z from "zod";
 import * as Misskey from "misskey-js";
-import { DEBUG, HANDLE_RETWEETS } from "env";
-import { toStatusEmbLink } from "types/post";
-import { getPostStore } from "utils/get-post-store";
+import { DEBUG, HANDLE_RETWEETS } from "~/env";
+import { toStatusEmbLink } from "~/types/post";
+import { getPostStore } from "~/utils/get-post-store";
 import { handleRateLimit } from "./rate-limit";
 
-const KEYS = ["MISSKEY_INSTANCE", "MISSKEY_ACCESS_CODE"];
 const MisskeyStoreSchema = z.object({
   id: z.string(),
 });
 
-export const MisskeySynchronizerFactory: SynchronizerFactory<
-  typeof KEYS,
-  typeof MisskeyStoreSchema
-> = {
+const MISSKEY_PLATFORM_ID = "misskey";
+const MisskeyEnvSchema = z.object({
+  MISSKEY_INSTANCE: envString,
+  MISSKEY_ACCESS_CODE: envString,
+});
+
+export const MisskeySynchronizerFactory = defineSynchronizerFactory({
   EMOJI: "Ⓜ️",
   DISPLAY_NAME: "Misskey",
-  PLATFORM_ID: "misskey",
-  ENV_KEYS: KEYS,
+  PLATFORM_ID: MISSKEY_PLATFORM_ID,
+  ENV_SCHEMA: MisskeyEnvSchema,
   STORE_SCHEMA: MisskeyStoreSchema,
   async create(args) {
     const { db } = args;
@@ -110,7 +112,7 @@ export const MisskeySynchronizerFactory: SynchronizerFactory<
               s: MisskeyStoreSchema,
               db,
               tweet: t.inReplyToStatusId,
-              platformId: MisskeySynchronizerFactory.PLATFORM_ID,
+              platformId: MISSKEY_PLATFORM_ID,
             });
             if (replyStore.success) {
               replyId = replyStore.data.id;
@@ -125,7 +127,7 @@ export const MisskeySynchronizerFactory: SynchronizerFactory<
               s: MisskeyStoreSchema,
               db,
               tweet: t.quotedStatusId,
-              platformId: MisskeySynchronizerFactory.PLATFORM_ID,
+              platformId: MISSKEY_PLATFORM_ID,
             });
             if (quoteStore.success) {
               renoteId = quoteStore.data.id;
@@ -139,7 +141,7 @@ export const MisskeySynchronizerFactory: SynchronizerFactory<
               s: MisskeyStoreSchema,
               db,
               tweet: t.retweetedStatus.id,
-              platformId: MisskeySynchronizerFactory.PLATFORM_ID,
+              platformId: MISSKEY_PLATFORM_ID,
             });
 
             if (HANDLE_RETWEETS === "none") {
@@ -198,4 +200,4 @@ export const MisskeySynchronizerFactory: SynchronizerFactory<
       },
     };
   },
-};
+});

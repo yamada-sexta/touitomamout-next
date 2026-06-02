@@ -1,15 +1,19 @@
-import { db } from "db";
+import { db } from "~/db";
 import ora from "ora";
-import { BlueskySynchronizerFactory } from "sync/platforms/bluesky";
-import { MastodonSynchronizerFactory } from "sync/platforms/mastodon/mastodon-sync";
-import { syncPosts } from "sync/sync-posts";
-import { syncProfile } from "sync/sync-profile";
-import { type TaggedSynchronizer } from "sync/synchronizer";
-import { createTwitterClient } from "sync/x-client";
-import { logError, oraPrefix } from "utils/logs";
-import { MisskeySynchronizerFactory } from "sync/platforms/misskey/missky-sync";
-import { DiscordWebhookSynchronizerFactory } from "sync/platforms/discord-webhook/webhook-sync";
-import { TumblrSynchronizerFactory } from "sync/platforms/tumblr/tumblr-sync";
+import { BlueskySynchronizerFactory } from "~/sync/platforms/bluesky";
+import { MastodonSynchronizerFactory } from "~/sync/platforms/mastodon/mastodon-sync";
+import { syncPosts } from "~/sync/sync-posts";
+import { syncProfile } from "~/sync/sync-profile";
+import {
+  parseFactoryEnv,
+  type AnySynchronizerFactory,
+  type TaggedSynchronizer,
+} from "~/sync/synchronizer";
+import { createTwitterClient } from "~/sync/x-client";
+import { logError, oraPrefix } from "~/utils/logs";
+import { MisskeySynchronizerFactory } from "~/sync/platforms/misskey/missky-sync";
+import { DiscordWebhookSynchronizerFactory } from "~/sync/platforms/discord-webhook/webhook-sync";
+import { TumblrSynchronizerFactory } from "~/sync/platforms/tumblr/tumblr-sync";
 import { cycleTLSExit } from "@the-convocation/twitter-scraper/cycletls";
 import { CronJob } from "cron";
 import { isShutdownRequested, requestShutdown } from "./shutdown";
@@ -76,13 +80,13 @@ console.log(`\n
   Touitomamout@v${TOUITOMAMOUT_VERSION} (${TOUITOMAMOUT_COMMIT_HASH})
   `);
 
-const factories = [
+const factories: AnySynchronizerFactory[] = [
   BlueskySynchronizerFactory,
   MastodonSynchronizerFactory,
   MisskeySynchronizerFactory,
   DiscordWebhookSynchronizerFactory,
   TumblrSynchronizerFactory,
-] as const;
+];
 
 const xClient = await createTwitterClient({
   twitterPassword: TWITTER_PASSWORD,
@@ -105,37 +109,22 @@ for (const handle of TWITTER_HANDLES) {
       prefixText: oraPrefix(`${factory.EMOJI} client`),
     }).start(`Connecting to ${factory.DISPLAY_NAME}`);
 
-    const envKeys = factory.ENV_KEYS;
-    type K = (typeof factory.ENV_KEYS)[number];
-    const fallback = factory.FALLBACK_ENV ?? {};
-    type EnvType = Record<K, string>;
-    const env: typeof factory.FALLBACK_ENV = {};
-    let skip = false;
-    for (const key of envKeys) {
-      const osKey = key + handle.postFix;
-      const value =
-        process.env[osKey] ||
-        (fallback[key as keyof typeof fallback] as string | undefined);
-      if (!value) {
-        log.warn(
-          `${factory.DISPLAY_NAME} will not be synced because "${osKey}" is not set`,
-        );
-        skip = true;
-        break;
-      }
+    const env = parseFactoryEnv(factory, {
+      source: process.env,
+      postFix: handle.postFix,
+    });
 
-      // @ts-expect-error
-      env[key] = value;
-    }
-
-    if (skip) {
+    if (!env.success) {
+      log.warn(
+        `${factory.DISPLAY_NAME} will not be synced because ${env.message}`,
+      );
       continue;
     }
 
     try {
       const s = await factory.create({
         xClient,
-        env: env as EnvType,
+        env: env.data,
         db,
         slot: handle.slot,
         log,

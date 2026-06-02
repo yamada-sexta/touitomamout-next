@@ -4,10 +4,10 @@ import {
   type Agent,
   type Un$Typed,
 } from "@atproto/api";
-import { type Synchronizer } from "sync/synchronizer";
+import { type Synchronizer } from "~/sync/synchronizer";
 import { type BlueskyPlatformStore } from "./types";
 import { uploadBlueskyMedia } from "./utils/upload-bluesky-media";
-import { debug } from "utils/logs";
+import { debug } from "~/utils/logs";
 
 export function syncProfile(args: {
   agent: Agent;

@@ -3,9 +3,9 @@ import {
   type Agent,
   type ComAtprotoRepoUploadBlob,
 } from "@atproto/api";
-import { BLUESKY_MEDIA_MAX_SIZE_BYTES } from "env";
-import { debug } from "utils/logs";
-import { compressMedia } from "utils/medias/compress-media";
+import { BLUESKY_MEDIA_MAX_SIZE_BYTES } from "~/env";
+import { debug } from "~/utils/logs";
+import { compressMedia } from "~/utils/medias/compress-media";
 
 export interface UploadBlueskyMediaResult {
   res: ComAtprotoRepoUploadBlob.Response;

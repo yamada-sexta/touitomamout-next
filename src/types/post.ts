@@ -1,11 +1,11 @@
 import { decode } from "html-entities";
 // import eldr from "@mailbutler/eldr/extra-small";
-import { extractWordsAndSpacers } from "utils/tweet/split-tweet-text/extract-words-and-spacers";
-import { buildChunksFromSplitterEntries } from "utils/tweet/split-tweet-text/split-tweet-text";
-import { download } from "utils/medias/download-media";
+import { extractWordsAndSpacers } from "~/utils/tweet/split-tweet-text/extract-words-and-spacers";
+import { buildChunksFromSplitterEntries } from "~/utils/tweet/split-tweet-text/split-tweet-text";
+import { download } from "~/utils/medias/download-media";
 import z from "zod";
-import { debug } from "utils/logs";
-import { X_EMB_FIX } from "env";
+import { debug } from "~/utils/logs";
+import { X_EMB_FIX } from "~/env";
 
 export const MentionSchema = z.object({
   id: z.string(),

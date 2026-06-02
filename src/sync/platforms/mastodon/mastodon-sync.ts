@@ -1,34 +1,34 @@
-import { HANDLE_RETWEETS, SYNC_MASTODON, VOID } from "env";
+import { HANDLE_RETWEETS, SYNC_MASTODON, VOID } from "~/env";
 import { createRestAPIClient } from "masto";
 import { type MediaAttachment } from "masto/mastodon/entities/v1/index.js";
 import { type UpdateCredentialsParams } from "masto/mastodon/rest/v1/accounts.js";
-import { splitTextForMastodon } from "sync/platforms/mastodon/text";
-import { getPostStore } from "utils/get-post-store";
-import { debug, oraProgress } from "utils/logs";
-import { getPostExcerpt } from "utils/post/get-post-excerpt";
+import { splitTextForMastodon } from "~/sync/platforms/mastodon/text";
+import { getPostStore } from "~/utils/get-post-store";
+import { debug, oraProgress } from "~/utils/logs";
+import { getPostExcerpt } from "~/utils/post/get-post-excerpt";
 import z from "zod";
-import { type SynchronizerFactory } from "../../synchronizer";
-
-const KEYS = ["MASTODON_INSTANCE", "MASTODON_ACCESS_TOKEN"] as const;
+import {
+  defineSynchronizerFactory,
+  envString,
+  envStringWithDefault,
+} from "../../synchronizer";
 
 export const MastodonStoreSchema = z.object({
   tootIds: z.array(z.string()),
 });
 
-type MastodonStoreSchemaType = typeof MastodonStoreSchema;
+const MASTODON_PLATFORM_ID = "mastodon";
+const MastodonEnvSchema = z.object({
+  MASTODON_INSTANCE: envStringWithDefault("mastodon.social"),
+  MASTODON_ACCESS_TOKEN: envString,
+});
 
-export const MastodonSynchronizerFactory: SynchronizerFactory<
-  typeof KEYS,
-  MastodonStoreSchemaType
-> = {
+export const MastodonSynchronizerFactory = defineSynchronizerFactory({
   DISPLAY_NAME: "Mastodon",
-  PLATFORM_ID: "mastodon",
+  PLATFORM_ID: MASTODON_PLATFORM_ID,
   STORE_SCHEMA: MastodonStoreSchema,
   EMOJI: "🦣",
-  ENV_KEYS: KEYS,
-  FALLBACK_ENV: {
-    MASTODON_INSTANCE: "mastodon.social",
-  },
+  ENV_SCHEMA: MastodonEnvSchema,
   async create(args) {
     if (!SYNC_MASTODON) {
       throw new Error("Mastodon will not be synced");
@@ -82,7 +82,7 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
             s: MastodonStoreSchema,
             db,
             tweet: tweet.retweetedStatus.id,
-            platformId: MastodonSynchronizerFactory.PLATFORM_ID,
+            platformId: MASTODON_PLATFORM_ID,
           });
 
           if (HANDLE_RETWEETS === "none") {
@@ -210,4 +210,4 @@ export const MastodonSynchronizerFactory: SynchronizerFactory<
       },
     };
   },
-};
+});

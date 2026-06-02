@@ -1,5 +1,5 @@
 import { type Tweet } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "db";
+import { type DBType, Schema } from "~/db";
 import { and, eq } from "drizzle-orm";
 import type z from "zod";
 

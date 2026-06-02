@@ -1,15 +1,17 @@
-import { type SynchronizerFactory } from "sync/synchronizer";
+import { defineSynchronizerFactory, envString } from "~/sync/synchronizer";
 import z from "zod";
-import { HANDLE_RETWEETS } from "env";
+import { HANDLE_RETWEETS } from "~/env";
 import { type APIEmbed } from "discord-api-types/payloads";
 import { type RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
-import { type MetaPost, toStatusEmbLink } from "types/post";
-import { debug } from "utils/logs";
-
-const KEYS = ["DISCORD_WEBHOOK_URL"] as const;
+import { type MetaPost, toStatusEmbLink } from "~/types/post";
+import { debug } from "~/utils/logs";
 
 const WebhookStoreSchema = z.object({
   id: z.string(),
+});
+
+const DiscordWebhookEnvSchema = z.object({
+  DISCORD_WEBHOOK_URL: envString,
 });
 
 function formatForDiscord(tweet: MetaPost): {
@@ -136,14 +138,11 @@ function formatForDiscord(tweet: MetaPost): {
   return { embeds };
 }
 
-export const DiscordWebhookSynchronizerFactory: SynchronizerFactory<
-  typeof KEYS,
-  typeof WebhookStoreSchema
-> = {
+export const DiscordWebhookSynchronizerFactory = defineSynchronizerFactory({
   EMOJI: "🔗",
   DISPLAY_NAME: "Webhook (Discord)",
   PLATFORM_ID: "webhook-discord",
-  ENV_KEYS: KEYS,
+  ENV_SCHEMA: DiscordWebhookEnvSchema,
   STORE_SCHEMA: WebhookStoreSchema,
   async create(args) {
     const webhookUrl = args.env.DISCORD_WEBHOOK_URL;
@@ -205,4 +204,4 @@ export const DiscordWebhookSynchronizerFactory: SynchronizerFactory<
       },
     };
   },
-};
+});

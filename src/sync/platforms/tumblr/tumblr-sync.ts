@@ -1,22 +1,23 @@
 import { createClient, type Client } from "tumblr.js";
-import { HANDLE_RETWEETS, VOID } from "env";
-import { type MetaPost, toStatusEmbLink } from "types/post";
-import { getPostStore } from "utils/get-post-store";
-import { debug } from "utils/logs";
-import { getPostExcerpt } from "utils/post/get-post-excerpt";
+import { HANDLE_RETWEETS, VOID } from "~/env";
+import { type MetaPost, toStatusEmbLink } from "~/types/post";
+import { getPostStore } from "~/utils/get-post-store";
+import { debug } from "~/utils/logs";
+import { getPostExcerpt } from "~/utils/post/get-post-excerpt";
 import z from "zod";
-import { type SynchronizerFactory } from "../../synchronizer";
-
-const KEYS = [
-  "TUMBLR_CONSUMER_KEY",
-  "TUMBLR_CONSUMER_SECRET",
-  "TUMBLR_TOKEN",
-  "TUMBLR_TOKEN_SECRET",
-] as const;
+import { defineSynchronizerFactory, envString } from "../../synchronizer";
 
 const TumblrStoreSchema = z.object({
   id: z.string(),
   reblogKey: z.string().optional(),
+});
+
+const TUMBLR_PLATFORM_ID = "tumblr";
+const TumblrEnvSchema = z.object({
+  TUMBLR_CONSUMER_KEY: envString,
+  TUMBLR_CONSUMER_SECRET: envString,
+  TUMBLR_TOKEN: envString,
+  TUMBLR_TOKEN_SECRET: envString,
 });
 
 type TumblrCreatePostParams = Parameters<Client["createPost"]>[1];
@@ -150,14 +151,11 @@ function getReblogKey(
   );
 }
 
-export const TumblrSynchronizerFactory: SynchronizerFactory<
-  typeof KEYS,
-  typeof TumblrStoreSchema
-> = {
+export const TumblrSynchronizerFactory = defineSynchronizerFactory({
   EMOJI: "🅣",
   DISPLAY_NAME: "Tumblr",
-  PLATFORM_ID: "tumblr",
-  ENV_KEYS: KEYS,
+  PLATFORM_ID: TUMBLR_PLATFORM_ID,
+  ENV_SCHEMA: TumblrEnvSchema,
   STORE_SCHEMA: TumblrStoreSchema,
   async create(factoryArgs) {
     const { db } = factoryArgs;
@@ -247,7 +245,7 @@ export const TumblrSynchronizerFactory: SynchronizerFactory<
               s: TumblrStoreSchema,
               db,
               tweet: args.tweet.retweetedStatus.id,
-              platformId: TumblrSynchronizerFactory.PLATFORM_ID,
+              platformId: TUMBLR_PLATFORM_ID,
             });
 
             if (rebloggedStore.success) {
@@ -289,7 +287,7 @@ export const TumblrSynchronizerFactory: SynchronizerFactory<
             s: TumblrStoreSchema,
             db,
             tweet: args.tweet.quotedStatusId,
-            platformId: TumblrSynchronizerFactory.PLATFORM_ID,
+            platformId: TUMBLR_PLATFORM_ID,
           });
 
           if (quotedStore.success) {
@@ -311,7 +309,7 @@ export const TumblrSynchronizerFactory: SynchronizerFactory<
             s: TumblrStoreSchema,
             db,
             tweet: args.tweet.inReplyToStatusId,
-            platformId: TumblrSynchronizerFactory.PLATFORM_ID,
+            platformId: TUMBLR_PLATFORM_ID,
           });
 
           if (replyStore.success) {
@@ -354,4 +352,4 @@ export const TumblrSynchronizerFactory: SynchronizerFactory<
       },
     };
   },
-};
+});

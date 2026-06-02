@@ -10,26 +10,36 @@ import {
   CredentialSession,
   RichText,
 } from "@atproto/api";
-import { type Image as BlueskyImage } from "@atproto/api/dist/client/types/app/bsky/embed/images";
-import { BACKDATE_BLUESKY_POSTS, HANDLE_RETWEETS, VOID } from "env";
-import { splitTextForBluesky } from "sync/platforms/bluesky/utils/split-text";
-import { getPostStore } from "utils/get-post-store";
-import { debug, logError, oraProgress } from "utils/logs";
-import { getPostExcerpt } from "utils/post/get-post-excerpt";
+import { BACKDATE_BLUESKY_POSTS, HANDLE_RETWEETS, VOID } from "~/env";
+import { splitTextForBluesky } from "~/sync/platforms/bluesky/utils/split-text";
+import { getPostStore } from "~/utils/get-post-store";
+import { debug, logError, oraProgress } from "~/utils/logs";
+import { getPostExcerpt } from "~/utils/post/get-post-excerpt";
 import z from "zod";
-import { type DownloadedVideo, type Photo, toStatusEmbLink } from "types/post";
-import { type SynchronizerFactory } from "../../synchronizer";
+import { type DownloadedVideo, type Photo, toStatusEmbLink } from "~/types/post";
+import {
+  defineSynchronizerFactory,
+  envString,
+  envStringWithDefault,
+} from "../../synchronizer";
 import { syncProfile } from "./sync-profile";
-import { BLUESKY_KEYS, BlueskyPlatformStore, type BlueskyPost } from "./types";
+import { BlueskyPlatformStore, type BlueskyPost } from "./types";
 import { uploadBlueskyMedia } from "./utils/upload-bluesky-media";
 import { getBlueskyChunkLinkMetadata } from "./utils/get-bluesky-chunk-link-metadata";
 import { buildReplyEntry } from "./utils/build-reply-entry";
 
 export const PostRefArraySchema = z.array(BlueskyPlatformStore);
 export type PostRefArray = z.infer<typeof PostRefArraySchema>;
+type BlueskyImage = AppBskyEmbedImages.Image;
 
 const BLUESKY_MEDIA_IMAGES_MAX_COUNT = 4;
 const RKEY_REGEX = /\/(?<rkey>\w+)$/;
+const BLUESKY_PLATFORM_ID = "bluesky";
+const BlueskyEnvSchema = z.object({
+  BLUESKY_INSTANCE: envStringWithDefault("bsky.social"),
+  BLUESKY_IDENTIFIER: envString,
+  BLUESKY_PASSWORD: envString,
+});
 
 export async function getExternalEmbedding(
   richText: RichText,
@@ -75,17 +85,11 @@ async function getExternalEmbeddingForUrl(
   return getExternalEmbedding(richText, agent);
 }
 
-export const BlueskySynchronizerFactory: SynchronizerFactory<
-  typeof BLUESKY_KEYS,
-  typeof BlueskyPlatformStore
-> = {
+export const BlueskySynchronizerFactory = defineSynchronizerFactory({
   DISPLAY_NAME: "Bluesky",
-  PLATFORM_ID: "bluesky",
+  PLATFORM_ID: BLUESKY_PLATFORM_ID,
   EMOJI: "☁️",
-  ENV_KEYS: BLUESKY_KEYS,
-  FALLBACK_ENV: {
-    BLUESKY_INSTANCE: "bsky.social",
-  },
+  ENV_SCHEMA: BlueskyEnvSchema,
   STORE_SCHEMA: BlueskyPlatformStore,
 
   async create(args) {
@@ -108,7 +112,7 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
     });
 
     const agent = new Agent(session);
-    const platformId = BlueskySynchronizerFactory.PLATFORM_ID;
+    const platformId = BLUESKY_PLATFORM_ID;
     const { env } = args;
     const { db } = args;
 
@@ -453,4 +457,4 @@ export const BlueskySynchronizerFactory: SynchronizerFactory<
       },
     };
   },
-};
+});

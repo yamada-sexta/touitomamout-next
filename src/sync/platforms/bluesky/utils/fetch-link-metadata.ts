@@ -1,4 +1,4 @@
-import { debug } from "utils/logs";
+import { debug } from "~/utils/logs";
 import { z } from "zod";
 
 const LinkMetadataSchema = z.object({

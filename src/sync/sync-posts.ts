@@ -1,5 +1,5 @@
 import { type Scraper as XScraper } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "db";
+import { type DBType, Schema } from "~/db";
 import { eq } from "drizzle-orm";
 import {
   FORCE_SYNC_POSTS,
@@ -7,10 +7,10 @@ import {
   MAX_CONSECUTIVE_CACHED,
   SYNC_RETWEETS,
   type TwitterHandle,
-} from "env";
+} from "~/env";
 import ora from "ora";
-import { debug, logError, oraPrefix } from "utils/logs";
-import { isPost, toMetaPost } from "types/post";
+import { debug, logError, oraPrefix } from "~/utils/logs";
+import { isPost, toMetaPost } from "~/types/post";
 import { getPostStore } from "../utils/get-post-store";
 import type { TaggedSynchronizer } from "./synchronizer";
 import { isShutdownError, throwIfShutdownRequested } from "../shutdown";

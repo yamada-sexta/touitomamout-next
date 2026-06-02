@@ -1,4 +1,4 @@
-import { POST_SEPARATOR } from "env";
+import { POST_SEPARATOR } from "~/env";
 import { type SplitterEntry } from "../../../types/splitter";
 
 /**

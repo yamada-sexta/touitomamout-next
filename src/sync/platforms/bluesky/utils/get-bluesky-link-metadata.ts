@@ -1,5 +1,5 @@
 import { type Agent, type ComAtprotoRepoUploadBlob } from "@atproto/api";
-import { download } from "utils/medias/download-media";
+import { download } from "~/utils/medias/download-media";
 import { fetchLinkMetadata, type LinkMetadata } from "./fetch-link-metadata";
 import { uploadBlueskyMedia } from "./upload-bluesky-media";
 // import { parseBlobForBluesky } from "./parse-blob-for-bluesky";

@@ -1,5 +1,5 @@
 import type { Scraper } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "db";
+import { type DBType, Schema } from "~/db";
 import { eq } from "drizzle-orm";
 import {
   FORCE_SYNC_PROFILE_HEADER,
@@ -9,12 +9,12 @@ import {
   SYNC_PROFILE_NAME,
   SYNC_PROFILE_PICTURE,
   type TwitterHandle,
-} from "env";
+} from "~/env";
 import ora from "ora";
-import { debug, logError, oraPrefix } from "utils/logs";
-import { download } from "utils/medias/download-media";
-import { getBlobHash } from "utils/medias/get-blob-hash";
-import { shortenedUrlsReplacer } from "utils/url/shortened-urls-replacer";
+import { debug, logError, oraPrefix } from "~/utils/logs";
+import { download } from "~/utils/medias/download-media";
+import { getBlobHash } from "~/utils/medias/get-blob-hash";
+import { shortenedUrlsReplacer } from "~/utils/url/shortened-urls-replacer";
 import { type TaggedSynchronizer } from "./synchronizer";
 import { sleep } from "bun";
 import { isShutdownError, throwIfShutdownRequested } from "../shutdown";

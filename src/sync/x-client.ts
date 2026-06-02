@@ -1,9 +1,9 @@
 import { Scraper } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "db";
+import { type DBType, Schema } from "~/db";
 import { eq } from "drizzle-orm";
 import ora from "ora";
 import { Cookie } from "tough-cookie";
-import { debug, oraPrefix } from "utils/logs";
+import { debug, oraPrefix } from "~/utils/logs";
 import { cycleTLSFetch } from "@the-convocation/twitter-scraper/cycletls";
 
 export async function createTwitterClient({

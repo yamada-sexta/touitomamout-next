@@ -1,5 +1,5 @@
-import { DEBUG } from "env";
-import { debug } from "utils/logs";
+import { DEBUG } from "~/env";
+import { debug } from "~/utils/logs";
 import z from "zod";
 
 const MisskeyRateLimitErrorSchema = z.object({

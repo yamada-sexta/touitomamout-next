@@ -1,5 +1,5 @@
 import photon from "@silvia-odwyer/photon-node";
-import { debug } from "utils/logs";
+import { debug } from "~/utils/logs";
 
 // const findSmallerBuffer = (compressedBuffers: CompressedBuffer[]): CompressedBuffer | undefined => compressedBuffers.reduce((smaller, current) =>
 // 	current.buffer.length < smaller.buffer.length ? current : smaller);

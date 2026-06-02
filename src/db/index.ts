@@ -1,8 +1,8 @@
 import { Database } from "bun:sqlite";
-import { migrate } from "db/migration";
-import * as schema from "db/schema/v1";
+import { migrate } from "~/db/migration";
+import * as schema from "~/db/schema/v1";
 import { type BunSQLiteDatabase, drizzle } from "drizzle-orm/bun-sqlite";
-import { DATABASE_PATH } from "env";
+import { DATABASE_PATH } from "~/env";
 
 export const Schema = schema;
 

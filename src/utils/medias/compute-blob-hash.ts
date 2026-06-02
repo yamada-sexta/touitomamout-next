@@ -1,4 +1,4 @@
-import { DEBUG } from "env";
+import { DEBUG } from "~/env";
 
 export const computeBlobHash = async (blob: Blob): Promise<string> => {
   const hasher = new Bun.CryptoHasher("sha256");
