@@ -5,7 +5,7 @@
     "": {
       "name": "touitomamout",
       "dependencies": {
-        "@atproto/api": "^0.20.8",
+        "@atproto/api": "^0.20.11",
         "@atproto/lex": "^0.1.3",
         "@silvia-odwyer/photon-node": "^0.3.4",
         "@the-convocation/twitter-scraper": "^0.22.3",
@@ -42,7 +42,7 @@
 
     "@atproto-labs/simple-store-memory": ["@atproto-labs/simple-store-memory@0.2.0", "", { "dependencies": { "@atproto-labs/simple-store": "^0.4.0", "lru-cache": "^10.2.0" } }, "sha512-nDZIS6vOBvR8NqObGmj0GFSdz3N6gyQ7ny3l/uiezwuCWShsxtA9OkYcjaQ7Kw3hydXTe4iEGu/BDOACncnxDg=="],
 
-    "@atproto/api": ["@atproto/api@0.20.8", "", { "dependencies": { "@atproto/common-web": "^0.5.0", "@atproto/lexicon": "^0.7.1", "@atproto/syntax": "^0.6.1", "@atproto/xrpc": "^0.8.0", "await-lock": "^3.0.0", "multiformats": "^13.0.0", "tlds": "^1.234.0", "zod": "^3.23.8" } }, "sha512-rTkA6kOmA2axSrg6VgpdXpsCFWpofnHBOn6pKg69Ju5MpIHqk4haQMgjBcVh1G3kUxzwgSAr7SYrPS3dFe5Etg=="],
+    "@atproto/api": ["@atproto/api@0.20.11", "", { "dependencies": { "@atproto/common-web": "^0.5.0", "@atproto/lexicon": "^0.7.1", "@atproto/syntax": "^0.6.1", "@atproto/xrpc": "^0.8.0", "await-lock": "^3.0.0", "multiformats": "^13.0.0", "tlds": "^1.234.0", "zod": "^3.23.8" } }, "sha512-1NoVJpBDAdotxo1iMZdMd75JstpdKWgBYOnxfVD4m+52bRjgU4cFg3EOGNUognZntFgL/bIHyEgyN7SJWVf6Ig=="],
 
     "@atproto/common": ["@atproto/common@0.6.0", "", { "dependencies": { "@atproto/common-web": "^0.5.0", "@atproto/lex-cbor": "^0.1.0", "@atproto/lex-data": "^0.1.0", "multiformats": "^13.0.0", "pino": "^8.21.0" } }, "sha512-uXjByIhaFWN6gjwpmtx2E0aTA/6jt98LQy5flzlNI4O1PBsZmG6NVmWRycCuDf3n2PsFjE34jUWcVrg1ST6JJQ=="],
 
