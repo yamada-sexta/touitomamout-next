@@ -14,7 +14,7 @@
         "cycletls": "^2.0.5",
         "drizzle-orm": "^0.45.2",
         "html-entities": "^2.6.0",
-        "masto": "^7.11.1",
+        "masto": "^7.12.0",
         "misskey-js": "^2026.5.4",
         "ora": "^9.4.0",
         "tough-cookie": "^6.0.1",
@@ -326,7 +326,7 @@
 
     "luxon": ["luxon@3.7.2", "", {}, "sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew=="],
 
-    "masto": ["masto@7.11.1", "", { "dependencies": { "change-case": "^5.4.4", "events-to-async": "^2.0.2", "isomorphic-ws": "^5.0.0", "ts-custom-error": "^3.3.1", "ws": "^8.18.3" } }, "sha512-qppeHOLAJgTEMJqYstTlWWfYS4LeNAUCOzzO7x/kf3OtO6+FGV3pdWKJxAMUDamer77/+x3WFTYdEhLZQeSrlw=="],
+    "masto": ["masto@7.12.0", "", { "dependencies": { "change-case": "^5.4.4", "events-to-async": "^2.0.2", "isomorphic-ws": "^5.0.0", "ts-custom-error": "^3.3.1", "ws": "^8.18.3" } }, "sha512-hSqRfaqVhtaRB3+lSJ4YusqBZ/tj4/gtzS0PXZgrg2JLiDFLmsBdmuyVVF2c+QlKSMEKo7grVh3dN8TX1TECVw=="],
 
     "math-intrinsics": ["math-intrinsics@1.1.0", "", {}, "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g=="],
 
