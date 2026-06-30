@@ -1,8 +1,6 @@
 import { BlobRef, type Agent } from "@atproto/api";
 import { debug } from "~/utils/logs";
-import {
-  BLUESKY_VIDEO_SERVICE_MAX_SIZE_BYTES,
-} from "~/env";
+import { BLUESKY_VIDEO_SERVICE_MAX_SIZE_BYTES } from "~/env";
 
 type VideoUploadResponse = {
   jobId?: string;
@@ -25,9 +23,40 @@ type VideoJobStatusResponse = {
 };
 
 const BLUESKY_VIDEO_SERVICE_URL = "https://video.bsky.app";
-const BLUESKY_VIDEO_SERVICE_AUDIENCE = "did:web:video.bsky.app";
+type DispatchAgent = {
+  sessionManager?: {
+    dispatchUrl?: URL;
+    pdsUrl?: URL;
+    serviceUrl?: URL;
+  };
+  dispatchUrl?: URL;
+};
 const BLUESKY_VIDEO_UPLOAD_POLL_MAX_ATTEMPTS = 180;
 const BLUESKY_VIDEO_UPLOAD_POLL_INTERVAL_MS = 1_000;
+
+function getPdsAudience(agent: Agent): string {
+  const dispatchAgent = agent as unknown as DispatchAgent;
+  const dispatchUrl =
+    dispatchAgent.dispatchUrl ??
+    dispatchAgent.sessionManager?.dispatchUrl ??
+    dispatchAgent.sessionManager?.pdsUrl ??
+    dispatchAgent.sessionManager?.serviceUrl;
+
+  if (!dispatchUrl || !(dispatchUrl instanceof URL)) {
+    throw new Error(
+      "Unable to upload video to Bluesky: could not determine PDS service URL for auth audience",
+    );
+  }
+
+  const host = dispatchUrl.host;
+  if (!host) {
+    throw new Error(
+      "Unable to upload video to Bluesky: dispatch URL does not contain a host",
+    );
+  }
+
+  return `did:web:${host}`;
+}
 
 function getUploadedVideoFilename(mediaBlob: Blob): string {
   const fileName = ((mediaBlob as { name?: string }).name ?? "").trim();
@@ -118,9 +147,9 @@ export async function uploadLargeBlueskyVideo(mediaBlob: Blob, agent: Agent): Pr
   }
 
   const auth = await agent.com.atproto.server.getServiceAuth({
-    aud: BLUESKY_VIDEO_SERVICE_AUDIENCE,
-    lxm: "app.bsky.video.uploadVideo",
-    exp: Math.floor(Date.now() / 1000) + 60,
+    aud: getPdsAudience(agent),
+    lxm: "com.atproto.repo.uploadBlob",
+    exp: Math.floor(Date.now() / 1000) + 60 * 30,
   });
   const serviceAuthToken = auth.data.token;
 
