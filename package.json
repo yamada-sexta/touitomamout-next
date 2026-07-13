@@ -37,7 +37,7 @@
     "masto": "^7.12.0",
     "misskey-js": "^2026.6.0",
     "ora": "^9.4.1",
-    "tough-cookie": "^6.0.1",
+    "tough-cookie": "^6.0.2",
     "tumblr.js": "^5.0.1",
     "zod": "^4.4.3"
   },
