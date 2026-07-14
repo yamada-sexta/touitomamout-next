@@ -169,6 +169,15 @@ export const formatTweetText = (tweet: Post): string => {
   return text.trim();
 };
 
+export function appendPostText(text: string, postAppend: string): string {
+  const suffix = postAppend.trim();
+  if (!suffix) {
+    return text;
+  }
+
+  return text ? `${text}\n\n${suffix}` : suffix;
+}
+
 export function toEmbLink(permanentUrl: string): string {
   const link = new URL(permanentUrl);
   const domain = X_EMB_FIX;
@@ -186,7 +195,7 @@ export function toStatusEmbLink(statusId: string): string {
  * @param tweet The original Tweet object from the scraper.
  * @returns A MetaTweet object with added `datetime` and `formattedText` fields.
  */
-export const toMetaPost = (tweet: Post): MetaPost => {
+export const toMetaPost = (tweet: Post, postAppend = ""): MetaPost => {
   let videoFiles: DownloadedVideo[] | undefined;
   let photoFiles: DownloadedPhoto[] | undefined;
 
@@ -196,7 +205,7 @@ export const toMetaPost = (tweet: Post): MetaPost => {
 
   let urls = tweet.urls;
 
-  let text = formatTweetText(tweet);
+  const text = appendPostText(formatTweetText(tweet), postAppend);
 
   const meta: MetaPost = {
     ...tweet,

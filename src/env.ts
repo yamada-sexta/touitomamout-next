@@ -142,6 +142,10 @@ export const HISTORICAL_SYNC_LIMIT = envInt("HISTORICAL_SYNC_LIMIT", Infinity);
 
 export const SYNC_RETWEETS = envBool("SYNC_RETWEETS", true);
 
+export function getPostAppend(postFix: string | number): string {
+  return (process.env[`POST_APPEND${postFix}`] ?? "").trim();
+}
+
 // const SEPARATOR = /\s/;
 // Post separator is a regex string that indicates a break of a single post when it is too long.
 export const POST_SEPARATOR = process.env.POST_BREAK

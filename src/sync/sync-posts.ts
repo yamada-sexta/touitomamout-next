@@ -3,6 +3,7 @@ import { type DBType, Schema } from "~/db";
 import { eq } from "drizzle-orm";
 import {
   FORCE_SYNC_POSTS,
+  getPostAppend,
   HISTORICAL_SYNC_LIMIT,
   MAX_CONSECUTIVE_CACHED,
   SYNC_RETWEETS,
@@ -79,7 +80,7 @@ export async function syncPosts(args: {
         cachedCounter = 0;
       }
 
-      const metaTweet = toMetaPost(tweet);
+      const metaTweet = toMetaPost(tweet, getPostAppend(handle.postFix));
       try {
         for (const s of args.synchronizers) {
           throwIfShutdownRequested();
