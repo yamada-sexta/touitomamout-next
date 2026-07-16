@@ -4,6 +4,8 @@ package-lock.json
 
 # Build
 dist/
+docs/_build/
+docs/.venv/
 
 # Misc
 .idea/

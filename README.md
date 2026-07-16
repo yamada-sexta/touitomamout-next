@@ -52,9 +52,9 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 ## Get started
 
-Ready to dive in? Visit our Wiki:
+Ready to dive in? Read the documentation:
 
-[<img src="https://github.com/louisgrasset/touitomamout/raw/main/.github/docs/documentation-center.svg"  width="300px"/>](https://github.com/yamada-sexta/touitomamout/wiki)
+[<img src="https://github.com/louisgrasset/touitomamout/raw/main/.github/docs/documentation-center.svg"  width="300px"/>](docs/source/index.rst)
 
 > [!note]
 >
