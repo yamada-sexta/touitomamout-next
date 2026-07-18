@@ -15,6 +15,11 @@ export default defineConfig({
       },
       favicon: "/touitomamout.svg",
       customCss: ["./src/styles/custom.css"],
+      expressiveCode: {
+        defaultProps: {
+          frame: "none",
+        },
+      },
       editLink: {
         baseUrl:
           "https://github.com/yamada-sexta/touitomamout-next/edit/main/docs/",
