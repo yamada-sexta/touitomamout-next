@@ -37,18 +37,16 @@
   box-shadow: none;
 }
 
-.pagination-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.75rem;
+.expressive-code .frame > .header {
+  display: none;
+}
+
+.expressive-code .frame.is-terminal pre {
+  border-top: var(--ec-brdWd) solid var(--ec-brdCol);
 }
 
 .pagination-links > a {
-  flex: 0 1 auto;
-  width: auto;
-  min-width: min(13rem, 100%);
-  max-width: 22rem;
+  max-width: 18rem;
   padding: 0.625rem 0.75rem;
   box-shadow: none;
 }
