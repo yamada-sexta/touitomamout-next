@@ -1,0 +1,46 @@
+---
+title: Touitomamout Documentation
+description: Synchronize posts and profiles from X to Bluesky, Mastodon, Misskey, Discord, and Tumblr.
+template: splash
+hero:
+  tagline: Synchronize your X posts and profile across the social web.
+  image:
+    file: ../../assets/touitomamout.svg
+    alt: Touitomamout
+  actions:
+    - text: Get started
+      link: ./getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/yamada-sexta/touitomamout-next
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+Touitomamout synchronizes posts and profile information from X to Bluesky,
+Mastodon, Misskey, Discord, and Tumblr. Start with the Docker setup, then
+configure a source account and at least one destination.
+
+<CardGrid>
+  <Card title="Getting started" icon="rocket">
+    Install Touitomamout with Docker or run the application locally with Bun.
+    [Set up Touitomamout →](./getting-started/)
+  </Card>
+  <Card title="Configuration" icon="setting">
+    Configure source credentials, destinations, synchronization behavior,
+    scheduling, and multiple accounts. [View configuration →](./configuration/)
+  </Card>
+  <Card title="Platform support" icon="puzzle">
+    Compare text, media, and profile support across all destinations. [Compare
+    platforms →](./platform-support/)
+  </Card>
+  <Card title="Project links" icon="github">
+    [Source code](https://github.com/yamada-sexta/touitomamout-next) · [Issue
+    tracker](https://github.com/yamada-sexta/touitomamout-next/issues) ·
+    [Container
+    images](https://github.com/yamada-sexta/touitomamout-next/pkgs/container/touitomamout-next)
+  </Card>
+</CardGrid>

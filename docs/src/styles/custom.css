@@ -1,0 +1,37 @@
+:root {
+  --sl-font: Inter, ui-sans-serif, system-ui, sans-serif;
+  --sl-font-system-mono:
+    "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --sl-content-width: 52rem;
+  --sl-sidebar-width: 19rem;
+}
+
+:root[data-theme="dark"] {
+  --sl-color-accent-low: #102d4d;
+  --sl-color-accent: #99c1f1;
+  --sl-color-accent-high: #d7e8ff;
+}
+
+:root[data-theme="light"] {
+  --sl-color-accent-low: #d7e8ff;
+  --sl-color-accent: #1c71d8;
+  --sl-color-accent-high: #174f8f;
+}
+
+.site-title img {
+  max-height: 2.25rem;
+}
+
+.hero img {
+  filter: drop-shadow(0 1rem 2rem rgb(28 113 216 / 20%));
+}
+
+.card,
+.starlight-aside,
+pre {
+  border-radius: 0.75rem;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--sl-color-accent) 28%, transparent);
+}

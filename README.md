@@ -1,7 +1,7 @@
 # A Fork of [Touitomamout](https://github.com/louisgrasset/touitomamout)
 
 <p align="center">
-  <a href="https://yamada-sexta.github.io/touitomamout/docs/discover">
+  <a href="https://yamada-sexta.github.io/touitomamout-next/">
     <img src="https://github.com/yamada-sexta/touitomamout/raw/main/.github/docs/touitomamout.svg" width="150px"/>
   </a>
 </p>
@@ -54,7 +54,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 
 Ready to dive in? Read the documentation:
 
-[<img src="https://github.com/louisgrasset/touitomamout/raw/main/.github/docs/documentation-center.svg"  width="300px"/>](docs/source/index.rst)
+[<img src="https://github.com/louisgrasset/touitomamout/raw/main/.github/docs/documentation-center.svg"  width="300px"/>](https://yamada-sexta.github.io/touitomamout-next/)
 
 > [!note]
 >

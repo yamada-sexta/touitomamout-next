@@ -1,16 +1,22 @@
 # Touitomamout documentation
 
-The documentation is built with [Sphinx](https://www.sphinx-doc.org/), the
-[Furo](https://pradyunsg.me/furo/) theme, and
-[uv](https://docs.astral.sh/uv/).
+The documentation is a static site built with
+[Astro Starlight](https://starlight.astro.build/) and Bun. Its dependencies are
+isolated from the application in this directory.
 
-Build the site from this directory:
+Install dependencies and start the development server:
 
 ```sh
-uv run sphinx-build -W --keep-going -b html source _build/html
+bun install --frozen-lockfile
+bun run dev
 ```
 
-Alternatively, run `make html`. Open `_build/html/index.html` to inspect the
-result, or run `make serve` and visit <http://localhost:8000>.
+Create and preview a production build:
 
-Dependencies are isolated from the application and locked in `uv.lock`.
+```sh
+bun run build
+bun run preview
+```
+
+The production site is written to `dist/`. Pushes to `main` that change the
+documentation deploy it to GitHub Pages.
