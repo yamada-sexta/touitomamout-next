@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Run Touitomamout with Docker or work on the application locally with Bun.
+description: Run Touitomamout with Docker or work on the application locally with Node.js.
 ---
 
 Docker is the recommended way to run Touitomamout. It provides a reproducible
@@ -62,19 +62,19 @@ docker compose up -d --force-recreate
 
 ## Local development
 
-Install [Bun](https://bun.sh/), clone the repository, and install its
+Install [Node.js](https://nodejs.org/), clone the repository, and install its
 dependencies:
 
 ```sh
 git clone https://github.com/yamada-sexta/touitomamout-next.git
 cd touitomamout-next
-bun install
+npm install
 ```
 
 Run the application from source:
 
 ```sh
-bun dev
+npm run dev
 ```
 
 The source checkout uses `.env` from the repository root. Copy `.env.example`

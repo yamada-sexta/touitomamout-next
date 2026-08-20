@@ -35,7 +35,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 ## Why this fork?
 
 - Still maintained (actually works)
-- Built on Bun with a smaller bundle size
+- Built with [scriptc](https://scriptc.dev/) with native compilation
 - More sensible default settings
 - Multi-account support
 - More supported platforms
@@ -62,7 +62,7 @@ Ready to dive in? Read the documentation:
 
 <img alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
 
-![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
+![scriptc](https://img.shields.io/badge/scriptc-%23000000.svg?style=for-the-badge)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-%230D597F.svg?style=for-the-badge&logo=alpine-linux&logoColor=white)

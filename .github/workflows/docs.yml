@@ -33,16 +33,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7.0.0
 
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2.2.0
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: 22
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: npm ci
 
       - name: Build documentation
-        run: bun run build
+        run: npm run build
 
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request'
