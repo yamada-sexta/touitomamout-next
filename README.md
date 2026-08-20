@@ -35,7 +35,7 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 ## Why this fork?
 
 - Still maintained (actually works)
-- Built on Bun with a smaller bundle size
+- Built with scriptc for native binary builds
 - More sensible default settings
 - Multi-account support
 - More supported platforms
