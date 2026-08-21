@@ -2,12 +2,12 @@ import {
   defineSynchronizerFactory,
   envString,
   envURL,
-} from "~/sync/synchronizer";
+} from "#app/sync/synchronizer";
 import z from "zod";
 import * as Misskey from "misskey-js";
-import { DEBUG, HANDLE_RETWEETS } from "~/env";
-import { toStatusEmbLink } from "~/types/post";
-import { getPostStore } from "~/utils/get-post-store";
+import { DEBUG, HANDLE_RETWEETS } from "#app/env";
+import { toStatusEmbLink } from "#app/types/post";
+import { getPostStore } from "#app/utils/get-post-store";
 import { handleRateLimit } from "./rate-limit";
 
 const MisskeyStoreSchema = z.object({

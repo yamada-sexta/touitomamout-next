@@ -1,11 +1,11 @@
 import { decode } from "html-entities";
 // import eldr from "@mailbutler/eldr/extra-small";
-import { extractWordsAndSpacers } from "~/utils/tweet/split-tweet-text/extract-words-and-spacers";
-import { buildChunksFromSplitterEntries } from "~/utils/tweet/split-tweet-text/split-tweet-text";
-import { download } from "~/utils/medias/download-media";
+import { extractWordsAndSpacers } from "#app/utils/tweet/split-tweet-text/extract-words-and-spacers";
+import { buildChunksFromSplitterEntries } from "#app/utils/tweet/split-tweet-text/split-tweet-text";
+import { download } from "#app/utils/medias/download-media";
 import z from "zod";
-import { debug } from "~/utils/logs";
-import { X_EMB_FIX } from "~/env";
+import { debug } from "#app/utils/logs";
+import { X_EMB_FIX } from "#app/env";
 
 export const MentionSchema = z.object({
   id: z.string(),
@@ -181,8 +181,8 @@ export function appendPostText(text: string, postAppend: string): string {
 export function toEmbLink(permanentUrl: string): string {
   const link = new URL(permanentUrl);
   const domain = X_EMB_FIX;
-  link.hostname = domain;
-  return link.toString();
+  const port = link.port ? `:${link.port}` : "";
+  return `${link.protocol}//${domain}${port}${link.pathname}${link.search}${link.hash}`;
 }
 
 export function toStatusEmbLink(statusId: string): string {

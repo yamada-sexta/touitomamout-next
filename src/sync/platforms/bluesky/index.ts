@@ -10,17 +10,17 @@ import {
   CredentialSession,
   RichText,
 } from "@atproto/api";
-import { BACKDATE_BLUESKY_POSTS, HANDLE_RETWEETS, VOID } from "~/env";
-import { splitTextForBluesky } from "~/sync/platforms/bluesky/utils/split-text";
-import { getPostStore } from "~/utils/get-post-store";
-import { debug, logError, oraProgress } from "~/utils/logs";
-import { getPostExcerpt } from "~/utils/post/get-post-excerpt";
+import { BACKDATE_BLUESKY_POSTS, HANDLE_RETWEETS, VOID } from "#app/env";
+import { splitTextForBluesky } from "#app/sync/platforms/bluesky/utils/split-text";
+import { getPostStore } from "#app/utils/get-post-store";
+import { debug, logError, oraProgress } from "#app/utils/logs";
+import { getPostExcerpt } from "#app/utils/post/get-post-excerpt";
 import z from "zod";
 import {
   type DownloadedVideo,
   type Photo,
   toStatusEmbLink,
-} from "~/types/post";
+} from "#app/types/post";
 import {
   defineSynchronizerFactory,
   envString,

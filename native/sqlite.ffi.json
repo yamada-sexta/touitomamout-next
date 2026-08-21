@@ -1,0 +1,43 @@
+{
+  "ffi_format": 3,
+  "functions": [
+    {
+      "name": "nativeDatabaseOpen",
+      "symbol": "touitomamout_database_open",
+      "params": ["string"],
+      "returns": "i32"
+    },
+    {
+      "name": "nativeDatabaseClose",
+      "symbol": "touitomamout_database_close",
+      "params": [],
+      "returns": "void"
+    },
+    {
+      "name": "nativeDatabaseExec",
+      "symbol": "touitomamout_database_exec",
+      "params": ["string"],
+      "returns": "i32"
+    },
+    {
+      "name": "nativeDatabaseQuery",
+      "symbol": "touitomamout_database_query",
+      "params": ["string"],
+      "returns": "i32"
+    },
+    {
+      "name": "nativeDatabaseQueryResultLength",
+      "symbol": "touitomamout_database_query_result_length",
+      "params": [],
+      "returns": "u32"
+    },
+    {
+      "name": "nativeDatabaseQueryResultByte",
+      "symbol": "touitomamout_database_query_result_byte",
+      "params": ["u32"],
+      "returns": "u8"
+    }
+  ],
+  "libraries": ["./build/sqlite.o"],
+  "system_libraries": ["sqlite3"]
+}

@@ -1,9 +1,6 @@
 import { type Tweet } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "~/db";
-import { and, eq } from "drizzle-orm";
+import { type DBType } from "#app/db";
 import type z from "zod";
-
-const { TweetMap } = Schema;
 
 export async function getPostStoreStr({
   db,
@@ -24,12 +21,7 @@ export async function getPostStoreStr({
     return;
   }
 
-  const store = db
-    .select()
-    .from(TweetMap)
-    .where(and(eq(TweetMap.tweetId, tid), eq(TweetMap.platform, platformId)))
-    .get();
-  return store;
+  return db.getPostStore(tid, platformId);
 }
 
 export async function getPostStore<S extends z.ZodObject = z.ZodObject>(args: {

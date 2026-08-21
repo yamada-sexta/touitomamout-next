@@ -10,7 +10,7 @@
 Synchronize your 𝕏 posts to other social media platforms with ease.
 </p>
 <div align="center">
-  
+
 [![GitHub Stars](https://img.shields.io/github/stars/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next)
 [![Issues](https://img.shields.io/github/issues/yamada-sexta/touitomamout-next?style=flat-square)](https://github.com/yamada-sexta/touitomamout-next/issues)
 [![Docker Pulls](https://img.shields.io/docker/pulls/yamadasexta/touitomamout?style=flat-square&color=086dd7)](https://hub.docker.com/r/yamadasexta/touitomamout)
@@ -35,12 +35,11 @@ Synchronize your 𝕏 posts to other social media platforms with ease.
 ## Why this fork?
 
 - Still maintained (actually works)
-- Built on Bun with a smaller bundle size
+- Compiled to a native executable with ScriptC
 - More sensible default settings
 - Multi-account support
 - More supported platforms
 - Better cron job support
-- Less likely to trigger Cloudflare detection
 
 ## Supported platforms
 
@@ -62,8 +61,8 @@ Ready to dive in? Read the documentation:
 
 <img alt="banner" src="https://github.com/user-attachments/assets/54dda5f6-53fd-4959-8ff8-c87a229c3f13" />
 
-![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
+![ScriptC](https://img.shields.io/badge/ScriptC-native-111827?style=for-the-badge)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
-![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-%230D597F.svg?style=for-the-badge&logo=alpine-linux&logoColor=white)
+![Debian](https://img.shields.io/badge/Debian-A81D33.svg?style=for-the-badge&logo=debian&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)

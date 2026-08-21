@@ -1,16 +1,40 @@
-import { accessSync, constants } from "node:fs";
+import { accessSync, constants, readFileSync } from "node:fs";
 import { join } from "node:path";
 import z from "zod";
 import packageInfo from "../package.json" with { type: "json" };
 
+function loadEnvironmentFile(path: string): void {
+  const contents = readFileSync(path, "utf8");
+  for (const sourceLine of contents.split("\n")) {
+    const line = sourceLine.trim();
+    if (line === "" || line.startsWith("#")) continue;
+    const assignment = line.startsWith("export ") ? line.slice(7) : line;
+    const separator = assignment.indexOf("=");
+    if (separator <= 0) continue;
+
+    const key = assignment.slice(0, separator).trim();
+    let value = assignment.slice(separator + 1).trim();
+    if (
+      value.length >= 2 &&
+      ((value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'")))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (process.env[key] === undefined) process.env[key] = value;
+  }
+}
+
 if (process.env.NODE_ENV !== "test") {
-  const envPath = process.argv[2] ?? join(process.cwd(), ".env");
+  const envPath =
+    process.argv.length > 2 ? process.argv[2]! : join(process.cwd(), ".env");
   if (envPath.endsWith("example")) {
     throw new Error("You should not use the example configuration file.");
   }
 
   try {
     accessSync(envPath, constants.F_OK);
+    loadEnvironmentFile(envPath);
   } catch {
     console.log("No suitable .env file found.");
   }
@@ -40,7 +64,7 @@ while (process.env[_twitterHandleKey]) {
     postFix: _handleCounter ? _handleCounter : "",
     slot: _handleCounter,
   });
-  INSTANCE_IDS.push(handle.toLocaleLowerCase().replaceAll(" ", "_"));
+  INSTANCE_IDS.push(handle.toLowerCase().replaceAll(" ", "_"));
   _handleCounter += 1;
   _twitterHandleKey = `TWITTER_HANDLE${_handleCounter}`;
 }

@@ -6,9 +6,9 @@ import {
 import {
   BLUESKY_MEDIA_MAX_SIZE_BYTES,
   BLUESKY_VIDEO_DIRECT_UPLOAD_LIMIT_BYTES,
-} from "~/env";
-import { debug } from "~/utils/logs";
-import { compressMedia } from "~/utils/medias/compress-media";
+} from "#app/env";
+import { debug } from "#app/utils/logs";
+import { compressMedia } from "#app/utils/medias/compress-media";
 import { uploadLargeBlueskyVideo } from "./upload-bluesky-video";
 
 export interface UploadBlueskyMediaResult {

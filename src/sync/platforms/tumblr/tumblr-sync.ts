@@ -1,9 +1,9 @@
 import { createClient, type Client } from "tumblr.js";
-import { HANDLE_RETWEETS, VOID } from "~/env";
-import { type MetaPost, toStatusEmbLink } from "~/types/post";
-import { getPostStore } from "~/utils/get-post-store";
-import { debug } from "~/utils/logs";
-import { getPostExcerpt } from "~/utils/post/get-post-excerpt";
+import { HANDLE_RETWEETS, VOID } from "#app/env";
+import { type MetaPost, toStatusEmbLink } from "#app/types/post";
+import { getPostStore } from "#app/utils/get-post-store";
+import { debug } from "#app/utils/logs";
+import { getPostExcerpt } from "#app/utils/post/get-post-excerpt";
 import z from "zod";
 import { defineSynchronizerFactory, envString } from "../../synchronizer";
 

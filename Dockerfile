@@ -1,30 +1,30 @@
-FROM oven/bun:alpine
+FROM oven/bun:1.3-debian AS bun
 
-ARG TARGETARCH
-ARG COMMIT_HASH=dev
-ENV TOUITOMAMOUT_COMMIT_HASH=$COMMIT_HASH
+FROM node:24-trixie-slim AS build
 
-# Install dependencies for cycleTLS
-RUN apk add --no-cache ca-certificates libc6-compat
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential clang cmake lld libsqlite3-dev zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
 
 WORKDIR /app
 COPY package.json bun.lock tsconfig.json /app/
+COPY packages/scriptc-app/package.json packages/scriptc-app/index.d.ts /app/packages/scriptc-app/
+RUN bun install --frozen-lockfile
 
-# Install, clean cycletls, wipe Bun cache, AND prune useless files!
-RUN bun install --production --no-cache && \
-    cd /app/node_modules/cycletls/dist && \
-    if [ "$TARGETARCH" = "arm64" ]; then \
-    rm -f index index-arm index.exe index-freebsd index-mac index-mac-arm64; \
-    elif [ "$TARGETARCH" = "amd64" ]; then \
-    rm -f index-arm index-arm64 index.exe index-freebsd index-mac index-mac-arm64; \
-    elif [ "$TARGETARCH" = "arm" ]; then \
-    rm -f index index-arm64 index.exe index-freebsd index-mac index-mac-arm64; \
-    else \
-    rm -f index.exe index-freebsd index-mac index-mac-arm64; \
-    fi && \
-    rm -rf /root/.bun/install/cache && \
-    find /app/node_modules -type f \( -name "*.md" -o -name "*.map" -o -name "*.d.ts" \) -delete
+COPY src/ /app/src/
+COPY native/ /app/native/
+RUN bun run build
 
-COPY src/ /app/src
+FROM debian:trixie-slim
 
-CMD ["bun", "/src/index.ts"]
+ARG COMMIT_HASH=dev
+ENV TOUITOMAMOUT_COMMIT_HASH=$COMMIT_HASH
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates libsqlite3-0 zlib1g \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /app/dist/touitomamout /usr/local/bin/touitomamout
+
+WORKDIR /app
+CMD ["/usr/local/bin/touitomamout"]

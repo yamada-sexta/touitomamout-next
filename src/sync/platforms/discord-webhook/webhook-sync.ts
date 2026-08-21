@@ -1,10 +1,10 @@
-import { defineSynchronizerFactory, envURL } from "~/sync/synchronizer";
+import { defineSynchronizerFactory, envURL } from "#app/sync/synchronizer";
 import z from "zod";
-import { HANDLE_RETWEETS } from "~/env";
+import { HANDLE_RETWEETS } from "#app/env";
 import { type APIEmbed } from "discord-api-types/payloads";
 import { type RESTPostAPIWebhookWithTokenJSONBody } from "discord-api-types/v10";
-import { type MetaPost, toStatusEmbLink } from "~/types/post";
-import { debug } from "~/utils/logs";
+import { type MetaPost, toStatusEmbLink } from "#app/types/post";
+import { debug } from "#app/utils/logs";
 
 const WebhookStoreSchema = z.object({
   id: z.string(),

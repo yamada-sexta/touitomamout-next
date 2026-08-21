@@ -1,23 +1,23 @@
-import { HANDLE_RETWEETS, SYNC_MASTODON, VOID } from "~/env";
+import { HANDLE_RETWEETS, SYNC_MASTODON, VOID } from "#app/env";
 import { createRestAPIClient } from "masto";
 import { type MediaAttachment } from "masto/mastodon/entities/v1/index.js";
 import { type UpdateCredentialsParams } from "masto/mastodon/rest/v1/accounts.js";
-import { splitTextForMastodon } from "~/sync/platforms/mastodon/text";
-import { getPostStore } from "~/utils/get-post-store";
-import { debug, oraProgress } from "~/utils/logs";
-import { getPostExcerpt } from "~/utils/post/get-post-excerpt";
+import { splitTextForMastodon } from "#app/sync/platforms/mastodon/text";
+import { getPostStore } from "#app/utils/get-post-store";
+import { debug, oraProgress } from "#app/utils/logs";
+import { getPostExcerpt } from "#app/utils/post/get-post-excerpt";
+import {
+  encodeMultipart,
+  type MultipartField,
+} from "#app/utils/http/multipart";
 import z from "zod";
+import { MASTODON_PLATFORM_ID, MastodonStoreSchema } from "./store";
 import {
   defineSynchronizerFactory,
   envString,
   envURLWithDefault,
 } from "../../synchronizer";
 
-export const MastodonStoreSchema = z.object({
-  tootIds: z.array(z.string()),
-});
-
-const MASTODON_PLATFORM_ID = "mastodon";
 const MastodonEnvSchema = z.object({
   MASTODON_INSTANCE: envURLWithDefault("mastodon.social"),
   MASTODON_ACCESS_TOKEN: envString,
@@ -41,8 +41,55 @@ export const MastodonSynchronizerFactory = defineSynchronizerFactory({
     await client.v1.accounts.verifyCredentials();
     const { db, env } = args;
 
-    const updateCredentials = async (args: UpdateCredentialsParams) =>
-      client.v1.accounts.updateCredentials(args);
+    const multipartRequest = async <T>(
+      path: string,
+      method: "PATCH" | "POST",
+      fields: MultipartField[],
+    ): Promise<T> => {
+      const { body, contentType } = await encodeMultipart(fields);
+      const base = env.MASTODON_INSTANCE.href.replace(/\/$/, "");
+      const response = await fetch(`${base}${path}`, {
+        method,
+        headers: {
+          authorization: `Bearer ${env.MASTODON_ACCESS_TOKEN}`,
+          "content-type": contentType,
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Mastodon request failed (${response.status}): ${await response.text()}`,
+        );
+      }
+
+      return (await response.json()) as T;
+    };
+
+    const updateCredentials = async (params: UpdateCredentialsParams) => {
+      const fields: MultipartField[] = [];
+      if (params.note != null) {
+        fields.push({ name: "note", value: params.note });
+      }
+      if (params.displayName != null) {
+        fields.push({ name: "display_name", value: params.displayName });
+      }
+      if (params.avatar != null) {
+        fields.push({ name: "avatar", value: params.avatar });
+      }
+      if (params.header != null) {
+        fields.push({ name: "header", value: params.header });
+      }
+
+      await multipartRequest(
+        "/api/v1/accounts/update_credentials",
+        "PATCH",
+        fields,
+      );
+    };
+
+    const uploadMedia = (fields: MultipartField[]) =>
+      multipartRequest<MediaAttachment>("/api/v2/media", "POST", fields);
 
     return {
       async syncBio(args) {
@@ -142,10 +189,11 @@ export const MastodonSynchronizerFactory = defineSynchronizerFactory({
           const file = new File([p.file], "upload.jpg", {
             type: p.file.type,
           });
-          const a = await client.v2.media.create({
-            file,
-            description: p.alt_text,
-          });
+          const fields: MultipartField[] = [{ name: "file", value: file }];
+          if (p.alt_text) {
+            fields.push({ name: "description", value: p.alt_text });
+          }
+          const a = await uploadMedia(fields);
 
           attachments.push(a);
           debug("Uploaded photo to Mastodon:", a);
@@ -161,9 +209,7 @@ export const MastodonSynchronizerFactory = defineSynchronizerFactory({
           const file = new File([v.file], "upload.mp4", {
             type: v.file.type,
           });
-          const a = await client.v2.media.create({
-            file,
-          });
+          const a = await uploadMedia([{ name: "file", value: file }]);
           attachments.push(a);
           debug("Uploaded video to Mastodon:", a);
         }

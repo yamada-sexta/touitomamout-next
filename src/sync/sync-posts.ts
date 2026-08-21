@@ -1,6 +1,5 @@
 import { type Scraper as XScraper } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "~/db";
-import { eq } from "drizzle-orm";
+import { type DBType } from "#app/db";
 import {
   FORCE_SYNC_POSTS,
   getPostAppend,
@@ -8,16 +7,13 @@ import {
   MAX_CONSECUTIVE_CACHED,
   SYNC_RETWEETS,
   type TwitterHandle,
-} from "~/env";
-import ora from "ora";
-import { debug, logError, oraPrefix } from "~/utils/logs";
-import { isPost, toMetaPost } from "~/types/post";
+} from "#app/env";
+import ora from "#app/utils/logs";
+import { debug, logError, oraPrefix } from "#app/utils/logs";
+import { isPost, toMetaPost } from "#app/types/post";
 import { getPostStore } from "../utils/get-post-store";
 import type { TaggedSynchronizer } from "./synchronizer";
 import { isShutdownError, throwIfShutdownRequested } from "../shutdown";
-
-const { TweetMap } = Schema;
-const { TweetSynced } = Schema;
 
 let firstSync = true;
 
@@ -64,12 +60,8 @@ export async function syncPosts(args: {
         continue;
       }
 
-      const synced = db
-        .select()
-        .from(TweetSynced)
-        .where(eq(TweetSynced.tweetId, tweet.id))
-        .get();
-      if (synced && synced.synced !== 0 && !FORCE_SYNC_POSTS) {
+      const synced = db.isTweetSynced(tweet.id);
+      if (synced && !FORCE_SYNC_POSTS) {
         log.info("skipping synced tweet");
         cachedCounter++;
         log.info(
@@ -109,11 +101,7 @@ export async function syncPosts(args: {
             });
             throwIfShutdownRequested();
             const storeString = syncRes ? JSON.stringify(syncRes.store) : "";
-            await db.insert(TweetMap).values({
-              tweetId: tweet.id,
-              platform: s.platformId,
-              platformStore: storeString,
-            });
+            db.insertPostStore(tweet.id, s.platformId, storeString);
             platformLog.succeed(`${s.emoji} ${s.displayName} synced`);
           } catch (error) {
             if (isShutdownError(error)) {
@@ -133,14 +121,7 @@ export async function syncPosts(args: {
 
         throwIfShutdownRequested();
         // Mark as synced
-        await db
-          .insert(TweetSynced)
-          .values({ tweetId: tweet.id, synced: 1 })
-          .onConflictDoUpdate({
-            target: TweetSynced.tweetId,
-            set: { synced: 1 },
-          })
-          .run();
+        db.markTweetSynced(tweet.id);
       } catch (error) {
         if (isShutdownError(error)) {
           throw error;

@@ -1,25 +1,26 @@
-import { db } from "~/db";
-import ora from "ora";
-import { BlueskySynchronizerFactory } from "~/sync/platforms/bluesky";
-import { MastodonSynchronizerFactory } from "~/sync/platforms/mastodon/mastodon-sync";
-import { syncPosts } from "~/sync/sync-posts";
-import { syncProfile } from "~/sync/sync-profile";
+import { Database, type NativeDatabaseFunctions } from "#app/db";
+import { migrate } from "#app/db/migration";
+import ora from "#app/utils/logs";
+import { BlueskySynchronizerFactory } from "#app/sync/platforms/bluesky";
+import { MastodonSynchronizerFactory } from "#app/sync/platforms/mastodon/mastodon-sync";
+import { syncPosts } from "#app/sync/sync-posts";
+import { syncProfile } from "#app/sync/sync-profile";
 import {
   parseFactoryEnv,
   type AnySynchronizerFactory,
   type TaggedSynchronizer,
-} from "~/sync/synchronizer";
-import { createTwitterClient } from "~/sync/x-client";
-import { logError, oraPrefix } from "~/utils/logs";
-import { MisskeySynchronizerFactory } from "~/sync/platforms/misskey/missky-sync";
-import { DiscordWebhookSynchronizerFactory } from "~/sync/platforms/discord-webhook/webhook-sync";
-import { TumblrSynchronizerFactory } from "~/sync/platforms/tumblr/tumblr-sync";
-import { cycleTLSExit } from "@the-convocation/twitter-scraper/cycletls";
-import { CronJob } from "cron";
+} from "#app/sync/synchronizer";
+import { createTwitterClient } from "#app/sync/x-client";
+import { logError, oraPrefix } from "#app/utils/logs";
+import { MisskeySynchronizerFactory } from "#app/sync/platforms/misskey/missky-sync";
+import { DiscordWebhookSynchronizerFactory } from "#app/sync/platforms/discord-webhook/webhook-sync";
+import { TumblrSynchronizerFactory } from "#app/sync/platforms/tumblr/tumblr-sync";
+import { CronJob } from "#app/cron";
 import { isShutdownRequested, requestShutdown } from "./shutdown";
 
 import {
   CRON_JOB_SCHEDULE,
+  DATABASE_PATH,
   DAEMON,
   SYNC_FREQUENCY_MIN,
   SYNC_POSTS,
@@ -32,205 +33,220 @@ import {
   type TwitterHandle,
 } from "./env";
 
-let interval: NodeJS.Timeout | undefined;
-let cronJob: CronJob | undefined;
+export async function start(
+  open: NativeDatabaseFunctions["open"],
+  close: NativeDatabaseFunctions["close"],
+  exec: NativeDatabaseFunctions["exec"],
+  query: NativeDatabaseFunctions["query"],
+  queryResultLength: NativeDatabaseFunctions["queryResultLength"],
+  queryResultByte: NativeDatabaseFunctions["queryResultByte"],
+): Promise<void> {
+  const db = await migrate(
+    new Database(DATABASE_PATH, {
+      open,
+      close,
+      exec,
+      query,
+      queryResultLength,
+      queryResultByte,
+    }),
+  );
 
-function stopSchedulers() {
-  if (interval) {
-    clearInterval(interval);
-    interval = undefined;
+  let interval: NodeJS.Timeout | undefined;
+  let cronJob: CronJob | undefined;
+
+  function stopSchedulers() {
+    if (interval) {
+      clearInterval(interval);
+      interval = undefined;
+    }
+
+    cronJob?.stop();
+    cronJob = undefined;
   }
 
-  cronJob?.stop();
-  cronJob = undefined;
-}
+  function shutdown(signal: NodeJS.Signals) {
+    const firstSignal = requestShutdown();
 
-function shutdown(signal: NodeJS.Signals) {
-  const firstSignal = requestShutdown();
+    if (!firstSignal) {
+      console.log(`\nReceived ${signal} again. Forcing exit...`);
+      process.exit(signal === "SIGINT" ? 130 : 143);
+    }
 
-  if (!firstSignal) {
-    console.log(`\nReceived ${signal} again. Forcing exit...`);
-    process.exit(signal === "SIGINT" ? 130 : 143);
+    console.log(`\nReceived ${signal}. Stopping...`);
+    stopSchedulers();
+    setTimeout(() => {
+      console.log("Shutdown timed out. Forcing exit...");
+      process.exit(signal === "SIGINT" ? 130 : 143);
+    }, 2000).unref();
   }
 
-  console.log(`\nReceived ${signal}. Stopping...`);
-  stopSchedulers();
-  cycleTLSExit();
+  process.on("exit", (code) => {
+    db.close();
+    console.log(`Process exited with code ${code}`);
+  });
+  // Register event
+  process.on("SIGINT", () => {
+    shutdown("SIGINT");
+  });
 
-  setTimeout(() => {
-    console.log("Shutdown timed out. Forcing exit...");
-    process.exit(signal === "SIGINT" ? 130 : 143);
-  }, 2000).unref();
-}
+  process.on("SIGTERM", () => {
+    shutdown("SIGTERM");
+  });
 
-process.on("exit", (code) => {
-  // Clean up CycleTLS resources
-  cycleTLSExit();
-  console.log(`Process exited with code ${code}`);
-});
-// Register event
-process.on("SIGINT", () => {
-  shutdown("SIGINT");
-});
-
-process.on("SIGTERM", () => {
-  shutdown("SIGTERM");
-});
-
-console.log(`\n
+  console.log(`\n
   Touitomamout@v${TOUITOMAMOUT_VERSION} (${TOUITOMAMOUT_COMMIT_HASH})
   `);
 
-const factories: AnySynchronizerFactory[] = [
-  BlueskySynchronizerFactory,
-  MastodonSynchronizerFactory,
-  MisskeySynchronizerFactory,
-  DiscordWebhookSynchronizerFactory,
-  TumblrSynchronizerFactory,
-];
+  const factories: AnySynchronizerFactory[] = [
+    BlueskySynchronizerFactory,
+    MastodonSynchronizerFactory,
+    MisskeySynchronizerFactory,
+    DiscordWebhookSynchronizerFactory,
+    TumblrSynchronizerFactory,
+  ];
 
-const xClient = await createTwitterClient({
-  twitterCookies: TWITTER_COOKIES,
-  twitterPassword: TWITTER_PASSWORD,
-  twitterUsername: TWITTER_USERNAME,
-  db,
-});
+  const xClient = await createTwitterClient({
+    twitterCookies: TWITTER_COOKIES,
+    twitterPassword: TWITTER_PASSWORD,
+    twitterUsername: TWITTER_USERNAME,
+    db,
+  });
 
-const users: SyncUser[] = [];
-type SyncUser = {
-  handle: TwitterHandle;
-  synchronizers: TaggedSynchronizer[];
-};
+  const users: SyncUser[] = [];
+  type SyncUser = {
+    handle: TwitterHandle;
+    synchronizers: TaggedSynchronizer[];
+  };
 
-for (const handle of TWITTER_HANDLES) {
-  console.log(`Connecting @${handle.handle}...`);
-  const synchronizers: TaggedSynchronizer[] = [];
-  for (const factory of factories) {
-    const log = ora({
-      color: "gray",
-      prefixText: oraPrefix(`${factory.EMOJI} client`),
-    }).start(`Connecting to ${factory.DISPLAY_NAME}`);
+  for (const handle of TWITTER_HANDLES) {
+    console.log(`Connecting @${handle.handle}...`);
+    const synchronizers: TaggedSynchronizer[] = [];
+    for (const factory of factories) {
+      const log = ora({
+        color: "gray",
+        prefixText: oraPrefix(`${factory.EMOJI} client`),
+      }).start(`Connecting to ${factory.DISPLAY_NAME}`);
 
-    const env = parseFactoryEnv(factory, {
-      source: process.env,
-      postFix: handle.postFix,
+      const env = parseFactoryEnv(factory, {
+        source: process.env,
+        postFix: handle.postFix,
+      });
+
+      if (!env.success) {
+        log.warn(
+          `${factory.DISPLAY_NAME} will not be synced because ${env.message}`,
+        );
+        continue;
+      }
+
+      try {
+        const s = await factory.create({
+          xClient,
+          env: env.data,
+          db,
+          slot: handle.slot,
+          log,
+        });
+        synchronizers.push({
+          ...s,
+          displayName: factory.DISPLAY_NAME,
+          emoji: factory.EMOJI,
+          platformId: factory.PLATFORM_ID,
+          storeSchema: factory.STORE_SCHEMA,
+        });
+        log.succeed("connected");
+      } catch (error) {
+        logError(
+          log,
+          error,
+        )`Failed to connect to ${factory.DISPLAY_NAME}: ${error}`;
+      } finally {
+        log.stop();
+      }
+    }
+
+    users.push({
+      handle,
+      synchronizers,
     });
+  }
 
-    if (!env.success) {
-      log.warn(
-        `${factory.DISPLAY_NAME} will not be synced because ${env.message}`,
+  /**
+   * Main syncing loop
+   */
+  const syncAll = async () => {
+    if (!users) {
+      throw new Error("Unable to sync anything...");
+    }
+
+    for await (const user of users) {
+      if (isShutdownRequested()) {
+        return;
+      }
+
+      console.log(
+        `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`,
       );
-      continue;
-    }
-
-    try {
-      const s = await factory.create({
-        xClient,
-        env: env.data,
+      console.log(`| @${user.handle.handle}`);
+      await syncProfile({
+        x: xClient,
+        twitterHandle: user.handle,
+        synchronizers: user.synchronizers,
         db,
-        slot: handle.slot,
-        log,
       });
-      synchronizers.push({
-        ...s,
-        displayName: factory.DISPLAY_NAME,
-        emoji: factory.EMOJI,
-        platformId: factory.PLATFORM_ID,
-        storeSchema: factory.STORE_SCHEMA,
+      if (!SYNC_POSTS) {
+        console.log("Posts will not be synced...");
+        continue;
+      }
+
+      await syncPosts({
+        db,
+        handle: user.handle,
+        x: xClient,
+        synchronizers: user.synchronizers,
       });
-      log.succeed("connected");
-    } catch (error) {
-      logError(
-        log,
-        error,
-      )`Failed to connect to ${factory.DISPLAY_NAME}: ${error}`;
-    } finally {
-      log.stop();
+      if (isShutdownRequested()) {
+        return;
+      }
+
+      console.log(`| ${user.handle.handle} is up-to-date`);
     }
-  }
+  };
 
-  users.push({
-    handle,
-    synchronizers,
-  });
-}
+  if (CRON_JOB_SCHEDULE) {
+    console.log(`Scheduling sync with cron schedule: ${CRON_JOB_SCHEDULE}`);
+    cronJob = new CronJob(CRON_JOB_SCHEDULE, async () => {
+      if (isShutdownRequested()) {
+        return;
+      }
 
-/**
- * Main syncing loop
- */
-const syncAll = async () => {
-  if (!users) {
-    throw new Error("Unable to sync anything...");
-  }
-
-  for await (const user of users) {
-    if (isShutdownRequested()) {
-      return;
-    }
-
+      console.log(`\nCron job triggered at ${new Date().toLocaleString()}`);
+      await syncAll();
+    });
     console.log(
-      `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`,
+      `Scheduled next run: ${cronJob
+        .nextDates(1)
+        .map((d) => `${d.toJSDate().toLocaleString()}`)
+        .join("")}`,
     );
-    console.log(`| @${user.handle.handle}`);
-    await syncProfile({
-      x: xClient,
-      twitterHandle: user.handle,
-      synchronizers: user.synchronizers,
-      db,
-    });
-    if (!SYNC_POSTS) {
-      console.log("Posts will not be synced...");
-      continue;
-    }
-
-    await syncPosts({
-      db,
-      handle: user.handle,
-      x: xClient,
-      synchronizers: user.synchronizers,
-    });
-    if (isShutdownRequested()) {
-      return;
-    }
-
-    console.log(`| ${user.handle.handle} is up-to-date`);
-  }
-};
-
-if (CRON_JOB_SCHEDULE) {
-  console.log(`Scheduling sync with cron schedule: ${CRON_JOB_SCHEDULE}`);
-  cronJob = new CronJob(CRON_JOB_SCHEDULE, async () => {
-    if (isShutdownRequested()) {
-      return;
-    }
-
-    console.log(`\nCron job triggered at ${new Date().toLocaleString()}`);
+    cronJob.start();
+  } else if (DAEMON) {
+    console.log("Running in daemon mode...");
     await syncAll();
-  });
-  console.log(
-    `Scheduled next run: ${cronJob
-      .nextDates(1)
-      .map((d) => `${d.toJSDate().toLocaleString()}`)
-      .join("")}`,
-  );
-  cronJob.start();
-} else if (DAEMON) {
-  console.log("Running in daemon mode...");
-  await syncAll();
-  if (!isShutdownRequested()) {
-    console.log(`Run daemon every ${SYNC_FREQUENCY_MIN}min`);
-    interval = setInterval(
-      async () => {
-        if (!isShutdownRequested()) {
-          await syncAll();
-        }
-      },
-      SYNC_FREQUENCY_MIN * 60 * 1000,
-    );
+    if (!isShutdownRequested()) {
+      console.log(`Run daemon every ${SYNC_FREQUENCY_MIN}min`);
+      interval = setInterval(
+        async () => {
+          if (!isShutdownRequested()) {
+            await syncAll();
+          }
+        },
+        SYNC_FREQUENCY_MIN * 60 * 1000,
+      );
+    }
+  } else {
+    console.log("Running single sync...");
+    await syncAll();
   }
-} else {
-  console.log("Running single sync...");
-  await syncAll();
 }
-
-cycleTLSExit();

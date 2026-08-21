@@ -1,12 +1,22 @@
-import { write } from "bun";
-import { mkdir } from "node:fs/promises";
-import { schemas } from "./migration";
+import { mkdir, writeFile } from "node:fs/promises";
+import * as v1 from "./schema/v1";
 import {
   generateSQLiteDrizzleJson,
   generateSQLiteMigration,
 } from "drizzle-kit/api";
 
 const OUT_DIR = "src/db/sql";
+const schemas = [{}, v1];
+
+function makeInitialMigrationIdempotent(sql: string): string {
+  return sql
+    .replace(/^CREATE TABLE /gm, "CREATE TABLE IF NOT EXISTS ")
+    .replace(
+      /^CREATE (UNIQUE )?INDEX /gm,
+      (_match, unique: string | undefined) =>
+        `CREATE ${unique ?? ""}INDEX IF NOT EXISTS `,
+    );
+}
 
 async function main() {
   console.log("Generating migrations...");
@@ -27,9 +37,15 @@ async function main() {
     const fileName = `migration_v${i}.sql`;
     const filePath = `${OUT_DIR}/${fileName}`;
 
-    // Join statements with semicolons for the file content
-    const sqlContent = diff.join(";\n");
-    await write(filePath, sqlContent);
+    const generatedSql = `${diff
+      .map((statement) => statement.trim().replace(/;$/, ""))
+      .filter(Boolean)
+      .join(";\n")};\n`;
+    const sqlContent =
+      i === 1
+        ? makeInitialMigrationIdempotent(generatedSql)
+        : generatedSql;
+    await writeFile(filePath, sqlContent);
     console.log(`Saved ${filePath}`);
 
     migrations.push(fileName);
@@ -37,13 +53,13 @@ async function main() {
 
   // Generate index.ts
   const imports = migrations
-    .map((m, idx) => `import v${idx + 1} from "./${m}" with { type: "text" };`)
+    .map((m, idx) => `import v${idx + 1} from "./${m}";`)
     .join("\n");
 
   const exports = `export default [${migrations.map((_, idx) => `v${idx + 1}`).join(", ")}];`;
 
   const indexContent = `${imports}\n\n${exports}\n`;
-  await write(`${OUT_DIR}/index.ts`, indexContent);
+  await writeFile(`${OUT_DIR}/index.ts`, indexContent);
   console.log("Generated index.ts");
 }
 

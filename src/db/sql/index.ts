@@ -1,3 +1,3 @@
-import v1 from "./migration_v1.sql" with { type: "text" };
+import v1 from "./migration_v1.sql";
 
 export default [v1];

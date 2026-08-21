@@ -1,12 +1,9 @@
-import { type DBType } from "~/db";
-import { MASTODON_MAX_POST_LENGTH } from "~/env";
-import { getPostStore } from "~/utils/get-post-store";
-import { splitTweetTextCore } from "~/utils/tweet/split-tweet-text/split-tweet-text";
-import { type MetaPost, toStatusEmbLink } from "~/types/post";
-import {
-  MastodonStoreSchema,
-  MastodonSynchronizerFactory,
-} from "./mastodon-sync";
+import { type DBType } from "#app/db";
+import { MASTODON_MAX_POST_LENGTH } from "#app/env";
+import { getPostStore } from "#app/utils/get-post-store";
+import { splitTweetTextCore } from "#app/utils/tweet/split-tweet-text/split-tweet-text";
+import { type MetaPost, toStatusEmbLink } from "#app/types/post";
+import { MASTODON_PLATFORM_ID, MastodonStoreSchema } from "./store";
 
 export async function splitTextForMastodon(
   args: {
@@ -35,7 +32,7 @@ export async function splitTextForMastodon(
       s: MastodonStoreSchema,
       db: args.db,
       tweet: quotedStatusId,
-      platformId: MastodonSynchronizerFactory.PLATFORM_ID,
+      platformId: MASTODON_PLATFORM_ID,
     });
 
     if (store.success) {
@@ -50,7 +47,7 @@ export async function splitTextForMastodon(
       s: MastodonStoreSchema,
       db: args.db,
       tweet: inReplyToStatusId,
-      platformId: MastodonSynchronizerFactory.PLATFORM_ID,
+      platformId: MASTODON_PLATFORM_ID,
     });
 
     if (store.success) {

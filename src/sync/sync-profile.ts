@@ -1,6 +1,5 @@
 import type { Scraper } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "~/db";
-import { eq } from "drizzle-orm";
+import { type DBType } from "#app/db";
 import {
   FORCE_SYNC_PROFILE_HEADER,
   FORCE_SYNC_PROFILE_PICTURE,
@@ -9,17 +8,15 @@ import {
   SYNC_PROFILE_NAME,
   SYNC_PROFILE_PICTURE,
   type TwitterHandle,
-} from "~/env";
-import ora from "ora";
-import { debug, logError, oraPrefix } from "~/utils/logs";
-import { download } from "~/utils/medias/download-media";
-import { getBlobHash } from "~/utils/medias/get-blob-hash";
-import { shortenedUrlsReplacer } from "~/utils/url/shortened-urls-replacer";
+} from "#app/env";
+import ora from "#app/utils/logs";
+import { debug, logError, oraPrefix } from "#app/utils/logs";
+import { download } from "#app/utils/medias/download-media";
+import { getBlobHash } from "#app/utils/medias/get-blob-hash";
+import { shortenedUrlsReplacer } from "#app/utils/url/shortened-urls-replacer";
 import { type TaggedSynchronizer } from "./synchronizer";
-import { sleep } from "bun";
+import { setTimeout as sleep } from "node:timers/promises";
 import { isShutdownError, throwIfShutdownRequested } from "../shutdown";
-
-const Table = Schema.TwitterProfileCache;
 
 async function upsertProfileCache(args: {
   db: DBType;
@@ -36,15 +33,7 @@ async function upsertProfileCache(args: {
   const bannerUrl = args.bannerUrl ?? "";
   const { db, userId } = args;
 
-  const [row] = await db
-    .select({
-      pfpHash: Table.pfpHash,
-      bannerHash: Table.bannerHash,
-      pfpUrl: Table.pfpUrl,
-      bannerUrl: Table.bannerUrl,
-    })
-    .from(Table)
-    .where(eq(Table.userId, userId));
+  const row = db.getProfile(userId);
 
   const cPfpHash = row?.pfpHash ?? "";
   // We have to check the actual content, because Twitter doesn't always change the URL when the image is changed
@@ -95,24 +84,7 @@ async function markProfileCacheSynced(args: {
   pfpUrl: string;
   bannerUrl: string;
 }) {
-  await args.db
-    .insert(Table)
-    .values({
-      userId: args.userId,
-      pfpHash: args.pfpHash,
-      bannerHash: args.bannerHash,
-      bannerUrl: args.bannerUrl,
-      pfpUrl: args.pfpUrl,
-    })
-    .onConflictDoUpdate({
-      target: Table.userId,
-      set: {
-        pfpHash: args.pfpHash,
-        bannerHash: args.bannerHash,
-        bannerUrl: args.bannerUrl,
-        pfpUrl: args.pfpUrl,
-      },
-    });
+  args.db.upsertProfile(args);
 }
 
 /**
@@ -310,6 +282,9 @@ export async function syncProfile(args: {
       return;
     }
 
+    const details =
+      error instanceof Error ? (error.stack ?? error.message) : String(error);
+    console.error(`Profile sync failed for @${args.twitterHandle.handle}:\n${details}`);
     throw error;
   } finally {
     log.stop();

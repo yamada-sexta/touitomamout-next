@@ -1,6 +1,6 @@
 import { BlobRef, type Agent } from "@atproto/api";
-import { debug } from "~/utils/logs";
-import { BLUESKY_VIDEO_SERVICE_MAX_SIZE_BYTES } from "~/env";
+import { debug } from "#app/utils/logs";
+import { BLUESKY_VIDEO_SERVICE_MAX_SIZE_BYTES } from "#app/env";
 
 type VideoUploadResponse = {
   jobId?: string;
@@ -74,7 +74,11 @@ async function pollVideoUploadJobStatus(args: {
 }): Promise<BlobRef> {
   const { did, jobId, serviceAuthToken } = args;
 
-  for (let attempt = 0; attempt < BLUESKY_VIDEO_UPLOAD_POLL_MAX_ATTEMPTS; attempt++) {
+  for (
+    let attempt = 0;
+    attempt < BLUESKY_VIDEO_UPLOAD_POLL_MAX_ATTEMPTS;
+    attempt++
+  ) {
     if (attempt > 0) {
       await new Promise((resolve) =>
         setTimeout(resolve, BLUESKY_VIDEO_UPLOAD_POLL_INTERVAL_MS),
@@ -132,7 +136,10 @@ async function pollVideoUploadJobStatus(args: {
   );
 }
 
-export async function uploadLargeBlueskyVideo(mediaBlob: Blob, agent: Agent): Promise<BlobRef> {
+export async function uploadLargeBlueskyVideo(
+  mediaBlob: Blob,
+  agent: Agent,
+): Promise<BlobRef> {
   if (mediaBlob.size > BLUESKY_VIDEO_SERVICE_MAX_SIZE_BYTES) {
     throw new Error(
       `Video is too large for Bluesky video upload: ${mediaBlob.size} > ${BLUESKY_VIDEO_SERVICE_MAX_SIZE_BYTES} bytes`,

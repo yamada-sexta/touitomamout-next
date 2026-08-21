@@ -1,5 +1,8 @@
-import { type Ora } from "ora";
-import { logError, oraProgress } from "~/utils/logs";
+import {
+  logError,
+  oraProgress,
+  type ProgressLog as Ora,
+} from "#app/utils/logs";
 /**
  * A method to download the media.
  */

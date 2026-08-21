@@ -1,15 +1,25 @@
 import { Scraper } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "~/db";
-import { eq } from "drizzle-orm";
-import ora from "ora";
+import { type DBType } from "#app/db";
+import ora from "#app/utils/logs";
 import { Cookie } from "tough-cookie";
-import { debug, oraPrefix } from "~/utils/logs";
-import { cycleTLSFetch } from "@the-convocation/twitter-scraper/cycletls";
+import { debug, oraPrefix } from "#app/utils/logs";
 import {
   formatTwitterAuthError,
   parseTwitterCookies,
   TwitterCookieError,
 } from "./x-auth";
+
+const scriptcFetch: typeof fetch = (input, init) => {
+  if (!init) {
+    return fetch(input);
+  }
+
+  // The scraper installs cookies itself. ScriptC intentionally rejects the
+  // browser-only credentials option, so omit it at this runtime boundary.
+  const { credentials, ...compatibleInit } = init;
+  void credentials;
+  return fetch(input, compatibleInit);
+};
 
 export async function createTwitterClient({
   twitterPassword,
@@ -28,8 +38,7 @@ export async function createTwitterClient({
   }).start("connecting to X...");
 
   const client = new Scraper({
-    // Fetch: fetch,
-    fetch: cycleTLSFetch as typeof fetch,
+    fetch: scriptcFetch,
     rateLimitStrategy: {
       async onRateLimit(e) {
         debug("Rate limited by X:", e);
@@ -51,12 +60,7 @@ export async function createTwitterClient({
       await client.setCookies(parseTwitterCookies(twitterCookies));
       sessionSource = "supplied cookies";
     } else if (twitterUsername) {
-      const previousCookie = await db
-        .select()
-        .from(Schema.TwitterCookieCache)
-        .where(eq(Schema.TwitterCookieCache.userHandle, twitterUsername));
-      const cookie =
-        previousCookie.length > 0 ? previousCookie[0]!.cookie : undefined;
+      const cookie = db.getCookie(twitterUsername);
 
       if (cookie) {
         const cookies: Cookie[] = (JSON.parse(cookie) as unknown[])
@@ -88,18 +92,7 @@ export async function createTwitterClient({
     if (loggedIn && twitterUsername) {
       const cookies = await client.getCookies();
       const cookieString = JSON.stringify(cookies);
-      await db
-        .insert(Schema.TwitterCookieCache)
-        .values({
-          userHandle: twitterUsername,
-          cookie: cookieString,
-        })
-        .onConflictDoUpdate({
-          target: Schema.TwitterCookieCache.userHandle,
-          set: {
-            cookie: cookieString,
-          },
-        });
+      db.upsertCookie(twitterUsername, cookieString);
     }
   } catch (error) {
     log.warn(formatTwitterAuthError(error, Boolean(twitterCookies)));

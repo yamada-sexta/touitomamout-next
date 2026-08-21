@@ -1,8 +1,62 @@
-import { DEBUG } from "~/env";
-import { type Ora } from "ora";
+import { DEBUG } from "#app/env";
+
+export class ProgressLog {
+  color?: string;
+  prefixText: string;
+  #text = "";
+
+  constructor(options: { color?: string; prefixText?: string } = {}) {
+    this.color = options.color;
+    this.prefixText = options.prefixText ?? "";
+  }
+
+  get text(): string {
+    return this.#text;
+  }
+
+  set text(value: string) {
+    this.#text = value;
+  }
+
+  start(text = ""): this {
+    this.#text = text;
+    return this;
+  }
+
+  stop(): this {
+    return this;
+  }
+
+  succeed(message = this.#text): this {
+    console.log(`${this.prefixText}${message}`);
+    return this;
+  }
+
+  info(message = this.#text): this {
+    console.info(`${this.prefixText}${message}`);
+    return this;
+  }
+
+  warn(message = this.#text): this {
+    console.warn(`${this.prefixText}${message}`);
+    return this;
+  }
+
+  fail(message = this.#text): this {
+    console.error(`${this.prefixText}${message}`);
+    return this;
+  }
+}
+
+export default function ora(options?: {
+  color?: string;
+  prefixText?: string;
+}): ProgressLog {
+  return new ProgressLog(options);
+}
 
 export function logError(
-  log: Ora,
+  log: ProgressLog,
   error: unknown,
   type: "fail" | "warn" = "fail",
 ) {
@@ -39,7 +93,7 @@ export const oraPrefix = (prefix: string): string => prefix.padEnd(15, " ");
 const SEGMENT_DONE = "█";
 const SEGMENT_UNDONE = "░";
 export const oraProgress = (
-  ora: Ora,
+  ora: ProgressLog,
   text: {
     before?: string;
     after?: string;

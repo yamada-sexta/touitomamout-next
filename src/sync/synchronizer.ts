@@ -2,9 +2,9 @@ import {
   type Profile,
   type Scraper as XClient,
 } from "@the-convocation/twitter-scraper";
-import { type DBType } from "~/db";
-import { type Ora } from "ora";
-import { type MetaPost } from "~/types/post";
+import { type DBType } from "#app/db";
+import { type ProgressLog as Ora } from "#app/utils/logs";
+import { type MetaPost } from "#app/types/post";
 import z from "zod";
 
 type SyncArgs = { log: Ora };

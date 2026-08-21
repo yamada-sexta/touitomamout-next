@@ -1,5 +1,5 @@
-import { describe, expect, test } from "bun:test";
-import { appendPostText, type Post, toMetaPost } from "./post";
+import { describe, expect, test } from "vitest";
+import { appendPostText, type Post, toEmbLink, toMetaPost } from "./post";
 
 const makePost = (overrides: Partial<Post> = {}): Post => ({
   id: "120",
@@ -27,6 +27,14 @@ describe("appendPostText", () => {
 
   test("does not change text for an empty configuration", () => {
     expect(appendPostText("A mirrored post", "  ")).toBe("A mirrored post");
+  });
+});
+
+describe("toEmbLink", () => {
+  test("replaces the host without mutating the runtime URL object", () => {
+    expect(toEmbLink("https://x.com/user/status/42?lang=en#media")).toBe(
+      "https://fxtwitter.com/user/status/42?lang=en#media",
+    );
   });
 });
 

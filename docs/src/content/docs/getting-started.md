@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Run Touitomamout with Docker or work on the application locally with Bun.
+description: Run Touitomamout with Docker or compile the application locally with ScriptC.
 ---
 
 Docker is the recommended way to run Touitomamout. It provides a reproducible
@@ -62,8 +62,9 @@ docker compose up -d --force-recreate
 
 ## Local development
 
-Install [Bun](https://bun.sh/), clone the repository, and install its
-dependencies:
+Install Node.js 24, clang, the SQLite development headers, and
+[Bun](https://bun.sh/) for dependency management. Then clone the repository
+and install its dependencies:
 
 ```sh
 git clone https://github.com/yamada-sexta/touitomamout-next.git
@@ -71,7 +72,7 @@ cd touitomamout-next
 bun install
 ```
 
-Run the application from source:
+Compile and run the application through ScriptC:
 
 ```sh
 bun dev

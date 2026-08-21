@@ -1,10 +1,11 @@
-import { DEBUG } from "~/env";
+import { DEBUG } from "#app/env";
+import { createHash } from "node:crypto";
 
 export const computeBlobHash = async (blob: Blob): Promise<string> => {
-  const hasher = new Bun.CryptoHasher("sha256");
   const buffer = await blob.arrayBuffer();
-  hasher.update(buffer);
-  const hash = hasher.digest("hex");
+  const hash = createHash("sha256")
+    .update(new Uint8Array(buffer))
+    .digest("hex");
   if (DEBUG) {
     console.log(`Computed hash: ${hash}`);
   }
