@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { appendPostText, type Post, toEmbLink, toMetaPost } from "./post";
+import {
+  appendPostText,
+  formatTweetText,
+  type Post,
+  toEmbLink,
+  toMetaPost,
+} from "./post";
 
 const makePost = (overrides: Partial<Post> = {}): Post => ({
   id: "120",
@@ -28,6 +34,20 @@ describe("appendPostText", () => {
   test("does not change text for an empty configuration", () => {
     expect(appendPostText("A mirrored post", "  ")).toBe("A mirrored post");
   });
+});
+
+describe("formatTweetText", () => {
+  test.each(["$&", "$$", "$`", "$'"])(
+    "inserts URL replacement text containing %s literally",
+    (suffix) => {
+      const url = `https://example.test/${suffix}`;
+      expect(
+        formatTweetText(
+          makePost({ text: "visit https://t.co/abc", urls: [url] }),
+        ),
+      ).toBe(`visit ${url}`);
+    },
+  );
 });
 
 describe("toEmbLink", () => {

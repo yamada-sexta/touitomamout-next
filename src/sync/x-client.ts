@@ -3,23 +3,12 @@ import { type DBType } from "#app/db";
 import ora from "#app/utils/logs";
 import { Cookie } from "tough-cookie";
 import { debug, oraPrefix } from "#app/utils/logs";
+import { scriptcFetch } from "#app/utils/http/scriptc-fetch";
 import {
   formatTwitterAuthError,
   parseTwitterCookies,
   TwitterCookieError,
 } from "./x-auth";
-
-const scriptcFetch: typeof fetch = (input, init) => {
-  if (!init) {
-    return fetch(input);
-  }
-
-  // The scraper installs cookies itself. ScriptC intentionally rejects the
-  // browser-only credentials option, so omit it at this runtime boundary.
-  const { credentials, ...compatibleInit } = init;
-  void credentials;
-  return fetch(input, compatibleInit);
-};
 
 export async function createTwitterClient({
   twitterPassword,
@@ -66,7 +55,7 @@ export async function createTwitterClient({
         const cookies: Cookie[] = (JSON.parse(cookie) as unknown[])
           .map((o) => Cookie.fromJSON(o)!)
           .filter(Boolean);
-        await client.setCookies(cookies.map((c) => c.toString()));
+        await client.setCookies(cookies);
         sessionSource = "session restored";
       }
     }
@@ -74,6 +63,10 @@ export async function createTwitterClient({
     let loggedIn = await client.isLoggedIn();
     if (loggedIn) {
       log.succeed(`connected (${sessionSource})`);
+    } else if (sessionSource) {
+      throw new TwitterCookieError(
+        `${sessionSource} did not contain usable auth_token and ct0 cookies for x.com`,
+      );
     } else if (hasCredentials) {
       await client.login(twitterUsername!, twitterPassword!);
       loggedIn = await client.isLoggedIn();

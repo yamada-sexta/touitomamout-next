@@ -1,8 +1,12 @@
 import { type DBType } from "#app/db";
 import migrations from "./sql";
+import { validateDatabaseVersion } from "./version";
 
 export async function migrate(db: DBType): Promise<DBType> {
-  const currentVersion = db.getVersion();
+  const currentVersion = validateDatabaseVersion(
+    db.getVersion(),
+    migrations.length,
+  );
   console.log(`Current database version: ${currentVersion}`);
 
   for (let i = currentVersion + 1; i <= migrations.length; i += 1) {

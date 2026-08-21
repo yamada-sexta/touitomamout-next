@@ -29,60 +29,90 @@ export async function splitTweetTextCore({
   quotedStatusLinkSection,
   appendQuoteLink,
 }: SplitTextArgs): Promise<string[]> {
+  void quotedStatusId;
   const entries = extractWordsAndSpacers(text, urls);
   return buildChunksFromSplitterEntries({
     entries,
-    quotedStatusId,
     maxChunkSize,
     quotedStatusLinkSection,
     appendQuoteLink,
   });
 }
 
-const addWordToChunk = (chunk: string, word: SplitterEntry) =>
-  chunk + word.str + word.sep;
+const length = (value: string) => Array.from(value).length;
+
+const take = (value: string, count: number): [string, string] => {
+  const characters = Array.from(value);
+  return [
+    characters.slice(0, count).join(""),
+    characters.slice(count).join(""),
+  ];
+};
 
 export const buildChunksFromSplitterEntries = ({
   entries,
-  quotedStatusId,
   maxChunkSize,
   quotedStatusLinkSection,
   appendQuoteLink,
 }: {
   entries: SplitterEntry[];
   appendQuoteLink: boolean;
-  quotedStatusId: string | undefined;
   maxChunkSize: number;
   quotedStatusLinkSection: string;
 }): string[] => {
   const chunks: string[] = [];
   let currentChunk = "";
+  let quoteLinkPending = appendQuoteLink && quotedStatusLinkSection.length > 0;
+
+  if (maxChunkSize <= 0) {
+    throw new RangeError("maxChunkSize must be greater than zero");
+  }
+
+  const flush = () => {
+    const text = currentChunk.trim();
+    if (!text && !quoteLinkPending) return;
+
+    chunks.push(quoteLinkPending ? `${text}${quotedStatusLinkSection}` : text);
+    quoteLinkPending = false;
+    currentChunk = "";
+  };
 
   for (const entry of entries) {
-    const currentChunkWithAddedWord = addWordToChunk(currentChunk, entry);
-    const shouldAppendQuoteLink =
-      chunks.length === 0 && appendQuoteLink && Boolean(quotedStatusId);
-    const currentMaxChunkSize = shouldAppendQuoteLink
-      ? maxChunkSize - quotedStatusLinkSection.length
-      : maxChunkSize;
+    let remaining = entry.str + entry.sep;
 
-    if (currentChunkWithAddedWord.length <= currentMaxChunkSize) {
-      currentChunk = currentChunkWithAddedWord;
-    } else {
-      // Either push the current chunk or push the current chunk with the quote link (if mastodon + initial thread chunk)
-      chunks.push(
-        shouldAppendQuoteLink
-          ? `${currentChunk.trim()}${quotedStatusLinkSection}`
-          : currentChunk.trim(),
-      );
-      currentChunk = addWordToChunk("", entry);
+    while (remaining) {
+      const reserved = quoteLinkPending ? length(quotedStatusLinkSection) : 0;
+      const capacity = maxChunkSize - reserved;
+      if (capacity < 0) {
+        throw new RangeError("quotedStatusLinkSection exceeds maxChunkSize");
+      }
+
+      const available = capacity - length(currentChunk);
+      if (length(remaining) <= available) {
+        currentChunk += remaining;
+        break;
+      }
+
+      // Preserve a normal word when it fits on a fresh chunk. Only split an
+      // atomic token when the token itself is longer than the platform limit.
+      if (currentChunk.trim() && length(remaining) <= capacity) {
+        flush();
+        continue;
+      }
+
+      if (available === 0) {
+        flush();
+        continue;
+      }
+
+      const [prefix, suffix] = take(remaining, available);
+      currentChunk += prefix;
+      remaining = suffix;
+      flush();
     }
   }
 
-  // Push any remaining content in currentChunk
-  if (currentChunk.trim() !== "") {
-    chunks.push(currentChunk);
-  }
+  if (currentChunk.trim() || quoteLinkPending) flush();
 
   return chunks;
 };

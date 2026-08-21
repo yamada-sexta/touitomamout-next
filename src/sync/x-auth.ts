@@ -35,6 +35,14 @@ export function formatTwitterAuthError(
     return `Unable to authenticate with X: ${error.message}. Export a fresh Cookie request header from a logged-in browser. See ${X_AUTH_DOCUMENTATION_URL}`;
   }
 
+  const errorText = String(error);
+  if (
+    /response status:\s*403/i.test(errorText) &&
+    /(cf-ray|server:\s*cloudflare)/i.test(errorText)
+  ) {
+    return `Unable to authenticate with X: Cloudflare rejected the password-login transport (HTTP 403). Public requests may still work as a guest, but that does not mean authentication succeeded. Export fresh browser cookies into TWITTER_COOKIES. See ${X_AUTH_DOCUMENTATION_URL}`;
+  }
+
   if (
     error instanceof AuthenticationError &&
     error.message.includes("error 399")
@@ -46,5 +54,5 @@ export function formatTwitterAuthError(
     return `Unable to authenticate with X: ${reason} Export fresh browser cookies into TWITTER_COOKIES. See ${X_AUTH_DOCUMENTATION_URL}`;
   }
 
-  return `Unable to login: ${error}`;
+  return `Unable to login: ${errorText}`;
 }

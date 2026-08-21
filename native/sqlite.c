@@ -14,6 +14,8 @@ static uint8_t *query_result = NULL;
 static size_t query_result_length = 0;
 static size_t query_result_capacity = 0;
 
+#define QUERY_RESULT_LIMIT ((size_t)64 * 1024 * 1024)
+
 static void reset_query_result(void) {
   query_result_length = 0;
 }
@@ -21,6 +23,7 @@ static void reset_query_result(void) {
 static int reserve_query_result(size_t additional) {
   if (additional > SIZE_MAX - query_result_length) return 0;
   size_t required = query_result_length + additional;
+  if (required > QUERY_RESULT_LIMIT) return 0;
   if (required <= query_result_capacity) return 1;
 
   size_t capacity = query_result_capacity == 0 ? 256 : query_result_capacity;
@@ -90,6 +93,7 @@ static int append_json_string(const char *value) {
 }
 
 static char *copy_string(const uint8_t *value, size_t length) {
+  if (length == SIZE_MAX || (length > 0 && value == NULL)) return NULL;
   char *copy = malloc(length + 1);
   if (copy == NULL) return NULL;
   if (length > 0) memcpy(copy, value, length);
@@ -97,7 +101,13 @@ static char *copy_string(const uint8_t *value, size_t length) {
   return copy;
 }
 
+static int has_embedded_nul(const uint8_t *value, size_t length) {
+  return length > 0 &&
+         (value == NULL || memchr(value, '\0', length) != NULL);
+}
+
 int32_t touitomamout_database_open(const uint8_t *path, size_t path_length) {
+  if (has_embedded_nul(path, path_length)) return SQLITE_MISUSE;
   if (database != NULL) {
     sqlite3_close_v2(database);
     database = NULL;
@@ -132,6 +142,7 @@ void touitomamout_database_close(void) {
 
 int32_t touitomamout_database_exec(const uint8_t *sql, size_t sql_length) {
   if (database == NULL) return SQLITE_MISUSE;
+  if (has_embedded_nul(sql, sql_length)) return SQLITE_MISUSE;
   char *sql_string = copy_string(sql, sql_length);
   if (sql_string == NULL) return SQLITE_NOMEM;
   int result = sqlite3_exec(database, sql_string, NULL, NULL, NULL);
@@ -166,6 +177,7 @@ out_of_memory:
 
 int32_t touitomamout_database_query(const uint8_t *sql, size_t sql_length) {
   if (database == NULL) return SQLITE_MISUSE;
+  if (has_embedded_nul(sql, sql_length)) return SQLITE_MISUSE;
   reset_query_result();
   if (!append_byte('[')) return SQLITE_NOMEM;
   char *sql_string = copy_string(sql, sql_length);

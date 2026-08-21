@@ -15,6 +15,8 @@ export type NativeDatabaseFunctions = {
   queryResultByte: (index: number) => number;
 };
 
+const MAX_QUERY_RESULT_BYTES = 64 * 1024 * 1024;
+
 function quote(value: string): string {
   return `'${value.replaceAll("'", "''")}'`;
 }
@@ -44,14 +46,22 @@ export class Database {
   #query(sql: string): Record<string, string | null>[] {
     checkResult("query", this.#native.query(sql));
     const length = this.#native.queryResultLength();
+    if (
+      !Number.isSafeInteger(length) ||
+      length < 0 ||
+      length > MAX_QUERY_RESULT_BYTES
+    ) {
+      throw new Error(`Invalid SQLite query result length: ${length}`);
+    }
     const bytes = new Uint8Array(length);
     for (let i = 0; i < length; i += 1) {
       bytes[i] = this.#native.queryResultByte(i);
     }
-    return JSON.parse(new TextDecoder().decode(bytes)) as Record<
-      string,
-      string | null
-    >[];
+    const result: unknown = JSON.parse(new TextDecoder().decode(bytes));
+    if (!Array.isArray(result)) {
+      throw new Error("Invalid SQLite query result payload");
+    }
+    return result as Record<string, string | null>[];
   }
 
   hasTable(name: string): boolean {
@@ -88,7 +98,7 @@ export class Database {
     platformStore: string,
   ): void {
     this.run(
-      `INSERT INTO tweet_map (tweet_id, platform, platform_store) VALUES (${quote(tweetId)}, ${quote(platform)}, ${quote(platformStore)})`,
+      `INSERT INTO tweet_map (tweet_id, platform, platform_store) VALUES (${quote(tweetId)}, ${quote(platform)}, ${quote(platformStore)}) ON CONFLICT(tweet_id, platform) DO UPDATE SET platform_store = excluded.platform_store`,
     );
   }
 
@@ -96,11 +106,9 @@ export class Database {
     const row = this.#query(
       `SELECT synced FROM tweet_synced WHERE tweet_id = ${quote(tweetId)} LIMIT 1`,
     )[0];
-    return (
-      row?.synced !== undefined &&
-      row.synced !== null &&
-      Number(row.synced) !== 0
-    );
+    if (row?.synced === undefined || row.synced === null) return false;
+    const synced = Number(row.synced);
+    return Number.isSafeInteger(synced) && synced === 1;
   }
 
   markTweetSynced(tweetId: string): void {

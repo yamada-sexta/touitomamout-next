@@ -1,4 +1,3 @@
-import { POST_SEPARATOR } from "#app/env";
 import { type SplitterEntry } from "../../../types/splitter";
 
 /**
@@ -12,64 +11,25 @@ export const extractWordsAndSpacers = (
   inputString: string,
   urls: string[],
 ): SplitterEntry[] => {
-  function extractUrlChunks() {
-    const entries: SplitterEntry[] = [];
-    let remainingText = inputString;
+  // URLs contain no whitespace, so normal tokenization already keeps them
+  // atomic. The old URL-first pass corrupted text when two or more URLs were
+  // present and could even inject a URL that was not in the input.
+  void urls;
 
-    // Split text by urls
-    for (const url of urls) {
-      const [prefixChunk, suffixChunk] = remainingText.split(url);
-      const chunksSplitByUrl = [prefixChunk, url, suffixChunk];
-
-      for (const currentChunk of chunksSplitByUrl) {
-        if (!currentChunk) {
-          continue; // Skip empty chunks
-        }
-
-        entries.push({
-          str: currentChunk,
-          sep: getSeparator(remainingText, currentChunk),
-        });
+  const entries: SplitterEntry[] = [];
+  for (const match of inputString.matchAll(/\S+|\s+/g)) {
+    const token = match[0];
+    if (/^\s+$/.test(token)) {
+      const previous = entries.at(-1);
+      if (previous) {
+        previous.sep += token;
+      } else {
+        entries.push({ str: "", sep: token });
       }
-
-      const processedString = chunksSplitByUrl.join("");
-      remainingText = inputString.slice(processedString.length);
-    }
-
-    return entries;
-  }
-
-  // Split text by urls (if any)
-  let entries: SplitterEntry[] = extractUrlChunks();
-  // Or start with the original string.
-  if (entries.length === 0) {
-    entries = [{ str: inputString, sep: "" }];
-  }
-
-  // Split each chunk by whitespace
-  const newEntries: SplitterEntry[] = [];
-  for (const entry of entries) {
-    const result = entry.str.matchAll(
-      /(?<word>\S*(\s?[!?;:.=+])?)(?<spacer>(\s|\\n)*)/gm,
-    );
-
-    for (const match of result) {
-      const word = match.groups?.word ?? "";
-      const spacer = match.groups?.spacer ?? "";
-      newEntries.push({ str: word, sep: spacer });
+    } else {
+      entries.push({ str: token, sep: "" });
     }
   }
 
-  return newEntries;
-};
-
-const getSeparator = (inputString: string, currentChunk: string) => {
-  // const SEPARATOR = /\s/;
-
-  const previousCharIndex = inputString.indexOf(currentChunk) - 1;
-  const previousChar = inputString.substring(
-    previousCharIndex,
-    previousCharIndex + 1,
-  );
-  return POST_SEPARATOR.test(previousChar) ? previousChar : "";
+  return entries;
 };

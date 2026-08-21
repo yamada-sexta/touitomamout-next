@@ -9,6 +9,8 @@ import { DEBUG, HANDLE_RETWEETS } from "#app/env";
 import { toStatusEmbLink } from "#app/types/post";
 import { getPostStore } from "#app/utils/get-post-store";
 import { handleRateLimit } from "./rate-limit";
+import { encodeMultipart } from "#app/utils/http/multipart";
+import { scriptcFetch } from "#app/utils/http/scriptc-fetch";
 
 const MisskeyStoreSchema = z.object({
   id: z.string(),
@@ -31,6 +33,7 @@ export const MisskeySynchronizerFactory = defineSynchronizerFactory({
     const api = new Misskey.api.APIClient({
       origin: args.env.MISSKEY_INSTANCE.href,
       credential: args.env.MISSKEY_ACCESS_CODE,
+      fetch: scriptcFetch,
     });
 
     async function runWithRateLimitRetry<T = unknown>(
@@ -48,11 +51,26 @@ export const MisskeySynchronizerFactory = defineSynchronizerFactory({
     }
 
     const uploadMedia = async (file: File) =>
-      runWithRateLimitRetry(async () =>
-        api.request("drive/files/create", {
-          file,
-        }),
-      );
+      runWithRateLimitRetry(async () => {
+        const encoded = await encodeMultipart([
+          { name: "i", value: args.env.MISSKEY_ACCESS_CODE },
+          { name: "file", value: file, filename: file.name || "upload" },
+        ]);
+        const response = await fetch(
+          new URL("/api/drive/files/create", args.env.MISSKEY_INSTANCE),
+          {
+            method: "POST",
+            headers: { "content-type": encoded.contentType },
+            body: encoded.body,
+          },
+        );
+        const data: unknown = await response.json();
+        if (!response.ok) {
+          const error = z.object({ error: z.unknown() }).safeParse(data);
+          throw error.success ? error.data.error : data;
+        }
+        return z.object({ id: z.string() }).parse(data);
+      });
 
     return {
       async syncBio(args) {
@@ -85,9 +103,7 @@ export const MisskeySynchronizerFactory = defineSynchronizerFactory({
       },
       async syncProfilePic(args) {
         await runWithRateLimitRetry(async () => {
-          const res = await api.request("drive/files/create", {
-            file: new File([args.pfpFile], "pfp"),
-          });
+          const res = await uploadMedia(new File([args.pfpFile], "pfp"));
 
           if (DEBUG) {
             console.log(res);

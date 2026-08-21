@@ -82,10 +82,13 @@ function extractMetaRefreshUrl(
 export const getRedirectedUrl = async (
   url: string,
   hasRedirected = false,
+  hop = 0,
+  seen = new Set<string>(),
 ): Promise<string | undefined> => {
-  if (!isSafeUrl(url)) {
+  if (!isSafeUrl(url) || hop >= 10 || seen.has(url)) {
     return undefined;
   }
+  seen.add(url);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => {
@@ -103,7 +106,7 @@ export const getRedirectedUrl = async (
       const redirectUrl = response.headers.get("location");
       if (redirectUrl) {
         const resolvedUrl = new URL(redirectUrl, url).href;
-        return getRedirectedUrl(resolvedUrl, true); // Recursively resolve further redirects
+        return getRedirectedUrl(resolvedUrl, true, hop + 1, seen);
       }
     }
 
@@ -113,7 +116,7 @@ export const getRedirectedUrl = async (
       const html = await response.text();
       const metaRedirectUrl = extractMetaRefreshUrl(html, url);
       if (metaRedirectUrl) {
-        return getRedirectedUrl(metaRedirectUrl, true); // Recursively resolve meta tag redirects
+        return getRedirectedUrl(metaRedirectUrl, true, hop + 1, seen);
       }
     }
 

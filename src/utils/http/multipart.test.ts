@@ -20,9 +20,18 @@ describe("encodeMultipart", () => {
     expect(encoded).toContain(
       'Content-Disposition: form-data; name="avatar"; filename="profile.png"\r\nContent-Type: image/png\r\n\r\n',
     );
-    expect([...body]).toEqual(
-      expect.arrayContaining([0, 1, 2]),
-    );
+    expect([...body]).toEqual(expect.arrayContaining([0, 1, 2]));
     expect(encoded.endsWith(`--${boundary}--\r\n`)).toBe(true);
+  });
+
+  test.each([
+    { name: "bad\r\nX-Injected: yes", value: "text" },
+    {
+      name: "file",
+      value: new Blob(["x"]),
+      filename: "bad\r\nX-Injected: yes",
+    },
+  ])("rejects disposition header injection", async (field) => {
+    await expect(encodeMultipart([field])).rejects.toThrow("newlines");
   });
 });

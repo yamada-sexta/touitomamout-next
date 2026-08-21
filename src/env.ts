@@ -26,8 +26,10 @@ function loadEnvironmentFile(path: string): void {
 }
 
 if (process.env.NODE_ENV !== "test") {
-  const envPath =
-    process.argv.length > 2 ? process.argv[2]! : join(process.cwd(), ".env");
+  const explicitEnvPath = process.argv.length > 2;
+  const envPath = explicitEnvPath
+    ? process.argv[2]!
+    : join(process.cwd(), ".env");
   if (envPath.endsWith("example")) {
     throw new Error("You should not use the example configuration file.");
   }
@@ -36,7 +38,10 @@ if (process.env.NODE_ENV !== "test") {
     accessSync(envPath, constants.F_OK);
     loadEnvironmentFile(envPath);
   } catch {
-    console.log("No suitable .env file found.");
+    // Containers normally supply process.env directly and do not mount a
+    // dotenv file. Only warn when the user explicitly requested a path.
+    if (explicitEnvPath)
+      console.warn(`Unable to load environment file: ${envPath}`);
   }
 }
 
@@ -52,21 +57,40 @@ export type TwitterHandle<T extends number | "" = "" | number> = {
   slot: number;
 };
 
-let _handleCounter = 0;
-let _twitterHandleKey: TwitterHandleKey<"" | number> = "TWITTER_HANDLE";
 export const INSTANCE_IDS: string[] = [];
-while (process.env[_twitterHandleKey]) {
-  const handle = trimTwitterHandle(process.env[_twitterHandleKey]!);
-  console.log(`Found ${_twitterHandleKey}: @${handle}`);
+const configuredHandles: {
+  key: TwitterHandleKey<"" | number>;
+  slot: number;
+}[] = [];
+for (const key of Object.keys(process.env)) {
+  if (key === "TWITTER_HANDLE") {
+    configuredHandles.push({ key, slot: 0 });
+    continue;
+  }
+  if (!key.startsWith("TWITTER_HANDLE")) continue;
+  const suffix = key.slice("TWITTER_HANDLE".length);
+  if (!/^[1-9]\d*$/.test(suffix)) continue;
+  configuredHandles.push({
+    key: key as TwitterHandleKey<number>,
+    slot: Number(suffix),
+  });
+}
+configuredHandles.sort((left, right) => left.slot - right.slot);
+
+for (const { key, slot } of configuredHandles) {
+  const handle = trimTwitterHandle(process.env[key] ?? "");
+  if (!handle) {
+    console.warn(`Ignoring empty ${key}`);
+    continue;
+  }
+  console.log(`Found ${key}: @${handle}`);
   TWITTER_HANDLES.push({
-    env: _twitterHandleKey,
+    env: key,
     handle,
-    postFix: _handleCounter ? _handleCounter : "",
-    slot: _handleCounter,
+    postFix: slot === 0 ? "" : slot,
+    slot,
   });
   INSTANCE_IDS.push(handle.toLowerCase().replaceAll(" ", "_"));
-  _handleCounter += 1;
-  _twitterHandleKey = `TWITTER_HANDLE${_handleCounter}`;
 }
 
 const stringbool = z.stringbool();
@@ -86,14 +110,18 @@ export function envBool(key: string, defaultValue = false): boolean {
   return res.data;
 }
 
-export function envInt(key: string, defaultValue: number): number {
+export function envInt(
+  key: string,
+  defaultValue: number,
+  minimum = Number.NEGATIVE_INFINITY,
+): number {
   const value = process.env[key];
   if (value === undefined) {
     return defaultValue;
   }
 
-  const parsed = Number.parseInt(value, 10);
-  if (isNaN(parsed)) {
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < minimum) {
     console.warn(
       `Invalid integer for env ${key}: ${value}, using default ${defaultValue}`,
     );
@@ -114,7 +142,7 @@ export const DATABASE_PATH = (
 export const SYNC_MASTODON = envBool("SYNC_MASTODON", true);
 export const SYNC_BLUESKY = envBool("SYNC_BLUESKY", true);
 export const BACKDATE_BLUESKY_POSTS = envBool("BACKDATE_BLUESKY_POSTS", true);
-export const SYNC_FREQUENCY_MIN = envInt("SYNC_FREQUENCY_MIN", 30);
+export const SYNC_FREQUENCY_MIN = envInt("SYNC_FREQUENCY_MIN", 30, 1);
 export const SYNC_PROFILE_DESCRIPTION = envBool(
   "SYNC_PROFILE_DESCRIPTION",
   true,
@@ -142,7 +170,7 @@ export const BLUESKY_MAX_POST_LENGTH = 300;
 export const BLUESKY_MEDIA_MAX_SIZE_BYTES = 976_560;
 export const BLUESKY_VIDEO_DIRECT_UPLOAD_LIMIT_BYTES = 100_000_000;
 export const BLUESKY_VIDEO_SERVICE_MAX_SIZE_BYTES = 300_000_000;
-export const MAX_CONSECUTIVE_CACHED = envInt("MAX_CONSECUTIVE_CACHED", 2);
+export const MAX_CONSECUTIVE_CACHED = envInt("MAX_CONSECUTIVE_CACHED", 2, 0);
 export const FORCE_SYNC_POSTS = envBool("FORCE_SYNC_POSTS", false);
 export const SYNC_POSTS = envBool("SYNC_POSTS", true);
 
@@ -163,7 +191,11 @@ export const BSKY_EMB_FIX = z
 
 export const CRON_JOB_SCHEDULE = process.env.CRON_JOB_SCHEDULE?.trim() || "";
 
-export const HISTORICAL_SYNC_LIMIT = envInt("HISTORICAL_SYNC_LIMIT", Infinity);
+export const HISTORICAL_SYNC_LIMIT = envInt(
+  "HISTORICAL_SYNC_LIMIT",
+  Infinity,
+  0,
+);
 
 export const SYNC_RETWEETS = envBool("SYNC_RETWEETS", true);
 

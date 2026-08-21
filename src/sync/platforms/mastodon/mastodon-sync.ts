@@ -223,13 +223,15 @@ export const MastodonSynchronizerFactory = defineSynchronizerFactory({
 
         log.text = `🦣 | toot sending: ${getPostExcerpt(tweet.text ?? VOID)}`;
 
+        const chunksToPost =
+          chunks.length === 0 && attachments.length > 0 ? [""] : chunks;
         const tootIds: string[] = [];
-        for await (const [i, chunk] of chunks.entries()) {
+        for await (const [i, chunk] of chunksToPost.entries()) {
           const first = i === 0;
           debug("Mastodon chunk to post:", {
             chunk,
             index: i,
-            total: chunks.length,
+            total: chunksToPost.length,
           });
 
           const toot = await client.v1.statuses.create({
@@ -239,11 +241,16 @@ export const MastodonSynchronizerFactory = defineSynchronizerFactory({
             inReplyToId: first ? mastodonText.inReplyToId : tootIds[i - 1],
             quotedStatusId: first ? mastodonText.quotedStatusId : undefined,
           });
-          oraProgress(log, { before: "🦣 | toot sending: " }, i, chunks.length);
+          oraProgress(
+            log,
+            { before: "🦣 | toot sending: " },
+            i,
+            chunksToPost.length,
+          );
           // Save toot ID to be able to reference it while posting the next chunk.
           tootIds.push(toot.id);
           // If this is the last chunk, save the all chunks ID to the cache.
-          if (i === chunks.length - 1) {
+          if (i === chunksToPost.length - 1) {
             debug("Final toot posted:", toot);
           }
         }

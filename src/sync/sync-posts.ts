@@ -15,7 +15,7 @@ import { getPostStore } from "../utils/get-post-store";
 import type { TaggedSynchronizer } from "./synchronizer";
 import { isShutdownError, throwIfShutdownRequested } from "../shutdown";
 
-let firstSync = true;
+const initializedHandles = new Set<string>();
 
 export async function syncPosts(args: {
   db: DBType;
@@ -36,9 +36,13 @@ export async function syncPosts(args: {
 
   let cachedCounter = 0;
   let counter = 0;
+  let completedIteration = false;
   try {
     debug("getting", handle);
-    const maxSync = firstSync ? HISTORICAL_SYNC_LIMIT : Infinity;
+    const handleKey = `${handle.slot}:${handle.handle}`;
+    const maxSync = initializedHandles.has(handleKey)
+      ? Infinity
+      : HISTORICAL_SYNC_LIMIT;
     const iter = x.getTweets(handle.handle, maxSync);
     log.text = "Created async iterator";
     for await (const tweet of iter) {
@@ -72,14 +76,17 @@ export async function syncPosts(args: {
         cachedCounter = 0;
       }
 
-      const metaTweet = toMetaPost(tweet, getPostAppend(handle.postFix));
       try {
+        const metaTweet = toMetaPost(tweet, getPostAppend(handle.postFix));
+        let attemptedPlatforms = 0;
+        let allPlatformsSucceeded = true;
         for (const s of args.synchronizers) {
           throwIfShutdownRequested();
           // Might have race condition if done in parallel
           if (!s.syncPost) {
             continue;
           }
+          attemptedPlatforms += 1;
 
           const platformLog = ora({
             color: "cyan",
@@ -114,14 +121,19 @@ export async function syncPosts(args: {
               error,
             )`Failed to sync tweet ${tweet.id} to ${s.displayName}: ${error}`;
             console.warn(error);
+            allPlatformsSucceeded = false;
           }
 
           platformLog.stop();
         }
 
         throwIfShutdownRequested();
-        // Mark as synced
-        db.markTweetSynced(tweet.id);
+        // A global synced marker is only safe once every enabled platform has
+        // succeeded. Successful platforms are idempotent through tweet_map and
+        // can be skipped on the retry of a partially failed tweet.
+        if (attemptedPlatforms > 0 && allPlatformsSucceeded) {
+          db.markTweetSynced(tweet.id);
+        }
       } catch (error) {
         if (isShutdownError(error)) {
           throw error;
@@ -132,6 +144,7 @@ export async function syncPosts(args: {
         console.error(tweet);
       }
     }
+    completedIteration = true;
   } catch (error) {
     if (isShutdownError(error)) {
       log.warn("stopped");
@@ -143,5 +156,7 @@ export async function syncPosts(args: {
 
   log.succeed("synced");
 
-  firstSync = false;
+  if (completedIteration) {
+    initializedHandles.add(`${handle.slot}:${handle.handle}`);
+  }
 }

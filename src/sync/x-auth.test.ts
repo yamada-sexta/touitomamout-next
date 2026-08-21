@@ -43,4 +43,18 @@ describe("formatTwitterAuthError", () => {
       ),
     ).toContain("supplied cookies were rejected or expired");
   });
+
+  test("does not mistake guest access for a successful Cloudflare login", () => {
+    const message = formatTwitterAuthError(
+      new Error(
+        'Response status: 403 | headers: "cf-ray: abc-ORD\\nserver: cloudflare"',
+      ),
+      false,
+    );
+
+    expect(message).toContain("Cloudflare rejected");
+    expect(message).toContain("guest");
+    expect(message).toContain("TWITTER_COOKIES");
+    expect(message).toContain(X_AUTH_DOCUMENTATION_URL);
+  });
 });

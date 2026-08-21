@@ -123,7 +123,13 @@ export class CronJob {
       const key = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
       if (key !== this.#lastTick && this.#matches(now)) {
         this.#lastTick = key;
-        void this.#onTick();
+        try {
+          void Promise.resolve(this.#onTick()).catch((error: unknown) => {
+            console.error("Scheduled sync failed:", error);
+          });
+        } catch (error) {
+          console.error("Scheduled sync failed:", error);
+        }
       }
     }, 1_000);
   }

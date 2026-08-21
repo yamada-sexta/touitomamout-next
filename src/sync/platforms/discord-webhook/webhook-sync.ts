@@ -147,31 +147,40 @@ export const DiscordWebhookSynchronizerFactory = defineSynchronizerFactory({
   async create(args) {
     const webhookUrl = args.env.DISCORD_WEBHOOK_URL;
     async function sendWebhook(payload: RESTPostAPIWebhookWithTokenJSONBody) {
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (res.status === 429) {
-        const data = await res.json().catch(() => ({}));
-        const retryAfter = data.retry_after
-          ? Number(data.retry_after) * 1000
-          : 1000; // Fallback 1s
-        args?.log?.warn?.(
-          `Rate limited by Discord. Retrying after ${retryAfter}ms...`,
-        );
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.status === 429) {
+          if (attempt === 4) {
+            throw new Error("Discord rate limit persisted after 5 attempts");
+          }
+          const data: unknown = await res.json().catch(() => undefined);
+          const parsed = z
+            .object({ retry_after: z.coerce.number().finite().nonnegative() })
+            .safeParse(data);
+          const retryAfter = Math.min(
+            parsed.success ? parsed.data.retry_after * 1000 : 1000,
+            60_000,
+          );
+          args.log.warn(
+            `Rate limited by Discord. Retrying after ${retryAfter}ms...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, retryAfter));
+          continue;
+        }
 
-        await new Promise((resolve) => setTimeout(resolve, retryAfter));
-        return sendWebhook(payload); // Retry
+        if (!res.ok) {
+          throw new Error(
+            `Webhook failed with status ${res.status}: ${await res.text()}`,
+          );
+        }
+
+        return res;
       }
-
-      if (!res.ok) {
-        throw new Error(
-          `Webhook failed with status ${res.status}: ${await res.text()}`,
-        );
-      }
-
-      return res;
+      throw new Error("Discord webhook retry loop ended unexpectedly");
     }
 
     return {

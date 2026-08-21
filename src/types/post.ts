@@ -145,7 +145,7 @@ export const formatTweetText = (tweet: Post): string => {
   // Replace urls
   for (const url of tweet.urls) {
     const beforeReplace = text;
-    text = text.replace(/https:\/\/t\.co\/\w+/, url);
+    text = text.replace(/https:\/\/t\.co\/\w+/, () => url);
     // If text changed, this URL was replaced
     if (beforeReplace !== text) {
       replacedUrls.add(url);
@@ -226,7 +226,6 @@ export const toMetaPost = (tweet: Post, postAppend = ""): MetaPost => {
       const entries = extractWordsAndSpacers(text, tweet.urls ?? []);
       return buildChunksFromSplitterEntries({
         entries,
-        quotedStatusId: tweet.quotedStatusId,
         maxChunkSize: args.maxChunkSize,
         quotedStatusLinkSection: args.quotedStatusLinkSection ?? "",
         appendQuoteLink: args.appendQuoteLink,

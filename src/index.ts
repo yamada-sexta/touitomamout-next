@@ -175,42 +175,54 @@ export async function start(
   /**
    * Main syncing loop
    */
+  let syncRunning = false;
   const syncAll = async () => {
-    if (!users) {
+    if (syncRunning) {
+      console.warn(
+        "Skipping scheduled sync because the previous run is still active.",
+      );
+      return;
+    }
+    if (users.length === 0) {
       throw new Error("Unable to sync anything...");
     }
 
-    for await (const user of users) {
-      if (isShutdownRequested()) {
-        return;
-      }
+    syncRunning = true;
+    try {
+      for await (const user of users) {
+        if (isShutdownRequested()) {
+          return;
+        }
 
-      console.log(
-        `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`,
-      );
-      console.log(`| @${user.handle.handle}`);
-      await syncProfile({
-        x: xClient,
-        twitterHandle: user.handle,
-        synchronizers: user.synchronizers,
-        db,
-      });
-      if (!SYNC_POSTS) {
-        console.log("Posts will not be synced...");
-        continue;
-      }
+        console.log(
+          `\n𝕏 ->  ${user.synchronizers.map((s) => s.emoji).join(" + ")}`,
+        );
+        console.log(`| @${user.handle.handle}`);
+        await syncProfile({
+          x: xClient,
+          twitterHandle: user.handle,
+          synchronizers: user.synchronizers,
+          db,
+        });
+        if (!SYNC_POSTS) {
+          console.log("Posts will not be synced...");
+          continue;
+        }
 
-      await syncPosts({
-        db,
-        handle: user.handle,
-        x: xClient,
-        synchronizers: user.synchronizers,
-      });
-      if (isShutdownRequested()) {
-        return;
-      }
+        await syncPosts({
+          db,
+          handle: user.handle,
+          x: xClient,
+          synchronizers: user.synchronizers,
+        });
+        if (isShutdownRequested()) {
+          return;
+        }
 
-      console.log(`| ${user.handle.handle} is up-to-date`);
+        console.log(`| ${user.handle.handle} is up-to-date`);
+      }
+    } finally {
+      syncRunning = false;
     }
   };
 
@@ -239,7 +251,11 @@ export async function start(
       interval = setInterval(
         async () => {
           if (!isShutdownRequested()) {
-            await syncAll();
+            try {
+              await syncAll();
+            } catch (error) {
+              console.error("Scheduled sync failed:", error);
+            }
           }
         },
         SYNC_FREQUENCY_MIN * 60 * 1000,

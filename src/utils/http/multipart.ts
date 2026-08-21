@@ -9,6 +9,9 @@ export type MultipartField = {
 const encoder = new TextEncoder();
 
 function escapeDisposition(value: string): string {
+  if (value.includes("\r") || value.includes("\n")) {
+    throw new Error("Multipart disposition values must not contain newlines");
+  }
   return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
 }
 
