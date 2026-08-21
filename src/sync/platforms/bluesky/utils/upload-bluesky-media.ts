@@ -47,7 +47,8 @@ export async function uploadBlueskyMedia(
       () => mediaBlob,
     )) || mediaBlob;
 
-  const res = await agent.uploadBlob(blob, {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const res = await agent.uploadBlob(bytes, {
     encoding: blob.type,
   });
 

@@ -173,7 +173,7 @@ export async function uploadLargeBlueskyVideo(
       "Content-Type": mediaBlob.type || "video/mp4",
       "Content-Length": mediaBlob.size.toString(),
     },
-    body: mediaBlob,
+    body: new Uint8Array(await mediaBlob.arrayBuffer()),
   });
 
   if (!uploadResponse.ok) {

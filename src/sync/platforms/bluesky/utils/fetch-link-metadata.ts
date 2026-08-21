@@ -27,7 +27,7 @@ export async function fetchLinkMetadata(
 ): Promise<LinkMetadata | undefined> {
   try {
     const res = await fetch(
-      `https://cardyb.bsky.app/v1/extract?url=${encodeURI(url)}`,
+      `https://cardyb.bsky.app/v1/extract?url=${encodeURIComponent(url)}`,
       {
         method: "GET",
       },

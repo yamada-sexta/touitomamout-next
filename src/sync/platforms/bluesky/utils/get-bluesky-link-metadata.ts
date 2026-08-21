@@ -36,18 +36,36 @@ export async function getBlueskyLinkMetadata(
 
   const mediaBlob = await download(data.image);
   if (!mediaBlob) {
-    return undefined;
+    console.error(
+      `Unable to download Bluesky card thumbnail; posting the card without it: ${data.image}`,
+    );
+    return {
+      ...data,
+      image: undefined,
+    };
   }
 
-  // const blueskyBlob = await parseBlobForBluesky(mediaBlob);
+  try {
+    const { blobRef } = await uploadBlueskyMedia(mediaBlob, client);
+    if (!blobRef) {
+      console.error(
+        "Unable to upload Bluesky card thumbnail; posting the card without it",
+      );
+    }
 
-  // const media = await client.uploadBlob(blueskyBlob.data, {
-  //   encoding: blueskyBlob.mimeType,
-  // });
-  const { blobRef } = await uploadBlueskyMedia(mediaBlob, client);
-
-  return {
-    ...data,
-    image: blobRef,
-  };
+    return {
+      ...data,
+      image: blobRef,
+    };
+  } catch (error) {
+    const details =
+      error instanceof Error ? (error.stack ?? error.message) : String(error);
+    console.error(
+      `Unable to upload Bluesky card thumbnail; posting the card without it:\n${details}`,
+    );
+    return {
+      ...data,
+      image: undefined,
+    };
+  }
 }

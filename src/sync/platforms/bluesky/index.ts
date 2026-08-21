@@ -71,7 +71,10 @@ export async function getExternalEmbedding(
       },
     };
     return externalRecord;
-  } catch {
+  } catch (error) {
+    const details =
+      error instanceof Error ? (error.stack ?? error.message) : String(error);
+    console.error(`Unable to build Bluesky external embed:\n${details}`);
     return undefined;
   }
 }
