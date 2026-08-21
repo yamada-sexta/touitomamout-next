@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { AuthenticationError } from "@the-convocation/twitter-scraper";
 import {
   formatTwitterAuthError,
@@ -7,40 +8,39 @@ import {
 } from "./x-auth";
 
 describe("parseTwitterCookies", () => {
-  test("parses a browser Cookie request header", () => {
-    expect(parseTwitterCookies("auth_token=token; ct0=csrf; lang=en")).toEqual([
-      "auth_token=token",
-      "ct0=csrf",
-      "lang=en",
-    ]);
+  it("parses a browser Cookie request header", () => {
+    assert.deepStrictEqual(
+      parseTwitterCookies("auth_token=token; ct0=csrf; lang=en"),
+      ["auth_token=token", "ct0=csrf", "lang=en"],
+    );
   });
 
-  test("requires the cookies used for an authenticated X session", () => {
-    expect(() => parseTwitterCookies("lang=en; ct0=csrf")).toThrow(
-      "TWITTER_COOKIES is missing auth_token",
+  it("requires the cookies used for an authenticated X session", () => {
+    assert.throws(
+      () => parseTwitterCookies("lang=en; ct0=csrf"),
+      /TWITTER_COOKIES is missing auth_token/,
     );
   });
 });
 
 describe("formatTwitterAuthError", () => {
-  test("replaces the dependency's error 399 advice with app instructions", () => {
+  it("replaces the dependency's error 399 advice with app instructions", () => {
     const message = formatTwitterAuthError(
       new AuthenticationError("suspicious activity (error 399)"),
       false,
     );
 
-    expect(message).toContain("TWITTER_COOKIES");
-    expect(message).toContain(X_AUTH_DOCUMENTATION_URL);
-    expect(message).not.toContain("scraper.setCookies()");
-    expect(message).not.toContain("totp_secret");
+    assert.ok(message.includes("TWITTER_COOKIES"));
+    assert.ok(message.includes(X_AUTH_DOCUMENTATION_URL));
+    assert.ok(!message.includes("scraper.setCookies()"));
+    assert.ok(!message.includes("totp_secret"));
   });
 
-  test("reports when supplied cookies did not prevent error 399", () => {
-    expect(
-      formatTwitterAuthError(
-        new AuthenticationError("suspicious activity (error 399)"),
-        true,
-      ),
-    ).toContain("supplied cookies were rejected or expired");
+  it("reports when supplied cookies did not prevent error 399", () => {
+    const message = formatTwitterAuthError(
+      new AuthenticationError("suspicious activity (error 399)"),
+      true,
+    );
+    assert.ok(message.includes("supplied cookies were rejected or expired"));
   });
 });

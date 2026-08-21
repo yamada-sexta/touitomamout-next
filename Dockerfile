@@ -1,17 +1,16 @@
-FROM oven/bun:alpine
+FROM node:22-alpine
 
 ARG TARGETARCH
 ARG COMMIT_HASH=dev
 ENV TOUITOMAMOUT_COMMIT_HASH=$COMMIT_HASH
 
-# Install dependencies for cycleTLS
-RUN apk add --no-cache ca-certificates libc6-compat
+# Install dependencies for cycleTLS and native builds
+RUN apk add --no-cache ca-certificates libc6-compat g++ make python3
 
 WORKDIR /app
-COPY package.json bun.lock tsconfig.json /app/
+COPY package.json tsconfig.json /app/
 
-# Install, clean cycletls, wipe Bun cache, AND prune useless files!
-RUN bun install --production --no-cache && \
+RUN npm install --omit=dev && \
     cd /app/node_modules/cycletls/dist && \
     if [ "$TARGETARCH" = "arm64" ]; then \
     rm -f index index-arm index.exe index-freebsd index-mac index-mac-arm64; \
@@ -22,9 +21,8 @@ RUN bun install --production --no-cache && \
     else \
     rm -f index.exe index-freebsd index-mac index-mac-arm64; \
     fi && \
-    rm -rf /root/.bun/install/cache && \
     find /app/node_modules -type f \( -name "*.md" -o -name "*.map" -o -name "*.d.ts" \) -delete
 
 COPY src/ /app/src
 
-CMD ["bun", "/src/index.ts"]
+CMD ["node", "--import", "tsx/esm", "/app/src/index.ts"]

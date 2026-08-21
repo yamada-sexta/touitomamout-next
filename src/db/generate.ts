@@ -1,4 +1,4 @@
-import { write } from "bun";
+import { writeFile as write } from "node:fs/promises";
 import { mkdir } from "node:fs/promises";
 import { schemas } from "./migration";
 import {

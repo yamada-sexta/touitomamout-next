@@ -16,7 +16,7 @@ import { download } from "~/utils/medias/download-media";
 import { getBlobHash } from "~/utils/medias/get-blob-hash";
 import { shortenedUrlsReplacer } from "~/utils/url/shortened-urls-replacer";
 import { type TaggedSynchronizer } from "./synchronizer";
-import { sleep } from "bun";
+import { setTimeout as sleep } from "node:timers/promises";
 import { isShutdownError, throwIfShutdownRequested } from "../shutdown";
 
 const Table = Schema.TwitterProfileCache;

@@ -2,7 +2,7 @@ import { type DBType } from "~/db";
 // Import * as v2 from "./schema/v2";
 // import * as v3 from "./schema/v3";
 // import * as v4 from "./schema/v4";
-import { type BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import { type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import * as v1 from "./schema/v1";
 import migrations from "./sql";
 
@@ -10,7 +10,7 @@ export const schemas = [{}, v1];
 // Export const latestSchema = schemas[schemas.length - 1];
 
 export async function migrate(
-  db: BunSQLiteDatabase<{ Version: typeof v1.Version }>,
+  db: BetterSQLite3Database<{ Version: typeof v1.Version }>,
 ): Promise<DBType> {
   let currentVersion = 0;
   try {

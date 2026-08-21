@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { appendPostText, type Post, toMetaPost } from "./post";
 
 const makePost = (overrides: Partial<Post> = {}): Post => ({
@@ -15,29 +16,30 @@ const makePost = (overrides: Partial<Post> = {}): Post => ({
 });
 
 describe("appendPostText", () => {
-  test("adds configured text after a blank line", () => {
-    expect(appendPostText("A mirrored post", "#one #two")).toBe(
+  it("adds configured text after a blank line", () => {
+    assert.strictEqual(
+      appendPostText("A mirrored post", "#one #two"),
       "A mirrored post\n\n#one #two",
     );
   });
 
-  test("uses the configured text for a media-only post", () => {
-    expect(appendPostText("", "#photos")).toBe("#photos");
+  it("uses the configured text for a media-only post", () => {
+    assert.strictEqual(appendPostText("", "#photos"), "#photos");
   });
 
-  test("does not change text for an empty configuration", () => {
-    expect(appendPostText("A mirrored post", "  ")).toBe("A mirrored post");
+  it("does not change text for an empty configuration", () => {
+    assert.strictEqual(appendPostText("A mirrored post", "  "), "A mirrored post");
   });
 });
 
 describe("toMetaPost", () => {
-  test("appends text only to the outgoing top-level post", () => {
+  it("appends text only to the outgoing top-level post", () => {
     const metaPost = toMetaPost(
       makePost({ quotedStatus: makePost({ id: "119", text: "Quoted post" }) }),
       "#standard",
     );
 
-    expect(metaPost.text).toBe("A mirrored post\n\n#standard");
-    expect(metaPost.quotedStatus?.text).toBe("Quoted post");
+    assert.strictEqual(metaPost.text, "A mirrored post\n\n#standard");
+    assert.strictEqual(metaPost.quotedStatus?.text, "Quoted post");
   });
 });
