@@ -4,14 +4,14 @@
   "description": "An easy way to synchronize your posts from X.com to other social media.",
   "scripts": {
     "format": "prettier --write .",
-    "build": "bun run build:all",
-    "build:all": "mkdir -p dist && bun run build:linux-x64 && bun run build:linux-x64-musl && bun run build:linux-arm64-musl && bun run build:windows-x64 && bun run build:macos-x64 && bun run build:macos-arm64",
-    "build:linux-x64": "bun build ./src/index.ts --compile --target=bun-linux-x64 --outfile dist/touitomamout-linux-x64",
-    "build:linux-x64-musl": "bun build ./src/index.ts --compile --target=bun-linux-x64-musl --outfile dist/touitomamout-linux-x64-musl",
-    "build:linux-arm64-musl": "bun build ./src/index.ts --compile --target=bun-linux-arm64-musl --outfile dist/touitomamout-linux-arm64-musl",
-    "build:windows-x64": "bun build ./src/index.ts --compile --target=bun-windows-x64 --outfile dist/touitomamout-windows-x64.exe",
-    "build:macos-x64": "bun build ./src/index.ts --compile --target=bun-darwin-x64 --outfile dist/touitomamout-macos-x64",
-    "build:macos-arm64": "bun build ./src/index.ts --compile --target=bun-darwin-arm64 --outfile dist/touitomamout-macos-arm64",
+    "build": "mkdir -p dist && scriptc build ./src/index.ts --dynamic -o dist/touitomamout",
+    "build:all": "npm run build",
+    "build:linux-x64": "npm run build",
+    "build:linux-x64-musl": "npm run build",
+    "build:linux-arm64-musl": "npm run build",
+    "build:windows-x64": "npm run build",
+    "build:macos-x64": "npm run build",
+    "build:macos-arm64": "npm run build",
     "dev": "bun run src/index.ts",
     "check": "bun tsc --noEmit",
     "gen:migration": "bun run src/db/generate.ts"
@@ -47,7 +47,8 @@
     "@types/bun": "^1.4.0",
     "drizzle-kit": "0.31.10",
     "prettier": "3.9.6",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "scriptc": "^0.0.34"
   },
   "module": "src/index.ts",
   "private": true
