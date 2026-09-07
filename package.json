@@ -42,7 +42,7 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "discord-api-types": "^0.38.54",
+    "discord-api-types": "^0.38.55",
     "@eslint/js": "^10.0.1",
     "@types/bun": "^1.4.0",
     "drizzle-kit": "0.31.10",
