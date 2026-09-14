@@ -35,7 +35,7 @@
     "drizzle-orm": "^0.45.2",
     "html-entities": "^2.6.0",
     "masto": "^8.0.0",
-    "misskey-js": "^2026.8.0-alpha.0",
+    "misskey-js": "^2026.9.0",
     "ora": "^9.4.1",
     "tough-cookie": "^6.0.2",
     "tumblr.js": "^5.0.1",
