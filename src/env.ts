@@ -121,6 +121,7 @@ export const BLUESKY_VIDEO_SERVICE_MAX_SIZE_BYTES = 300_000_000;
 export const MAX_CONSECUTIVE_CACHED = envInt("MAX_CONSECUTIVE_CACHED", 2);
 export const FORCE_SYNC_POSTS = envBool("FORCE_SYNC_POSTS", false);
 export const SYNC_POSTS = envBool("SYNC_POSTS", true);
+export const SYNC_PINNED_POSTS = envBool("SYNC_PINNED_POSTS", true);
 
 export const HANDLE_RETWEETS = z
   .literal(["embed", "repost", "none"])

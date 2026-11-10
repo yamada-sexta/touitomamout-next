@@ -17,6 +17,11 @@ where the destination implements those fields.
 
 ## Destination differences
 
+Pinned posts are mirrored by default. Bluesky, Mastodon, and Misskey also
+receive the pin status, including later replacements and removals. Discord
+webhooks and Tumblr receive an ordinary post. See [Pinned posts](../configuration/#pinned-posts)
+for details and the `SYNC_PINNED_POSTS=false` opt-out.
+
 Bluesky and Mastodon split text that exceeds the platform limit into a reply
 thread. Discord sends an embed through the configured webhook rather than
 uploading a copy of every source asset.

@@ -1,5 +1,6 @@
 import { type Scraper as XScraper } from "@the-convocation/twitter-scraper";
-import { type DBType, Schema } from "~/db";
+import type { DBType } from "~/db";
+import * as Schema from "~/db/schema/v2";
 import { eq } from "drizzle-orm";
 import {
   FORCE_SYNC_POSTS,
@@ -11,7 +12,7 @@ import {
 } from "~/env";
 import ora from "ora";
 import { debug, logError, oraPrefix } from "~/utils/logs";
-import { isPost, toMetaPost } from "~/types/post";
+import { isPost, toMetaPost, type MetaPost } from "~/types/post";
 import { getPostStore } from "../utils/get-post-store";
 import type { TaggedSynchronizer } from "./synchronizer";
 import { isShutdownError, throwIfShutdownRequested } from "../shutdown";
@@ -95,24 +96,11 @@ export async function syncPosts(args: {
           });
           try {
             platformLog.text = `| syncing ${s.emoji} ${s.displayName}...`;
-            const store = await getPostStore({
+            await syncPostToPlatform({
               db,
-              tweet,
-              platformId: s.platformId,
-              s: s.storeSchema,
-            });
-            throwIfShutdownRequested();
-            const syncRes = await s.syncPost({
-              log: platformLog,
               tweet: metaTweet,
-              store,
-            });
-            throwIfShutdownRequested();
-            const storeString = syncRes ? JSON.stringify(syncRes.store) : "";
-            await db.insert(TweetMap).values({
-              tweetId: tweet.id,
-              platform: s.platformId,
-              platformStore: storeString,
+              synchronizer: s,
+              log: platformLog,
             });
             platformLog.succeed(`${s.emoji} ${s.displayName} synced`);
           } catch (error) {
@@ -163,4 +151,39 @@ export async function syncPosts(args: {
   log.succeed("synced");
 
   firstSync = false;
+}
+
+// Persist each destination immediately so retries do not create duplicate posts.
+export async function syncPostToPlatform(args: {
+  db: DBType;
+  tweet: MetaPost;
+  synchronizer: TaggedSynchronizer;
+  log: import("ora").Ora;
+}) {
+  const { db, tweet, synchronizer: s, log } = args;
+  const store = await getPostStore({
+    db,
+    tweet: tweet.id,
+    platformId: s.platformId,
+    s: s.storeSchema,
+  });
+  if (store.success || !s.syncPost) return store;
+  throwIfShutdownRequested();
+  const result = await s.syncPost({ log, tweet, store });
+  throwIfShutdownRequested();
+  if (!result?.store) return store;
+  const platformStore = JSON.stringify(result.store);
+  await db
+    .insert(TweetMap)
+    .values({
+      tweetId: tweet.id,
+      platform: s.platformId,
+      platformStore,
+    })
+    .onConflictDoUpdate({
+      target: [TweetMap.tweetId, TweetMap.platform],
+      set: { platformStore },
+    })
+    .run();
+  return s.storeSchema.safeParse(result.store);
 }

@@ -14,7 +14,8 @@
     "build:macos-arm64": "bun build ./src/index.ts --compile --target=bun-darwin-arm64 --outfile dist/touitomamout-macos-arm64",
     "dev": "bun run src/index.ts",
     "check": "bun tsc --noEmit",
-    "gen:migration": "bun run src/db/generate.ts"
+    "gen:migration": "bun run src/db/generate.ts",
+    "test": "bun test"
   },
   "type": "module",
   "author": "Yamada Sexta",
@@ -25,30 +26,34 @@
     "url": "https://github.com/yamada-sexta/touitomamout-next.git"
   },
   "dependencies": {
-    "@atproto/api": "^0.20.42",
-    "@atproto/lex": "^0.3.8",
+    "@atproto/api": "^0.30.3",
+    "@atproto/lex": "^0.4.7",
     "@silvia-odwyer/photon-node": "^0.3.4",
     "@the-convocation/twitter-scraper": "^0.22.3",
     "cli-spinners": "^3.4.0",
     "cron": "^4.4.0",
     "cycletls": "^2.0.5",
-    "drizzle-orm": "^0.45.2",
+    "drizzle-orm": "^0.45.4",
     "html-entities": "^2.6.0",
     "masto": "^8.0.0",
-    "misskey-js": "^2026.8.0-alpha.0",
-    "ora": "^9.4.1",
-    "tough-cookie": "^6.0.2",
+    "misskey-js": "^2026.11.0-beta.1",
+    "ora": "^10.0.0",
+    "tough-cookie": "^6.1.0",
     "tumblr.js": "^5.0.1",
-    "zod": "^4.5.4"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "discord-api-types": "^0.38.54",
+    "discord-api-types": "^0.38.58",
     "@eslint/js": "^10.0.1",
-    "@types/bun": "^1.4.0",
-    "drizzle-kit": "0.31.10",
-    "prettier": "3.9.6",
+    "@types/bun": "^1.4.4",
+    "drizzle-kit": "0.31.11",
+    "prettier": "3.9.10",
     "typescript": "^7.0.2"
   },
   "module": "src/index.ts",
-  "private": true
+  "private": true,
+  "packageManager": "bun@1.4.4",
+  "engines": {
+    "bun": ">=1.4.4"
+  }
 }

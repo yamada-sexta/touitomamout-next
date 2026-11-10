@@ -96,6 +96,10 @@ export type SynchronizerFactory<
 export type AnySynchronizerFactory = SynchronizerFactory<any, any>;
 
 export type SynchronizerBase<S extends z.ZodObject> = {
+  setPostPinned(
+    args: SyncArgs & { readonly store: z.infer<S>; readonly pinned: boolean },
+  ): Promise<void>;
+
   syncBio(
     args: ProfileArgs & {
       readonly bio: string;
@@ -172,6 +176,14 @@ function synchronizerSchema<S extends z.ZodObject>(storeSchema: S) {
   ]);
 
   return z.object({
+    setPostPinned: z
+      .function({
+        input: [
+          SyncArgsSchema.extend({ store: storeSchema, pinned: z.boolean() }),
+        ],
+        output: z.promise(z.void()),
+      })
+      .optional(),
     syncBio: z
       .function({
         input: [

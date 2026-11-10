@@ -1,5 +1,5 @@
 import { HANDLE_RETWEETS, SYNC_MASTODON, VOID } from "~/env";
-import { createRestAPIClient } from "masto";
+import { createRestAPIClient, MastoHttpError } from "masto";
 import { type MediaAttachment } from "masto/mastodon/entities/v1/index.js";
 import { type UpdateCredentialsParams } from "masto/mastodon/rest/v1/accounts.js";
 import { splitTextForMastodon } from "~/sync/platforms/mastodon/text";
@@ -45,6 +45,24 @@ export const MastodonSynchronizerFactory = defineSynchronizerFactory({
       client.v1.accounts.updateCredentials(args);
 
     return {
+      async setPostPinned({ store, pinned }) {
+        const id = store.tootIds[0];
+        if (!id)
+          throw new Error("Cannot pin a post without a Mastodon status ID");
+        const status = client.v1.statuses.$select(id);
+        const current = await status.fetch().catch((error) => {
+          if (
+            !pinned &&
+            error instanceof MastoHttpError &&
+            error.statusCode === 404
+          )
+            return undefined;
+          throw error;
+        });
+        if (!current || Boolean(current.pinned) === pinned) return;
+        if (pinned) await status.pin();
+        else await status.unpin();
+      },
       async syncBio(args) {
         await updateCredentials({ note: args.formattedBio });
       },

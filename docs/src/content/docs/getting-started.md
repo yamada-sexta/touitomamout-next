@@ -62,7 +62,7 @@ docker compose up -d --force-recreate
 
 ## Local development
 
-Install [Bun](https://bun.sh/), clone the repository, and install its
+Install [Bun](https://bun.sh/) 1.4.4 or newer, clone the repository, and install its
 dependencies:
 
 ```sh

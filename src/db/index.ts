@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 import { migrate } from "~/db/migration";
-import * as schema from "~/db/schema/v1";
+import * as schema from "~/db/schema/v2";
 import { type BunSQLiteDatabase, drizzle } from "drizzle-orm/bun-sqlite";
 import { DATABASE_PATH } from "~/env";
 

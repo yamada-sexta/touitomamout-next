@@ -1,6 +1,7 @@
 import {
   type $Typed,
   Agent,
+  AppBskyActorProfile,
   type AppBskyEmbedExternal,
   type AppBskyEmbedImages,
   type AppBskyEmbedRecord,
@@ -9,6 +10,7 @@ import {
   type ComAtprotoRepoUploadBlob,
   CredentialSession,
   RichText,
+  XRPCError,
 } from "@atproto/api";
 import { BACKDATE_BLUESKY_POSTS, HANDLE_RETWEETS, VOID } from "~/env";
 import { splitTextForBluesky } from "~/sync/platforms/bluesky/utils/split-text";
@@ -139,6 +141,44 @@ export const BlueskySynchronizerFactory = defineSynchronizerFactory({
 
     return {
       ...syncProfile({ agent }),
+      async setPostPinned({ store, pinned }) {
+        const uri = `at://${agent.did}/app.bsky.feed.post/${store.rkey}`;
+        const recordKey = {
+          repo: agent.assertDid,
+          collection: "app.bsky.actor.profile",
+          rkey: "self",
+        };
+        const existing = await agent.com.atproto.repo
+          .getRecord(recordKey)
+          .catch((error) => {
+            if (error instanceof XRPCError && error.error === "RecordNotFound")
+              return undefined;
+            throw error;
+          });
+        const parsed = AppBskyActorProfile.validateRecord(
+          existing?.data.value ?? {
+            $type: "app.bsky.actor.profile",
+          },
+        );
+        if (!parsed.success) throw parsed.error;
+        const profile = { ...parsed.value };
+        if (pinned) {
+          if (
+            profile.pinnedPost?.uri === uri &&
+            profile.pinnedPost.cid === store.cid
+          )
+            return;
+          profile.pinnedPost = { uri, cid: store.cid };
+        } else {
+          if (profile.pinnedPost?.uri !== uri) return;
+          delete profile.pinnedPost;
+        }
+        await agent.com.atproto.repo.putRecord({
+          ...recordKey,
+          record: profile,
+          swapRecord: existing?.data.cid,
+        });
+      },
       async syncPost(args) {
         const { tweet, log } = args;
         if (args.store.success) {

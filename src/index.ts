@@ -3,6 +3,7 @@ import ora from "ora";
 import { BlueskySynchronizerFactory } from "~/sync/platforms/bluesky";
 import { MastodonSynchronizerFactory } from "~/sync/platforms/mastodon/mastodon-sync";
 import { syncPosts } from "~/sync/sync-posts";
+import { syncPinnedPosts } from "~/sync/sync-pinned-posts";
 import { syncProfile } from "~/sync/sync-profile";
 import {
   parseFactoryEnv,
@@ -184,6 +185,12 @@ const syncAll = async () => {
     }
 
     await syncPosts({
+      db,
+      handle: user.handle,
+      x: xClient,
+      synchronizers: user.synchronizers,
+    });
+    await syncPinnedPosts({
       db,
       handle: user.handle,
       x: xClient,

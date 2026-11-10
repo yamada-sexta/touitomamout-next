@@ -117,6 +117,7 @@ Create a webhook from **Edit Channel → Integrations → Webhooks** in Discord.
 | `SYNC_MASTODON`              | `true`     | Enables Mastodon when its credentials are configured.                                               |
 | `SYNC_BLUESKY`               | `true`     | Legacy setting that is currently not enforced. Omit Bluesky credentials to disable the destination. |
 | `SYNC_POSTS`                 | `true`     | Enables post synchronization.                                                                       |
+| `SYNC_PINNED_POSTS`          | `true`     | Mirrors the source pinned post and its pin status where supported.                                  |
 | `SYNC_RETWEETS`              | `true`     | Includes retweets. Set to `false` to skip them before destination handling.                         |
 | `HANDLE_RETWEETS`            | `repost`   | Destination behavior for retweets: `repost`, `embed`, or `none`.                                    |
 | `POST_APPEND`                | None       | Appends account-specific text after a blank line.                                                   |
@@ -128,6 +129,26 @@ Create a webhook from **Edit Channel → Integrations → Webhooks** in Discord.
 | `SYNC_PROFILE_HEADER`        | `true`     | Synchronizes the profile banner.                                                                    |
 | `FORCE_SYNC_PROFILE_HEADER`  | `false`    | Uploads the banner even when the cached image has not changed.                                      |
 | `BACKDATE_BLUESKY_POSTS`     | `true`     | Uses the original tweet date for mirrored Bluesky posts.                                            |
+
+### Pinned posts
+
+Pinned-post syncing is enabled by default. Set `SYNC_PINNED_POSTS=false` to opt
+out. It mirrors the post pinned on your X profile,
+including old posts outside the normal timeline scan or `HISTORICAL_SYNC_LIMIT`.
+`SYNC_POSTS` must also be enabled. Existing destination posts are reused.
+
+Bluesky, Mastodon, and Misskey also receive the pin status. When the source pin
+changes or is removed, the app removes its previous managed pin. Other manually
+pinned Mastodon and Misskey posts are preserved; Bluesky supports a single pin,
+so enabling this setting replaces any existing Bluesky pin. For split posts,
+the first post in the thread is pinned. Pin failures are retried on the next run
+without reposting the content. Disabling the setting leaves existing pins alone.
+
+Discord webhooks and Tumblr still receive the post as an ordinary post; their
+configured APIs do not expose a supported pin operation. Misskey tokens need
+`read:account` and `write:account` permissions to read and manage profile pins.
+Source profile lookup failures or missing pin metadata leave destination pins
+unchanged.
 
 ### Appending text to posts
 

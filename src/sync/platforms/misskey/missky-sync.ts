@@ -55,6 +55,14 @@ export const MisskeySynchronizerFactory = defineSynchronizerFactory({
       );
 
     return {
+      async setPostPinned({ store, pinned }) {
+        await runWithRateLimitRetry(async () => {
+          const account = await api.request("i", {});
+          if (account.pinnedNoteIds.includes(store.id) === pinned) return;
+          if (pinned) await api.request("i/pin", { noteId: store.id });
+          else await api.request("i/unpin", { noteId: store.id });
+        });
+      },
       async syncBio(args) {
         await runWithRateLimitRetry(async () =>
           api.request("i/update", {
