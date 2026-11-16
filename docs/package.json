@@ -10,7 +10,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/starlight": "^0.42.10",
+    "@astrojs/starlight": "^0.43.0",
     "astro": "^7.4.8"
   },
   "packageManager": "bun@1.4.4",
